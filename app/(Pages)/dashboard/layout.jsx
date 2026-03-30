@@ -1,18 +1,16 @@
-"use client";
-
-import SideNavbar from "@/Components/SideNavbar";
-import TopNavbar from "@/Components/TopNavbar";
+import SideNavbar from "@/app/components/dashboard/SideNavbar";
+import TopNavbar from "@/app/components/dashboard/TopNavbar";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-grid flex min-h-screen bg-slate-50">
+    <div className="flex h-screen bg-white">
       <SideNavbar />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* <TopNavbar title="Client Dashboard" /> */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <TopNavbar />
 
-        <div>
-          <div className="mx-auto max-w-7xl">{children}</div>
+        <div className="flex-1 overflow-y-auto bg-slate-50">
+          {children}
         </div>
       </div>
     </div>

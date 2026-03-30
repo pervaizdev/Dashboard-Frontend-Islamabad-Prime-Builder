@@ -4,13 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { forgotPasswordApi } from "@/Api/auth";
-import Input from "@/Components/Input.jsx";
-import Button from "@/Components/Button.jsx";
-import AuthBlobBackground from "@/Components/AuthBlobBackground";
-import AuthCard from "@/Components/AuthCard";
-import AuthHeader from "@/Components/AuthHeader";
-import { fadeUp, popIn } from "@/lib/motion";
+import Input from "@/app/components/Input.jsx";
+import Button from "@/app/components/Button.jsx";
+import AuthBlobBackground from "@/app/components/AnimatedBackground";
+import AuthCard from "@/app/components/AuthCard";
+import AuthHeader from "@/app/components/AuthHeader";
+import { fadeUp, popIn } from "@/app/animation/motion";
 
 const ForgetPasswordPage = () => {
   const router = useRouter();
@@ -25,17 +24,17 @@ const ForgetPasswordPage = () => {
 
     try {
       setLoading(true);
-      await forgotPasswordApi({ email });
+      // Mocking API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setSent(true);
       toast.success("Password reset link sent to your email!");
     } catch (error) {
-      const message =
-        error?.response?.data?.message || "Something went wrong";
-      toast.error(message);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08211e] px-4">

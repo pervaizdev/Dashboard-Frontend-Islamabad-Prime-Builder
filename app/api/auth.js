@@ -1,4 +1,4 @@
-import axiosInstance from "@/utils/axios/axiosInstance";
+import axiosInstance from "@/app/utils/axios/axiosInstance";
 import { AUTH_ENDPOINTS } from "../endpoints";
 
 export const loginUserApi = async (payload) => {

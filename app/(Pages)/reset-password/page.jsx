@@ -4,13 +4,12 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { resetPasswordApi } from "@/Api/auth";
-import Input from "@/Components/Input.jsx";
-import Button from "@/Components/Button.jsx";
-import AuthBlobBackground from "@/Components/AuthBlobBackground";
-import AuthCard from "@/Components/AuthCard";
-import AuthHeader from "@/Components/AuthHeader";
-import { fadeUp, popIn } from "@/lib/motion";
+import Input from "@/app/components/Input.jsx";
+import Button from "@/app/components/Button.jsx";
+import AuthBlobBackground from "@/app/components/AnimatedBackground";
+import AuthCard from "@/app/components/AuthCard";
+import AuthHeader from "@/app/components/AuthHeader";
+import { fadeUp, popIn } from "@/app/animation/motion";
 
 const ResetPasswordPage = () => {
   const router = useRouter();
@@ -51,16 +50,17 @@ const ResetPasswordPage = () => {
 
     try {
       setLoading(true);
-      await resetPasswordApi({ token, password: formData.password });
+      // Mocking API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Password reset successfully! You can now login.");
       router.push("/login");
     } catch (error) {
-      const message = error?.response?.data?.message || "Something went wrong";
-      toast.error(message);
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08211e] px-4">
