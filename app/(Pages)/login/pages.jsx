@@ -3,18 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import useLogin from "@/Hooks/useLogin";
-import Input from "@/Components/Input.jsx";
-import Button from "@/Components/Button.jsx";
-import AuthBlobBackground from "@/Components/AuthBlobBackground";
-import AuthShowcasePanel from "@/Components/AuthShowcasePanel";
-import AuthCard from "@/Components/AuthCard";
-import AuthHeader from "@/Components/AuthHeader";
-import { fadeUp, fadeRight } from "@/lib/motion";
+import Input from "@/app/components/Input.jsx";
+import Button from "@/app/components/Button.jsx";
+import AuthBlobBackground from "@/app/components/AnimatedBackground";
+import AuthShowcasePanel from "@/app/components/AuthShowcasePanel";
+import AuthCard from "@/app/components/AuthCard";
+import AuthHeader from "@/app/components/AuthHeader";
+import { fadeUp, fadeRight } from "@/app/animation/motion";
 
 const LoginPage = () => {
   const router = useRouter();
-  const { handleLogin, loading } = useLogin();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -30,15 +28,9 @@ const LoginPage = () => {
     }));
   };
 
-  const onSubmitHandler = async (e) => {
+  const onSubmitHandler = (e) => {
     e.preventDefault();
-
-    try {
-      await handleLogin(formData);
-      router.push("/dashboard");
-    } catch (error) {
-      console.log("Login error:", error);
-    }
+    router.push("/dashboard");
   };
 
   return (
@@ -119,10 +111,9 @@ const LoginPage = () => {
               >
                 <Button
                   type="submit"
-                  disabled={loading}
                   className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
                 >
-                  {loading ? "Logging in..." : "Login"}
+                  Login
                 </Button>
               </motion.div>
             </form>

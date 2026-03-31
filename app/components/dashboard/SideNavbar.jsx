@@ -3,14 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Building2, UserCircle2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { Building2, LayoutDashboard } from "lucide-react";
 
 const navItems = [
   {
-    title: "Profile",
+    title: "OverView",
     href: "/dashboard",
-    icon: UserCircle2,
+    icon: LayoutDashboard,
   },
   {
     title: "Properties",
@@ -23,10 +22,7 @@ const SideNavbar = () => {
   const pathname = usePathname();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -24 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
+    <div
       className="hidden w-60 shrink-0 border-r border-[#c29e6d]/10 bg-[#08211e] text-white lg:flex lg:flex-col"
     >
       <div className="border-b border-[#c29e6d]/10 px-6 py-8">
@@ -61,7 +57,7 @@ const SideNavbar = () => {
           );
         })}
       </nav>
-    </motion.div>
+    </div>
   );
 };
 
