@@ -1,14 +1,28 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { properties } from "@/app/data/OverViewData";
 
-const PropertyDetailPage = () => {
+const PropertyDetailContent = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
   const property = properties.find((item) => item.id === Number(id));
+
+  if (!property) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#faf9f6]">
+        <h2 className="text-2xl font-bold text-[#08211e] mb-4">Property Not Found</h2>
+        <Link href="/dashboard">
+          <button className="bg-[#c29e6d] text-white px-6 py-2 rounded-full font-bold">
+            Back to Dashboard
+          </button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="px-6 py-10 lg:px-16 bg-[#faf9f6] min-h-screen">
@@ -137,4 +151,16 @@ const PropertyDetailPage = () => {
   );
 };
 
+const PropertyDetailPage = () => {
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen bg-[#faf9f6]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#c29e6d]"></div>
+        </div>
+      }>
+        <PropertyDetailContent />
+      </Suspense>
+    );
+  };
+  
 export default PropertyDetailPage;

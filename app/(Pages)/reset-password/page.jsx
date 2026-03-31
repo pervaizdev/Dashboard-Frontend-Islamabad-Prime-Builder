@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
@@ -11,7 +11,7 @@ import AuthCard from "@/app/components/AuthCard";
 import AuthHeader from "@/app/components/AuthHeader";
 import { fadeUp, popIn } from "@/app/animation/motion";
 
-const ResetPasswordPage = () => {
+const ResetPasswordContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -135,4 +135,16 @@ const ResetPasswordPage = () => {
   );
 };
 
+const ResetPasswordPage = () => {
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen bg-[#08211e]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#c29e6d]"></div>
+        </div>
+      }>
+        <ResetPasswordContent />
+      </Suspense>
+    );
+  };
+  
 export default ResetPasswordPage;
