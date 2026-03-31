@@ -38,7 +38,7 @@ const LoginPage = () => {
       <AuthShowcasePanel />
 
       <div className="relative flex items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(194,158,109,0.18),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(194,158,109,0.12),_transparent_30%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,158,109,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(194,158,109,0.12),transparent_30%)]" />
 
         <AuthBlobBackground />
 
@@ -111,7 +111,7 @@ const LoginPage = () => {
               >
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
+                  className="w-full bg-linear-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
                 >
                   Login
                 </Button>
