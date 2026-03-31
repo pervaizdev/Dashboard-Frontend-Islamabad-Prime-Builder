@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { properties } from "@/app/data/OverViewData";
+import { properties } from "../../../data/OverViewData";
 
 const PropertyDetailContent = () => {
   const searchParams = useSearchParams();
