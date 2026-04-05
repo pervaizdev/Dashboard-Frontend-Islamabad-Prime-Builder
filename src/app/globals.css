@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #c29e6d;
+  --color-gold-base: #d4af37;
+  --color-gold-highlight: #f6e27a;
+  --color-gold-soft: #eed498;
+  --color-charcoal: #111111;
+  --font-body: "Poppins", sans-serif;
+  --font-script: "Parisienne", cursive;
+  --font-serif: "Playfair Display SC", serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  overflow-x: clip; /* Strictly forbidden horizontal scroll */
+}
+
+/* Premium Effects */
+.shimmer-gold {
+  background: linear-gradient(
+    90deg,
+    rgba(194,158,109,0.1) 0%,
+    rgba(246,226,122,0.4) 50%,
+    rgba(194,158,109,0.1) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 5s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.premium-border-glow {
+  border: 1px solid rgba(194, 158, 109, 0.2);
+  box-shadow: 0 0 15px rgba(194, 158, 109, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-border-glow:hover {
+  border-color: rgba(194, 158, 109, 0.6);
+  box-shadow: 0 0 25px rgba(194, 158, 109, 0.15);
+}
+
+.section-gradient {
+  background: linear-gradient(135deg, rgb(247,242,234) 0%, rgb(240,232,214) 100%);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+::-webkit-scrollbar-thumb {
+  background: #c29e6d;
+  border-radius: 10px;
+}
+
