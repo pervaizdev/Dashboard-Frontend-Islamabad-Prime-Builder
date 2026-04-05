@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { fadeLeft } from "@/app/animation/motion";
+import { fadeLeft } from "@/animation/motion";
 
 const AuthShowcasePanel = () => {
   return (

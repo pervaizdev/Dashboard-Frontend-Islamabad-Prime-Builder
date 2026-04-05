@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Input from "@/app/components/Input.jsx";
-import Button from "@/app/components/Button.jsx";
-import AuthBlobBackground from "@/app/components/AnimatedBackground";
-import AuthCard from "@/app/components/AuthCard";
-import AuthHeader from "@/app/components/AuthHeader";
-import { fadeUp, popIn } from "@/app/animation/motion";
+import Input from "@/components/Input.jsx";
+import Button from "@/components/Button.jsx";
+import AuthBlobBackground from "@/components/AnimatedBackground";
+import AuthCard from "@/components/AuthCard";
+import AuthHeader from "@/components/AuthHeader";
+import { fadeUp, popIn } from "@/animation/motion";
 
-const ResetPasswordPage = () => {
+const ResetPasswordContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -132,6 +133,14 @@ const ResetPasswordPage = () => {
         </AuthCard>
       </motion.div>
     </div>
+  );
+};
+
+const ResetPasswordPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#08211e] text-white">Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 };
 

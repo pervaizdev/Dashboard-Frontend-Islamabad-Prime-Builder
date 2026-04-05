@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import Input from "@/app/components/Input.jsx";
-import Button from "@/app/components/Button.jsx";
-import AuthBlobBackground from "@/app/components/AnimatedBackground";
-import AuthCard from "@/app/components/AuthCard";
-import AuthHeader from "@/app/components/AuthHeader";
-import { fadeUp, popIn } from "@/app/animation/motion";
+import Input from "@/components/Input.jsx";
+import Button from "@/components/Button.jsx";
+import AuthBlobBackground from "@/components/AnimatedBackground";
+import AuthCard from "@/components/AuthCard";
+import AuthHeader from "@/components/AuthHeader";
+import { fadeUp, popIn } from "@/animation/motion";
 
 const ForgetPasswordPage = () => {
   const router = useRouter();

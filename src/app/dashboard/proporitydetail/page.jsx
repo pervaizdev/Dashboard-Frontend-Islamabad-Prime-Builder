@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -28,7 +29,7 @@ const iconMap = {
   circleDollarSign: CircleDollarSign,
 };
 
-const PropertyDetailPage = () => {
+const PropertyDetailContent = () => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -276,6 +277,14 @@ const PropertyDetailPage = () => {
         </div>
       </motion.div>
     </div>
+  );
+};
+
+const PropertyDetailPage = () => {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-charcoal">Loading property details...</div>}>
+      <PropertyDetailContent />
+    </Suspense>
   );
 };
 

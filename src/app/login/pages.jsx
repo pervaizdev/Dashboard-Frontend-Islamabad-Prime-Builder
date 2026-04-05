@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import Input from "@/app/components/Input.jsx";
-import Button from "@/app/components/Button.jsx";
-import AuthBlobBackground from "@/app/components/AnimatedBackground";
-import AuthShowcasePanel from "@/app/components/AuthShowcasePanel";
-import AuthCard from "@/app/components/AuthCard";
-import AuthHeader from "@/app/components/AuthHeader";
-import { fadeUp, fadeRight } from "@/app/animation/motion";
+import Input from "@/components/Input.jsx";
+import Button from "@/components/Button.jsx";
+import AuthBlobBackground from "@/components/AnimatedBackground";
+import AuthShowcasePanel from "@/components/AuthShowcasePanel";
+import AuthCard from "@/components/AuthCard";
+import AuthHeader from "@/components/AuthHeader";
+import { fadeUp, fadeRight } from "@/animation/motion";
 
 const LoginPage = () => {
   const router = useRouter();
