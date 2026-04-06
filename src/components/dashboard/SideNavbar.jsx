@@ -3,18 +3,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Building2, LayoutDashboard } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 const navItems = [
   {
     title: "OverView",
-    href: "/dashboard",
+    href: "/dashboard/page",
     icon: LayoutDashboard,
   },
   {
-    title: "Properties",
-    href: "/dashboard/properties",
-    icon: Building2,
+    title: "Add Client",
+    href: "/dashboard/signup",
+    icon: User,
+  },
+  {
+    title: "Add Property",
+    href: "/dashboard/properityform",
+    icon: Plus,
+  },
+  {
+    title: "Add Announcement",
+    href: "/dashboard/announcementform",
+    icon: Plus,
   },
 ];
 
