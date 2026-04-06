@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div>
-      {/* <SideNavbar /> */}
+      <SideNavbar />
       <div>
         {!hideNavbar && <TopNavbar />}
         <div className="bg-slate-50">{children}</div>
