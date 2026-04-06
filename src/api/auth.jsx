@@ -82,5 +82,17 @@ export const authAPI = {
       throw error.response?.data || { message: "Password reset failed" };
     }
   },
+  
+  updatePassword: async (password) => {
+    try {
+      const response = await axiosInstance.post(
+        "/auth/update-password",
+        { password }
+      );
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Password update failed" };
+    }
+  },
 };
 

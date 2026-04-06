@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOut, User, Settings, Bell, ChevronDown } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const getInitials = (name) => {
   if (!name) return "";
@@ -16,7 +17,8 @@ const getInitials = (name) => {
 const TopNavbar = () => {
   const [openDropdown, setOpenDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const userName = "Mati Khan";
+  const { user, logout } = useAuth();
+  const userName = user?.name || "User";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,12 +33,12 @@ const TopNavbar = () => {
   }, []);
 
   const handleLogout = () => {
-    console.log("Logout clicked");
+    logout();
     setOpenDropdown(false);
   };
 
   return (
-    <div className="w-full bg-white  px-4 py-4 md:px-6 md:py-5">
+    <div className="w-full   px-4 py-4 md:px-6 md:py-5">
       <div className="flex h-[80px] items-center justify-between rounded-[2rem] px-6 premium-border-glow">
         <Link href="/dashboard" className="group">
           <div className="flex items-center gap-4 cursor-pointer">
@@ -83,10 +85,10 @@ const TopNavbar = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden z-50 p-2"
+                  className="absolute right-0 mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden bg-white p-2"
                 >
 
-                  <Link href="/dashboard/profile">
+                  <Link href="/dashboard/profile" onClick={() => setOpenDropdown(false)}>
                     <button className="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-bold text-charcoal hover:bg-primary hover:text-white rounded-xl transition-all group">
                       <User size={16} className="text-primary group-hover:text-white" />
                       View Profile

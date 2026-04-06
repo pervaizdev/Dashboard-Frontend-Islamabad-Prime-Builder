@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-  ArrowUpRight, 
-  Search, 
-  Filter, 
-  ChevronLeft, 
-  ChevronRight, 
-  Loader2, 
-  Calendar, 
+import {
+  ArrowUpRight,
+  Search,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Calendar,
   CreditCard,
   Building2,
   CheckCircle2,
@@ -60,10 +60,10 @@ const Admin_due_payment = () => {
 
 
   return (
-    <div className="mt-16 lg:mt-24 w-full">
+    <div className="mt-16 lg:mt-24 w-full px-5">
       {/* Header & Controls */}
       <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
@@ -77,7 +77,7 @@ const Admin_due_payment = () => {
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-            <input 
+            <input
               type="text"
               placeholder="Search Property #..."
               className="h-11 rounded-xl border border-neutral-200 bg-white pl-10 pr-4 text-sm font-medium transition-all focus:border-primary focus:ring-4 focus:ring-primary/5 outline-none w-full md:w-64"
@@ -90,7 +90,7 @@ const Admin_due_payment = () => {
           {/* Status Filter */}
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-            <select 
+            <select
               className="h-11 rounded-xl border border-neutral-200 bg-white pl-10 pr-8 text-sm font-bold uppercase tracking-wider transition-all focus:border-primary outline-none appearance-none cursor-pointer"
               value={filters.status}
               onChange={handleStatusChange}
@@ -103,7 +103,7 @@ const Admin_due_payment = () => {
         </div>
       </div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="overflow-hidden rounded-[2.5rem] bg-white border border-neutral-100 shadow-2xl shadow-neutral-200/50"
@@ -120,7 +120,6 @@ const Admin_due_payment = () => {
                 <tr className="bg-neutral-50 text-neutral-400 border-b border-neutral-100">
                   <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em]">Property Info</th>
                   <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em]">Period</th>
-                  <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em]">Due Date</th>
                   <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em]">Amount</th>
                   <th className="px-8 py-5 text-left text-[10px] font-bold uppercase tracking-[0.2em]">Status</th>
                   <th className="px-8 py-5 text-right text-[10px] font-bold uppercase tracking-[0.2em]">Actions</th>
@@ -129,7 +128,7 @@ const Admin_due_payment = () => {
               <tbody className="divide-y divide-neutral-50">
                 <AnimatePresence mode="popLayout">
                   {data.properties.map((item, index) => (
-                    <motion.tr 
+                    <motion.tr
                       key={item._id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -155,28 +154,21 @@ const Admin_due_payment = () => {
                         </div>
                       </td>
                       <td className="px-8 py-6 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm font-medium text-neutral-500">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {new Date(item.dueDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                        </div>
-                      </td>
-                      <td className="px-8 py-6 whitespace-nowrap">
                         <p className="font-serif text-base font-bold text-neutral-800">
                           Rs. {item.amount?.toLocaleString()}
                         </p>
                       </td>
                       <td className="px-8 py-6 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                          item.status === "paid" 
-                            ? "bg-emerald-50 text-emerald-600" 
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${item.status === "paid"
+                            ? "bg-emerald-50 text-emerald-600"
                             : "bg-rose-50 text-rose-600"
-                        }`}>
+                          }`}>
                           {item.status === "paid" ? <CheckCircle2 className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                           {item.status}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right whitespace-nowrap">
-                        <Link 
+                        <Link
                           href={`/dashboard/proporitydetail?id=${item.property_id}`}
                           className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-neutral-900"
                         >
@@ -189,7 +181,7 @@ const Admin_due_payment = () => {
                 </AnimatePresence>
               </tbody>
             </table>
-            
+
             {!loading && data.properties.length === 0 && (
               <div className="flex flex-col items-center justify-center p-20 text-center">
                 <div className="rounded-full bg-neutral-50 p-6 mb-4">
@@ -208,7 +200,7 @@ const Admin_due_payment = () => {
             Showing <span className="text-neutral-800">{data.properties.length}</span> of <span className="text-neutral-800">{data.totalCount}</span> records
           </p>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               disabled={filters.page === 1}
               onClick={() => setFilters(prev => ({ ...prev, page: prev.page - 1 }))}
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 bg-white transition-all hover:border-primary disabled:opacity-30"
@@ -216,7 +208,7 @@ const Admin_due_payment = () => {
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span className="text-[10px] font-bold uppercase">Page {filters.page} of {data.totalPages || 1}</span>
-            <button 
+            <button
               disabled={filters.page >= data.totalPages}
               onClick={() => setFilters(prev => ({ ...prev, page: prev.page + 1 }))}
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 bg-white transition-all hover:border-primary disabled:opacity-30"
