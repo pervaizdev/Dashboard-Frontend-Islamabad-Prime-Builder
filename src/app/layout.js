@@ -29,9 +29,43 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${poppins.variable} ${parisienne.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="bg-white text-black">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window !== 'undefined') {
+                  const originalMatchMedia = window.matchMedia;
+                  window.matchMedia = function(query) {
+                    const mql = originalMatchMedia ? originalMatchMedia(query) : null;
+                    if (!mql) {
+                      return {
+                        matches: false,
+                        media: query,
+                        onchange: null,
+                        addListener: function() {},
+                        removeListener: function() {},
+                        addEventListener: function() {},
+                        removeEventListener: function() {},
+                        dispatchEvent: function() { return true; },
+                      };
+                    }
+                    if (typeof mql.addListener === 'undefined') {
+                      mql.addListener = function(cb) { this.addEventListener('change', cb); };
+                    }
+                    if (typeof mql.removeListener === 'undefined') {
+                      mql.removeListener = function(cb) { this.removeEventListener('change', cb); };
+                    }
+                    return mql;
+                  };
+                }
+              })();
+            `,
+          }}
+        />
         <AuthProvider>
           {children}
         </AuthProvider>

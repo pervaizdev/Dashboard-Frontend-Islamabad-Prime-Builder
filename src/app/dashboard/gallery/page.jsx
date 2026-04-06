@@ -55,7 +55,7 @@ const GalleryPage = () => {
                 >
                     <div className="space-y-4">
                         <div className="flex items-center gap-4">
-                             <div className="h-[1px] w-12 bg-primary/30" />
+                             <div className="h-px w-12 bg-primary/30" />
                              <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary">Private Collection</p>
                         </div>
                         <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal md:text-6xl">
@@ -113,11 +113,12 @@ const GalleryPage = () => {
                                 src={item.image}
                                 alt={item.title}
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                             />
                             
                             {/* Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                            <div className="absolute inset-0 bg-linear-to-t from-charcoal/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
                                 <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
                                     <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                         <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">{item.date}</p>
@@ -140,13 +141,13 @@ const GalleryPage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] bg-charcoal/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 md:p-10"
+                        className="fixed inset-0 z-9999 bg-charcoal/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 md:p-10"
                     >
-                        <div className="absolute top-0 left-0 w-full h-1 shimmer-gold z-[10000]" />
+                        <div className="absolute top-0 left-0 w-full h-1 shimmer-gold z-10000" />
                         
                         <button
                             onClick={() => setSelectedIdx(null)}
-                            className="absolute top-8 right-8 text-white/50 hover:text-primary transition-all z-[10000] bg-white/5 p-4 rounded-full backdrop-blur-md"
+                            className="absolute top-8 right-8 text-white/50 hover:text-primary transition-all z-10000 bg-white/5 p-4 rounded-full backdrop-blur-md"
                         >
                             <X size={28} />
                         </button>
@@ -176,6 +177,7 @@ const GalleryPage = () => {
                                                     src={item.image}
                                                     alt={item.title}
                                                     fill
+                                                    sizes="(max-width: 1280px) 100vw, 1280px"
                                                     className="object-contain"
                                                 />
                                             </div>

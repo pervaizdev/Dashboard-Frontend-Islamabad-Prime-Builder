@@ -75,7 +75,7 @@ export default function Gallery() {
               >
                 {galleryImages.map((image, index) => (
                   <SwiperSlide key={index}>
-                    <div className="group/card relative w-full overflow-hidden aspect-[4/3] md:aspect-21/9 bg-white">
+                    <div className="group/card relative w-full overflow-hidden aspect-4/3 md:aspect-21/9 bg-white">
                       <Image
                         src={image}
                         alt={`Gallery ${index + 1}`}
@@ -85,7 +85,7 @@ export default function Gallery() {
                         priority={index === 0}
                       />
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
+                      <div className="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
 
                       <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 flex items-end justify-between">
                         <div className="text-white translate-y-4 group-hover/card:translate-y-0 transition-transform duration-500">
@@ -128,7 +128,7 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-100 flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xl"
             onClick={() => setSelectedImage(null)}
           >
             <motion.div
@@ -150,6 +150,7 @@ export default function Gallery() {
                 src={selectedImage}
                 alt="Selected gallery image"
                 fill
+                sizes="(max-width: 1200px) 100vw, 1200px"
                 className="object-cover"
               />
             </motion.div>
