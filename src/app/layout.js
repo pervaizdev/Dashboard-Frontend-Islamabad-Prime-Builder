@@ -1,5 +1,6 @@
 import { Poppins, Parisienne, Playfair_Display_SC } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -30,7 +31,11 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${poppins.variable} ${parisienne.variable} ${playfair.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="bg-white text-black">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

@@ -36,17 +36,15 @@ const TopNavbar = () => {
   };
 
   return (
-    <div className="w-full bg-[#fcfaf7] px-4 py-4 md:px-6 md:py-5">
-      <div className="flex h-[80px] items-center justify-between rounded-[2rem] glass px-6 premium-border-glow lg:h-[90px] lg:px-10">
-        
-        {/* Logo Section */}
+    <div className="w-full bg-white  px-4 py-4 md:px-6 md:py-5">
+      <div className="flex h-[80px] items-center justify-between rounded-[2rem] px-6 premium-border-glow">
         <Link href="/dashboard" className="group">
           <div className="flex items-center gap-4 cursor-pointer">
-            <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-primary/20 bg-white p-1 transition-transform group-hover:scale-105 shadow-sm">
-              <Image src="/images/logo.png" alt="Logo" fill className="object-contain" />
+            <div className="relative h-12 w-12 overflow-hidden rounded-xl  bg-white p-1 transition-transform group-hover:scale-105 ">
+              <Image src="/images/logo.png" alt="Logo" fill sizes="48px" className="object-contain" />
             </div>
             <div className="hidden md:block">
-              <h2 className="font-serif text-lg font-bold leading-tight tracking-tight text-charcoal group-hover:text-primary transition-colors">
+              <h2 className="font-serif text-lg font-bold leading-tight tracking-tight text-charcoal  transition-colors">
                 ISLAMABAD PRIME
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/40">Builders</p>
@@ -56,9 +54,7 @@ const TopNavbar = () => {
 
         {/* Right Section: Actions & Profile */}
         <div className="flex items-center gap-6">
-
-          <div className="h-8 w-[1px] bg-primary/10 mx-1" />
-
+          <div/>
           {/* User Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button

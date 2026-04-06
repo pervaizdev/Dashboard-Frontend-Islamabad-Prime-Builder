@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Input from "@/components/Input.jsx";
@@ -10,27 +10,54 @@ import AuthShowcasePanel from "@/components/AuthShowcasePanel";
 import AuthCard from "@/components/AuthCard";
 import AuthHeader from "@/components/AuthHeader";
 import { fadeUp, fadeRight } from "@/animation/motion";
+import { authAPI } from "@/api/auth";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginPage = () => {
   const router = useRouter();
+  const { user, checkAuth } = useAuth();
 
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "", 
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard");
+    }
+  }, [user, router]);
+
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const onSubmitHandler = (e) => {
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-    router.push("/dashboard");
+    setLoading(true);
+    setError("");
+
+    try {
+      const isEmail = formData.identifier.includes("@");
+      const loginParams = isEmail 
+        ? { email: formData.identifier, password: formData.password }
+        : { phone: formData.identifier, password: formData.password };
+
+      await authAPI.login(loginParams);
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError(err.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,9 +65,7 @@ const LoginPage = () => {
       <AuthShowcasePanel />
 
       <div className="relative flex items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(194,158,109,0.18),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(194,158,109,0.12),_transparent_30%)]" />
-
-        <AuthBlobBackground />
+        <div className="absolute inset-0" />
 
         <motion.div
           variants={fadeRight}
@@ -51,10 +76,16 @@ const LoginPage = () => {
           <AuthCard className="bg-white/5">
             <AuthHeader
               title="Welcome Back"
-              subtitle="Enter your email and password to continue."
+              subtitle="Enter your email or phone and password to continue."
             />
 
             <form onSubmit={onSubmitHandler} className="space-y-6">
+              {error && (
+                <div className="rounded-lg bg-red-500/10 p-3 text-center text-sm text-red-500">
+                  {error}
+                </div>
+              )}
+
               <motion.div
                 variants={fadeUp}
                 initial="hidden"
@@ -62,12 +93,12 @@ const LoginPage = () => {
                 custom={0.3}
               >
                 <Input
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  label="Email or Phone"
+                  type="text"
+                  name="identifier"
+                  value={formData.identifier}
                   onChange={onChangeHandler}
-                  placeholder="Enter your email"
+                  placeholder="Enter your email or phone number"
                 />
               </motion.div>
 
@@ -111,9 +142,10 @@ const LoginPage = () => {
               >
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30 disabled:opacity-50"
                 >
-                  Login
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
               </motion.div>
             </form>

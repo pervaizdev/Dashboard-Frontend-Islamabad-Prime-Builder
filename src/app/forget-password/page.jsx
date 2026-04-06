@@ -35,11 +35,10 @@ const ForgetPasswordPage = () => {
     }
   };
 
-
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08211e] px-4">
       {/* Gradient Glow Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(194,158,109,0.18),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(194,158,109,0.12),_transparent_30%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(194,158,109,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(194,158,109,0.12),transparent_30%)]" />
 
       <AuthBlobBackground />
 
@@ -87,7 +86,7 @@ const ForgetPasswordPage = () => {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
+                  className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30"
                 >
                   {loading ? "Sending..." : "Send Reset Link"}
                 </Button>
@@ -103,7 +102,7 @@ const ForgetPasswordPage = () => {
                 <Button
                   type="button"
                   onClick={() => router.push("/")}
-                  className="w-full border border-[#c29e6d]/40 py-3 text-[#c29e6d] hover:bg-[#c29e6d]/10 transition-all duration-300"
+                  className="w-full border border-primary/40 py-3 text-primary hover:bg-primary/10 transition-all duration-300"
                 >
                   Back to Login
                 </Button>
@@ -118,7 +117,7 @@ const ForgetPasswordPage = () => {
             >
               <Button
                 onClick={() => router.push("/")}
-                className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
+                className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30"
               >
                 Back to Login
               </Button>

@@ -2,8 +2,10 @@ import OverView from "@/components/dashboard/OverView.jsx";
 
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <OverView />
+    <div className="w-full bg-slate-50 px-4 py-6 md:px-8 lg:px-12 text-black min-h-screen">
+      <div className="mx-auto max-w-[1600px]">
+        <OverView />
+      </div>
     </div>
   );
 };

@@ -44,7 +44,7 @@ const GalleryPage = () => {
     };
 
     return (
-        <div className="section-gradient min-h-screen px-4 py-8 lg:px-16 space-y-12">
+        <div className=" min-h-screen px-4 py-8 lg:px-16 space-y-12">
             <div className="max-w-[1600px] mx-auto">
                 
                 {/* Header & Navigation */}

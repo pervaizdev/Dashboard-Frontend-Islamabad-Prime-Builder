@@ -10,18 +10,16 @@ const AuthHeader = ({ title, subtitle }) => {
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        custom={0.1}
-        className="mb-2 text-3xl font-extrabold tracking-tight text-[#c29e6d]"
+        className="font-serif text-3xl font-bold tracking-tight text-white md:text-4xl"
       >
         {title}
       </motion.h1>
-
       <motion.p
         variants={fadeUp}
         initial="hidden"
         animate="visible"
-        custom={0.2}
-        className="text-sm leading-6 text-[#d7d2c8]/80"
+        custom={0.1}
+        className="mt-2 text-sm text-primary"
       >
         {subtitle}
       </motion.p>

@@ -13,7 +13,7 @@ const AuthShowcasePanel = () => {
       className="relative hidden min-h-screen overflow-hidden lg:block"
     >
       <Image
-        src="/images/1 a.png"
+        src="/images/building2.png"
         alt="Prime Builder"
         fill
         priority

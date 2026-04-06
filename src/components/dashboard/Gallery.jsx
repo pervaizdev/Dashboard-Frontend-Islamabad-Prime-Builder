@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, EffectCoverflow, Autoplay } from "swiper/modules";
-import { X, ArrowUpRight, Camera, Maximize2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
+// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/effect-coverflow";
+import "swiper/css/navigation";
+
+// Import required modules
+import { Pagination, Navigation, Autoplay } from "swiper/modules";
+import { X, ArrowUpRight, Maximize2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Gallery() {
   const [mounted, setMounted] = useState(false);
@@ -25,17 +28,16 @@ export default function Gallery() {
     "/images/building2.png",
     "/images/building2.png",
     "/images/building2.png",
-    "/images/building2.png",
   ];
 
   return (
     <>
       <section className="mt-24 mb-16 px-4 md:px-8">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mx-auto max-w-[1400px]"
+          className="mx-auto max-w-[1200px]"
         >
           <div className="mb-12 flex flex-col items-center text-center space-y-4">
             <h2 className="text-primary font-serif text-3xl font-bold tracking-tight md:text-5xl lg:text-6xl">
@@ -50,63 +52,73 @@ export default function Gallery() {
             </Link>
           </div>
 
-          <div className="relative group">
+          <div className="relative group w-full">
             {mounted && (
               <Swiper
-                modules={[Pagination, EffectCoverflow, Autoplay]}
-                effect={"coverflow"}
-                grabCursor={true}
-                centeredSlides={true}
-                slidesPerView={"auto"}
-                autoplay={{
-                    delay: 4000,
-                    disableOnInteraction: false,
-                }}
-                coverflowEffect={{
-                  rotate: 0,
-                  stretch: 0,
-                  depth: 100,
-                  modifier: 2.5,
-                  slideShadows: false,
-                }}
+                slidesPerView={1}
+                spaceBetween={30}
+                loop={true}
                 pagination={{
                   clickable: true,
                   el: ".gallery-pagination",
                 }}
-                className="gallerySwiper"
+                navigation={{
+                  nextEl: ".swiper-button-next-custom",
+                  prevEl: ".swiper-button-prev-custom",
+                }}
+                autoplay={{
+                  delay: 5000,
+                  disableOnInteraction: false,
+                }}
+                modules={[Pagination, Navigation, Autoplay]}
+                className="gallerySwiper rounded-[2.5rem] overflow-hidden premium-border-glow shadow-2xl"
               >
                 {galleryImages.map((image, index) => (
-                  <SwiperSlide key={index} className="!w-[300px] sm:!w-[450px] lg:!w-[600px]">
-                    <div className="group/card relative overflow-hidden rounded-[2.5rem] bg-white premium-border-glow aspect-[4/3]">
-                        <Image
-                          src={image}
-                          alt="Gallery"
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover/card:scale-110"
-                        />
-                        
-                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
-                        
-                        <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between opacity-0 group-hover/card:opacity-100 translate-y-4 group-hover/card:translate-y-0 transition-all duration-500">
-                             <div className="text-white">
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Prime Builder</p>
-                                <h4 className="font-serif text-lg font-bold italic">Building View {index + 1}</h4>
-                             </div>
-                             <button 
-                                onClick={() => setSelectedImage(image)}
-                                className="bg-white/20 backdrop-blur-md p-3 rounded-full text-white hover:bg-primary hover:text-charcoal transition-all"
-                             >
-                                <Maximize2 size={20} />
-                             </button>
+                  <SwiperSlide key={index}>
+                    <div className="group/card relative w-full overflow-hidden aspect-[4/3] md:aspect-21/9 bg-white">
+                      <Image
+                        src={image}
+                        alt={`Gallery ${index + 1}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 1200px"
+                        className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                        priority={index === 0}
+                      />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
+
+                      <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 flex items-end justify-between">
+                        <div className="text-white translate-y-4 group-hover/card:translate-y-0 transition-transform duration-500">
+                          <p className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-primary mb-2 shadow-black drop-shadow-md">
+                            Prime Builder
+                          </p>
+                          <h4 className="font-serif text-2xl md:text-4xl font-bold italic shadow-black drop-shadow-lg">
+                            Building View {index + 1}
+                          </h4>
                         </div>
+                        <button
+                          onClick={() => setSelectedImage(image)}
+                          className="bg-white/10 backdrop-blur-md p-4 rounded-full text-white hover:bg-primary hover:text-charcoal transition-all border border-white/20"
+                        >
+                          <Maximize2 size={24} />
+                        </button>
+                      </div>
                     </div>
                   </SwiperSlide>
                 ))}
+
+                {/* Custom Navigation Arrows overlaying the image */}
+                <div className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-charcoal/50 text-white backdrop-blur-sm border border-white/10 hover:bg-primary hover:border-primary cursor-pointer transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </div>
+                <div className="swiper-button-next-custom absolute right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-charcoal/50 text-white backdrop-blur-sm border border-white/10 hover:bg-primary hover:border-primary cursor-pointer transition-all">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </div>
               </Swiper>
             )}
           </div>
 
-          <div className="gallery-pagination mt-12 flex justify-center gap-3" />
+          <div className="gallery-pagination mt-8 flex justify-center gap-3" />
         </motion.div>
       </section>
 
@@ -147,8 +159,7 @@ export default function Gallery() {
 
       <style jsx global>{`
         .gallerySwiper {
-          padding: 40px 0 60px !important;
-          overflow: visible !important;
+          padding-bottom: 0px !important;
         }
 
         .gallery-pagination .swiper-pagination-bullet {

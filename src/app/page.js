@@ -1,8 +1,8 @@
 import React from 'react'
-import DashboardPage from '@/app/dashboard/page.jsx'
+import LoginPage from './login/pages'
 
 export default function HomePage() {
   return (
-    <DashboardPage />
+    <LoginPage />
   )
 }
