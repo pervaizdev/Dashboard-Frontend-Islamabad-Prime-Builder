@@ -178,7 +178,6 @@ export default function BrokerManagementPage() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">ID</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Broker Info</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">CNIC</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Contact</th>
@@ -205,9 +204,6 @@ export default function BrokerManagementPage() {
                       className="hover:bg-slate-50/30 transition-colors group"
                     >
                       <td className="px-8 py-6">
-                        <span className="text-xs font-bold text-slate-400">#{broker.broker_id}</span>
-                      </td>
-                      <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600 font-bold uppercase">
                             {broker.name?.charAt(0)}
@@ -232,12 +228,12 @@ export default function BrokerManagementPage() {
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button 
+                          {/* <button 
                             onClick={() => handleDeleteClick(broker)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                           >
                             <Trash2 className="h-4 w-4" />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </motion.tr>
