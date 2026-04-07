@@ -126,6 +126,7 @@ const PropertyDetailContent = () => {
   const [selectedInstIndex, setSelectedInstIndex] = useState(null);
 
   const isAdmin = user?.role === "admin" || user?.role === "super-admin";
+  const isSuperAdmin = user?.role === "super-admin";
 
   const fetchDetails = async () => {
     if (!id) return;
@@ -444,8 +445,8 @@ const PropertyDetailContent = () => {
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
-                 <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
-                {propertyData.type}
+                <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
+                  {propertyData.type}
                 </th>
                 <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
                   Month
@@ -456,7 +457,7 @@ const PropertyDetailContent = () => {
                 <th className="px-6 py-4 text-center text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
                   Status
                 </th>
-                {isAdmin && (
+                {isSuperAdmin && (
                   <th className="px-6 py-4 text-right text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
                     Admin
                   </th>
@@ -464,79 +465,78 @@ const PropertyDetailContent = () => {
               </tr>
             </thead>
 
-          <tbody className="divide-y divide-primary/5 bg-white">
-  {propertyData.installments?.map((item, index) => (
-    <tr
-      key={index}
-      className="transition-colors hover:bg-primary/[0.02]"
-    >
-      {/* Property Number */}
-      <td className="px-6 py-4">
-        <p className="font-serif text-sm font-bold text-charcoal">
-          {propertyData.property_number}
-        </p>
-      </td>
+            <tbody className="divide-y divide-primary/5 bg-white">
+              {propertyData.installments?.map((item, index) => (
+                <tr
+                  key={index}
+                  className="transition-colors hover:bg-primary/[0.02]"
+                >
+                  {/* Property Number */}
+                  <td className="px-6 py-4">
+                    <p className="font-serif text-sm font-bold text-charcoal">
+                      {propertyData.property_number}
+                    </p>
+                  </td>
 
-      {/* Month */}
-      <td className="px-6 py-4">
-        <p className="font-serif text-sm font-bold text-charcoal">
-          {item.monthYear}
-        </p>
-        {item.status === "paid" && item.paidDate && (
-          <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
-            {new Date(item.paidDate).toLocaleDateString()}
-          </p>
-        )}
-      </td>
+                  {/* Month */}
+                  <td className="px-6 py-4">
+                    <p className="font-serif text-sm font-bold text-charcoal">
+                      {item.monthYear}
+                    </p>
+                    {item.status === "paid" && item.paidDate && (
+                      <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
+                        {new Date(item.paidDate).toLocaleDateString()}
+                      </p>
+                    )}
+                  </td>
 
-      {/* Value */}
-      <td className="px-6 py-4 font-body text-charcoal/60 font-medium text-xs">
-        Rs. {item.amount?.toLocaleString()}
-      </td>
+                  {/* Value */}
+                  <td className="px-6 py-4 font-body text-charcoal/60 font-medium text-xs">
+                    Rs. {item.amount?.toLocaleString()}
+                  </td>
 
-      {/* Status */}
-      <td className="px-6 py-4 text-center">
-        <span
-          className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest ${
-            item.status === "paid"
-              ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
-              : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
-          }`}
-        >
-          {item.status === "paid" ? (
-            <CheckCircle2 className="h-3 w-3" />
-          ) : (
-            <Clock3 className="h-3 w-3" />
-          )}
-          {item.status === "paid" ? "Paid" : "Unpaid"}
-        </span>
-      </td>
+                  {/* Status */}
+                  <td className="px-6 py-4 text-center">
+                    <span
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest ${item.status === "paid"
+                          ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                          : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
+                        }`}
+                    >
+                      {item.status === "paid" ? (
+                        <CheckCircle2 className="h-3 w-3" />
+                      ) : (
+                        <Clock3 className="h-3 w-3" />
+                      )}
+                      {item.status === "paid" ? "Paid" : "Unpaid"}
+                    </span>
+                  </td>
 
-      {isAdmin && (
-        <td className="px-6 py-4 text-right">
-          {item.status !== "paid" ? (
-            <button
-              onClick={() => handleMarkAsPaidPress(index)}
-              disabled={updatingId === index}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-white transition-all hover:bg-emerald-700 hover:shadow-lg disabled:opacity-50"
-            >
-              {updatingId === index ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <CheckCircle className="h-3 w-3" />
-              )}
-              Paid
-            </button>
-          ) : (
-            <div className="inline-flex items-center gap-2 text-emerald-600 font-bold text-[9px] uppercase tracking-widest px-4">
-              <CheckCircle2 size={12} /> OK
-            </div>
-          )}
-        </td>
-      )}
-    </tr>
-  ))}
-</tbody>
+                  {isSuperAdmin && (
+                    <td className="px-6 py-4 text-right">
+                      {item.status !== "paid" ? (
+                        <button
+                          onClick={() => handleMarkAsPaidPress(index)}
+                          disabled={updatingId === index}
+                          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-white transition-all hover:bg-emerald-700 hover:shadow-lg disabled:opacity-50"
+                        >
+                          {updatingId === index ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-3 w-3" />
+                          )}
+                          Paid
+                        </button>
+                      ) : (
+                        <div className="inline-flex items-center gap-2 text-emerald-600 font-bold text-[9px] uppercase tracking-widest px-4">
+                          <CheckCircle2 size={12} /> OK
+                        </div>
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </motion.div>
