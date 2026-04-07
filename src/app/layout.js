@@ -24,8 +24,13 @@ const playfair = Playfair_Display_SC({
 });
 
 export const metadata = {
-  title: "Prime-Builder Client Portal",
+  title: "Client Portal",
   description: "Experience premium luxury with Prime-Builder.",
+  icons: {
+    icon: "/images/logo.png",
+  },
+  manifest: "/manifest.json",
+  
 };
 
 export default function RootLayout({ children }) {
