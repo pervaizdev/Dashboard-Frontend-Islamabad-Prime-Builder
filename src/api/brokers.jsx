@@ -20,6 +20,24 @@ export const brokersAPI = {
     }
   },
 
+  updateBroker: async (id, brokerData) => {
+    try {
+      const response = await axiosInstance.put(`${ENDPOINTS.BROKERS.CREATE}/${id}`, brokerData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error updating broker" };
+    }
+  },
+
+  deleteBroker: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`${ENDPOINTS.BROKERS.CREATE}/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error deleting broker" };
+    }
+  },
+
   getBrokersNames: async () => {
     try {
       const response = await axiosInstance.get(ENDPOINTS.BROKERS.GET_NAMES);

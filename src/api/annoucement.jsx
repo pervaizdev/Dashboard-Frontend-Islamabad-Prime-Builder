@@ -13,7 +13,7 @@ export const announcementAPI = {
 
   getAllAnnouncements: async () => {
     try {
-      const response = await axiosInstance.get(ENDPOINTS.BANNERS.ALL);
+      const response = await axiosInstance.get(ENDPOINTS.BANNERS.BASE);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error fetching announcements" };
@@ -26,6 +26,24 @@ export const announcementAPI = {
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error fetching active announcements" };
+    }
+  },
+
+  getAnnouncementById: async (id) => {
+    try {
+      const response = await axiosInstance.get(`${ENDPOINTS.BANNERS.BASE}/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching announcement details" };
+    }
+  },
+
+  updateAnnouncement: async (id, announcementData) => {
+    try {
+      const response = await axiosInstance.put(`${ENDPOINTS.BANNERS.BASE}/${id}`, announcementData);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error updating announcement" };
     }
   },
 

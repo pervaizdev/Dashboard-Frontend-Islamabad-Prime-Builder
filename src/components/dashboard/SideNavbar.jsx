@@ -4,44 +4,51 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, User, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  LayoutDashboard,
+  UserPlus,
+  Users,
+  Building2,
+  Megaphone,
+  Briefcase,
+  List,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const navItems = [
   {
-    title: "OverView",
+    title: "Overview",
     href: "/dashboard",
     icon: LayoutDashboard,
   },
+
   {
-    title: "Add Client",
-    href: "/dashboard/signup",
-    icon: User,
+    title: "Announcement Management",
+    href: "/dashboard/announcementform",
+    icon: Megaphone,
   },
+  {
+    title: "Broker Management",
+    href: "/dashboard/islamabad-prime-builder-broker-manaegment",
+    icon: Briefcase,
+  },
+  
   {
     title: "Add Property",
     href: "/dashboard/properityform",
-    icon: Plus,
+    icon: Building2,
   },
   {
-    title: "Add Announcement",
-    href: "/dashboard/announcementform",
-    icon: Plus,
+    title: "Property List",
+    href: "/dashboard/propertylist",
+    icon: List,
   },
-  {
-    title: "Add Broker",
-    href: "/dashboard/brokerform",
-    icon: User,
-  },
-  {
-      title: "Client List",
-      href: "/dashboard/clientlist",
-      icon: User,
-  },
-  {
-      title: "Property List",
-      href: "/dashboard/propertylist",
-      icon: Plus,
+    {
+    title: "Client Management",
+    href: "/dashboard/Islamabad-prime-builder-client-user",
+    icon: Users,
   },
 ];
 
@@ -50,7 +57,6 @@ const SideNavbar = () => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Only show sidebar for super-admin
   if (user?.role !== "super-admin") {
     return null;
   }
@@ -61,7 +67,6 @@ const SideNavbar = () => {
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
-      {/* Floating Toggle Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-3.5 top-8 z-50 flex h-7 w-7 items-center justify-center rounded-full border border-[#c29e6d]/20 bg-[#c29e6d] text-[#08211e] shadow-xl transition-all hover:scale-110 active:scale-95"
@@ -73,7 +78,6 @@ const SideNavbar = () => {
         )}
       </button>
 
-      {/* Logo Section */}
       <div className={`flex h-24 items-center border-b border-[#c29e6d]/10 ${isCollapsed ? "justify-center px-2" : "px-6"}`}>
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
@@ -84,17 +88,18 @@ const SideNavbar = () => {
               <h2 className="line-clamp-1 text-sm font-bold tracking-tight text-[#c29e6d]">
                 ISLAMABAD PRIME
               </h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">Builders</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                Builders
+              </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation section */}
       <nav className={`flex-1 space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active = pathname === item.href || (item.href === "/dashboard" && pathname === "/dashboard");
+          const active = pathname === item.href;
 
           return (
             <Link
@@ -106,12 +111,14 @@ const SideNavbar = () => {
                   : "text-white/75 hover:bg-white/5 hover:text-[#c29e6d]"
               } ${isCollapsed ? "justify-center" : "gap-4"}`}
             >
-              <Icon size={22} className={`${active ? "text-[#08211e]" : "text-[#c29e6d]"} shrink-0`} />
+              <Icon
+                size={22}
+                className={`${active ? "text-[#08211e]" : "text-[#c29e6d]"} shrink-0`}
+              />
               {!isCollapsed && <span className="truncate">{item.title}</span>}
-              
-              {/* Tooltip for collapsed state */}
+
               {isCollapsed && (
-                <div className="invisible absolute left-full z-[100] ml-4 whitespace-nowrap rounded-lg bg-[#c29e6d] px-3 py-2 text-xs font-bold text-[#08211e] opacity-0 shadow-xl transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-1">
+                <div className="invisible absolute left-full z-[100] ml-4 whitespace-nowrap rounded-lg bg-[#c29e6d] px-3 py-2 text-xs font-bold text-[#08211e] opacity-0 shadow-xl transition-all group-hover:visible group-hover:translate-x-1 group-hover:opacity-100">
                   {item.title}
                 </div>
               )}

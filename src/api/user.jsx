@@ -19,5 +19,15 @@ export const userAPI = {
     } catch (error) {
       throw error.response?.data || { message: "Error updating user" };
     }
+  },
+
+  deleteUser: async (id) => {
+    try {
+      const url = ENDPOINTS.USERS.UPDATE.replace(":id", id);
+      const response = await axiosInstance.delete(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error deleting user" };
+    }
   }
 };
