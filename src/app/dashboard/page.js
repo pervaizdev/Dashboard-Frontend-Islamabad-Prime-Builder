@@ -5,7 +5,7 @@ import SignUp from "./signup/page.jsx";
 const DashboardPage = () => {
   return (
     <div className="">
-      {/* <OverView /> */}
+      <OverView />
       {/* <PropertyForm /> */}
       {/* <SignUp /> */}
     </div>

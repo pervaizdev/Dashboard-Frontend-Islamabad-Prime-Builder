@@ -38,7 +38,7 @@ const PropertyTable = () => {
   }
 
   return (
-    <div className="mt-16 lg:mt-28 w-full">
+    <div className="mt-16 lg:mt-28 w-full px-5">
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

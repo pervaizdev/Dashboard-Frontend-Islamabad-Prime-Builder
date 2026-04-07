@@ -9,20 +9,24 @@ import {
   User, 
   Phone, 
   Calendar, 
-  BadgeCheck, 
-  MapPin, 
   ShieldCheck, 
   Lock,
   Mail,
-  Camera
+  X,
+  Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { authAPI } from "@/api/auth.jsx";
+import { toast } from "react-hot-toast";
 
 export default function ProfileSection() {
+  const { user } = useAuth();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const isMatch =
     newPassword.length >= 8 &&
@@ -30,6 +34,26 @@ export default function ProfileSection() {
     newPassword === confirmPassword;
 
   const hasConfirmValue = confirmPassword.length > 0;
+
+  const handleUpdatePassword = async () => {
+    if (!isMatch) return;
+    
+    try {
+      setIsUpdating(true);
+      const res = await authAPI.updatePassword(newPassword);
+      if (res.success) {
+        toast.success("Password updated successfully!");
+        setNewPassword("");
+        setConfirmPassword("");
+      } else {
+        toast.error(res.message || "Failed to update password");
+      }
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -48,14 +72,40 @@ export default function ProfileSection() {
   };
 
   const profileData = [
-    { label: "Full Name", value: "Muhammad Imran", icon: <User className="text-primary" size={18} /> },
-    { label: "Phone Number", value: "+92 300 1234567", icon: <Phone className="text-primary" size={18} /> },
-    { label: "Active Membership", value: "15 March 2025", icon: <Calendar className="text-primary" size={18} /> },
-    { label: "Permanent Address", value: "Village Chakwal, Punjab, Pakistan", icon: <ShieldCheck className="text-primary" size={18} />},
+    { 
+      label: "Full Name", 
+      value: user?.name || "N/A", 
+      icon: <User className="text-primary" size={18} /> 
+    },
+    { 
+      label: "Phone Number", 
+      value: user?.phone || "N/A", 
+      icon: <Phone className="text-primary" size={18} /> 
+    },
+    { 
+      label: "Email Address", 
+      value: user?.email || "N/A", 
+      icon: <Mail className="text-primary" size={18} /> 
+    },
+    { 
+      label: "Active Membership", 
+      value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : "N/A", 
+      icon: <Calendar className="text-primary" size={18} /> 
+    },
+    { 
+      label: "Residential Address", 
+      value: user?.owner_profile?.client_residential_address || "N/A", 
+      icon: <MapPin size={18} className="text-primary" />,
+    },
+    { 
+      label: "Permanent Address", 
+      value: user?.owner_profile?.client_permanent_address || "N/A", 
+      icon: <ShieldCheck className="text-primary" size={18} />,
+    },
   ];
 
   return (
-    <div className="min-h-screen section-gradient p-4 md:p-8 lg:p-12">
+    <div className="min-h-screen p-4 md:p-8 lg:p-12">
       <motion.div 
         initial="hidden"
         animate="visible"
@@ -65,13 +115,12 @@ export default function ProfileSection() {
         {/* Header Section */}
         <motion.div variants={itemVariants} className="text-center md:text-left space-y-2">
           <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-charcoal font-bold tracking-tight">
-            Client <span className="text-primary">Profile</span>
+            User <span className="text-primary">Profile</span>
           </h1>
+          <p className="text-charcoal/50 text-sm font-medium tracking-wide uppercase">Manage your account information and security</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-
-          {/* Right Column: Information & Settings */}
           <div className="lg:col-span-2 space-y-8">
             
             {/* Read-only Information Section */}
@@ -86,7 +135,7 @@ export default function ProfileSection() {
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {profileData.map((item, idx) => (
-                    <div key={idx} className={`${item.fullWidth ? 'md:col-span-2' : ''} space-y-2`}>
+                    <div key={idx} className="space-y-2">
                       <label className="text-[11px] font-bold uppercase tracking-widest text-charcoal/40 flex items-center gap-2">
                         {item.icon}
                         {item.label}
@@ -138,9 +187,6 @@ export default function ProfileSection() {
                         {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
-                    {newPassword && newPassword.length < 8 && (
-                      <p className="text-[10px] text-red-500 mt-1">Wait, your password must be at least 8 characters.</p>
-                    )}
                   </div>
 
                   {/* Confirm Password */}
@@ -156,26 +202,34 @@ export default function ProfileSection() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`w-full bg-white border rounded-xl px-4 py-3 pr-20 text-sm text-charcoal outline-none transition-all duration-300 ${
-                          hasConfirmValue && isMatch ? 'border-primary' : hasConfirmValue ? 'border-red-300' : 'border-primary/20'
+                          hasConfirmValue && isMatch ? 'border-primary' : hasConfirmValue ? 'border-rose-400' : 'border-primary/20'
                         } focus:border-primary`}
                       />
+                      
+                      {/* Live Tick/Cross Overlay */}
                       <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center">
-                        <AnimatePresence>
+                        <AnimatePresence mode="wait">
                           {hasConfirmValue && (
                             <motion.div
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
+                              key={isMatch ? "match" : "no-match"}
+                              initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                              exit={{ scale: 0, opacity: 0, rotate: 45 }}
                             >
                               {isMatch ? (
-                                <CheckCircle size={18} className="text-green-500" />
+                                <div className="rounded-full bg-emerald-100 p-1">
+                                  <Check size={14} className="text-emerald-600 stroke-[3]" />
+                                </div>
                               ) : (
-                                <XCircle size={18} className="text-red-400" />
+                                <div className="rounded-full bg-rose-100 p-1">
+                                  <X size={14} className="text-rose-500 stroke-[3]" />
+                                </div>
                               )}
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
+
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -189,18 +243,20 @@ export default function ProfileSection() {
 
                 <div className="flex justify-center pt-4">
                   <motion.button
-                    whileHover={isMatch ? { scale: 1.02, y: -2 } : {}}
-                    whileTap={isMatch ? { scale: 0.98 } : {}}
-                    type="button"
-                    disabled={!isMatch}
-                    className={`relative overflow-hidden rounded-xl px-10 py-4 text-xs font-bold uppercase tracking-widest transition-all duration-500 ${
+                    whileHover={isMatch && !isUpdating ? { scale: 1.02, y: -2 } : {}}
+                    whileTap={isMatch && !isUpdating ? { scale: 0.98 } : {}}
+                    onClick={handleUpdatePassword}
+                    disabled={!isMatch || isUpdating}
+                    className={`relative min-w-[220px] overflow-hidden rounded-xl px-10 py-4 text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${
                       isMatch
                         ? "bg-charcoal text-white hover:bg-black shadow-lg shadow-charcoal/20"
                         : "bg-charcoal/20 text-charcoal/40 cursor-not-allowed"
                     }`}
                   >
-                    <span className="relative z-10">Update Profile Security</span>
-                    {isMatch && (
+                    <span className="relative z-10">
+                      {isUpdating ? "Updating..." : "Update Password"}
+                    </span>
+                    {isMatch && !isUpdating && (
                       <motion.div 
                         initial={{ x: "-100%" }}
                         animate={{ x: "100%" }}
@@ -217,4 +273,24 @@ export default function ProfileSection() {
       </motion.div>
     </div>
   );
+}
+
+function MapPin(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
 }

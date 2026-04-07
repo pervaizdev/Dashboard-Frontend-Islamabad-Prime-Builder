@@ -1,17 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import SearchableSelect from "./SearchableSelect";
 
-export default function BrokerSection() {
-  const [brokers, setBrokers] = useState([0]);
+export default function BrokerSection({ formData, setFormData, brokersList, usersList }) {
+  const validOwnerUserIds = (formData.owners || [])
+    .map(o => String(o.userId))
+    .filter(id => id !== "");
+
+  const ownerOptions = (usersList || [])
+    .filter(u => validOwnerUserIds.includes(String(u.userId)))
+    .map(u => ({ userId: u.userId, name: u.name, phone: u.phone, email: u.email }));
 
   const addBroker = () => {
-    setBrokers([...brokers, brokers.length]);
+    setFormData((prev) => ({
+      ...prev,
+      brokers: [
+        ...prev.brokers,
+        {
+          broker_id: "",
+          userId: ownerOptions.length === 1 ? ownerOptions[0].userId : "",
+          relationship: "",
+        },
+      ],
+    }));
   };
 
   const removeBroker = (index) => {
-    setBrokers(brokers.filter((_, i) => i !== index));
+    setFormData((prev) => ({
+      ...prev,
+      brokers: prev.brokers.filter((_, i) => i !== index),
+    }));
   };
+
+  const handleBrokerChange = (index, field, value) => {
+    setFormData((prev) => {
+      const newBrokers = [...prev.brokers];
+      newBrokers[index] = { ...newBrokers[index], [field]: value };
+      return { ...prev, brokers: newBrokers };
+    });
+  };
+
+  useEffect(() => {
+    if (ownerOptions.length === 1) {
+      const singleOwnerId = ownerOptions[0].userId;
+      setFormData((prev) => {
+        let changed = false;
+        const newBrokers = (prev.brokers || []).map(b => {
+          if (b.userId === "" || !validOwnerUserIds.includes(String(b.userId))) {
+            changed = true;
+            return { ...b, userId: singleOwnerId };
+          }
+          return b;
+        });
+        return changed ? { ...prev, brokers: newBrokers } : prev;
+      });
+    }
+  }, [ownerOptions.length]);
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -35,7 +80,7 @@ export default function BrokerSection() {
       </div>
 
       <div className="space-y-4">
-        {brokers.map((_, i) => (
+        {formData.brokers.map((broker, i) => (
           <div
             key={i}
             className="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
@@ -45,7 +90,7 @@ export default function BrokerSection() {
                 Broker {i + 1}
               </h3>
 
-              {brokers.length > 1 && (
+              {formData.brokers.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeBroker(i)}
@@ -58,24 +103,32 @@ export default function BrokerSection() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Broker ID
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter broker id"
-                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
+                <SearchableSelect 
+                  label="Broker ID" 
+                  placeholder="Enter Broker ID"
+                  options={brokersList || []} 
+                  idKey="broker_id"
+                  nameKey="name"
+                  value={broker.broker_id} 
+                  onChange={(val) => handleBrokerChange(i, "broker_id", val)}
+                  secondaryKey1="cnic"
+                  secondaryKey2="phone"
+                  required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  User ID
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter user id"
-                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
+                <SearchableSelect 
+                  label="User ID" 
+                  placeholder="Select Owner Representation"
+                  options={ownerOptions} 
+                  idKey="userId"
+                  nameKey="name"
+                  value={broker.userId} 
+                  onChange={(val) => handleBrokerChange(i, "userId", val)}
+                  secondaryKey1="phone"
+                  secondaryKey2="email"
+                  required
                 />
               </div>
 
@@ -86,6 +139,8 @@ export default function BrokerSection() {
                 <input
                   type="text"
                   placeholder="Enter relationship"
+                  value={broker.relationship}
+                  onChange={(e) => handleBrokerChange(i, "relationship", e.target.value)}
                   className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
                 />
               </div>

@@ -9,11 +9,11 @@ export default function DashboardLayout({ children }) {
   const hideNavbar = pathname.includes("proporitydetail") || pathname.includes("gallery");
 
   return (
-    <div>
+    <div className="flex h-screen overflow-hidden">
       <SideNavbar />
-      <div>
+      <div className="flex flex-1 flex-col overflow-hidden">
         {!hideNavbar && <TopNavbar />}
-        <div className="bg-slate-50">{children}</div>
+        <main className="flex-1 overflow-y-auto ">{children}</main>
       </div>
     </div>
   );

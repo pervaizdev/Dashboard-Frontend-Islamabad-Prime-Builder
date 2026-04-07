@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const publicRoutes = ["/", "/register", "/forget-password", "/reset-password"];
+  const publicRoutes = ["/", "/login", "/register", "/forget-password", "/reset-password"];
 
   const checkAuth = async () => {
     const token = localStorage.getItem("token");
@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     setUser(null);
-    router.push("/login");
+    router.push("/");
   };
 
   return (
