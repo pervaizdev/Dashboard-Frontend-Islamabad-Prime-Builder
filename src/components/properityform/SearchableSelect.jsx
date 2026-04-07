@@ -12,6 +12,8 @@ export default function SearchableSelect({
   label = "User",
   idKey = "userId",
   nameKey = "name",
+  secondaryKey1 = "",
+  secondaryKey2 = "",
   required = false
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +52,16 @@ export default function SearchableSelect({
         <div className="flex items-center gap-3 overflow-hidden">
           <User size={16} className="text-primary/40 shrink-0" />
           <span className="truncate text-charcoal">
-            {selectedOption ? `${selectedOption[idKey]} - ${selectedOption[nameKey]}` : placeholder}
+            {selectedOption ? (
+              <div className="flex flex-col items-start leading-tight">
+                <span className="text-[13px] font-bold">{selectedOption[nameKey]}</span>
+                {(selectedOption[secondaryKey1] || selectedOption[secondaryKey2]) && (
+                  <span className="text-[10px] text-charcoal/40 font-medium">
+                    {selectedOption[secondaryKey1]} {selectedOption[secondaryKey1] && selectedOption[secondaryKey2] && " • "} {selectedOption[secondaryKey2]}
+                  </span>
+                )}
+              </div>
+            ) : placeholder}
           </span>
         </div>
         <ChevronDown size={14} className={`text-charcoal/40 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -62,7 +73,7 @@ export default function SearchableSelect({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-50 mt-2 w-full max-w-sm rounded-3xl bg-white p-3 shadow-2xl premium-border-glow overflow-hidden"
+            className="absolute z-50 mt-2 w-full  rounded-3xl bg-white p-3 shadow-2xl premium-border-glow overflow-hidden"
           >
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-charcoal/20" size={14} />
@@ -92,9 +103,15 @@ export default function SearchableSelect({
                         ? "bg-primary/5 text-primary"
                         : "text-charcoal/60 hover:bg-slate-50 hover:text-charcoal"}`}
                   >
-                    <div className="flex flex-col items-start">
-                      <span className="text-[12px]">{opt[nameKey]}</span>
-                      <span className="text-[9px] opacity-40 uppercase tracking-widest leading-none mt-0.5">ID: {opt[idKey]}</span>
+                    <div className="flex flex-col text-start leading-tight">
+                      <span className="text-[12px] text-charcoal">{opt[nameKey]}</span>
+                      {(opt[secondaryKey1] || opt[secondaryKey2]) && (
+                        <span className="text-[10px] text-charcoal/40 font-medium mt-0.5">
+                       
+                          <p className="text-[10px] text-charcoal/40 font-medium mt-0.5">{opt[secondaryKey2]}</p>
+                             {opt[secondaryKey1]} 
+                        </span>
+                      )}
                     </div>
                     {String(opt[idKey]) === String(value) && <Check size={14} />}
                   </button>

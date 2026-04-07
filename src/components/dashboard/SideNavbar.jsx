@@ -28,6 +28,21 @@ const navItems = [
     href: "/dashboard/announcementform",
     icon: Plus,
   },
+  {
+    title: "Add Broker",
+    href: "/dashboard/brokerform",
+    icon: User,
+  },
+  {
+      title: "Client List",
+      href: "/dashboard/clientlist",
+      icon: User,
+  },
+  {
+      title: "Property List",
+      href: "/dashboard/propertylist",
+      icon: Plus,
+  },
 ];
 
 const SideNavbar = () => {

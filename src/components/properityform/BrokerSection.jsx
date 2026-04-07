@@ -10,7 +10,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
 
   const ownerOptions = (usersList || [])
     .filter(u => validOwnerUserIds.includes(String(u.userId)))
-    .map(u => ({ userId: u.userId, name: u.name }));
+    .map(u => ({ userId: u.userId, name: u.name, phone: u.phone, email: u.email }));
 
   const addBroker = () => {
     setFormData((prev) => ({
@@ -111,6 +111,8 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                   nameKey="name"
                   value={broker.broker_id} 
                   onChange={(val) => handleBrokerChange(i, "broker_id", val)}
+                  secondaryKey1="cnic"
+                  secondaryKey2="phone"
                   required
                 />
               </div>
@@ -124,6 +126,8 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                   nameKey="name"
                   value={broker.userId} 
                   onChange={(val) => handleBrokerChange(i, "userId", val)}
+                  secondaryKey1="phone"
+                  secondaryKey2="email"
                   required
                 />
               </div>

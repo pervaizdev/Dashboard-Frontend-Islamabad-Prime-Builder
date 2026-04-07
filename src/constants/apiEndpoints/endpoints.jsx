@@ -17,9 +17,22 @@ export const ENDPOINTS = {
     GET_INSTALLMENT_NOTIFICATIONS: "/property-details/installment-notifications",
   },
   PROPERTIES: {
+    GET_ALL: "/property-details",
     GET_MY_PROPERTIES: "/property-details/my-property",
     GET_DUE_INSTALLMENTS: "/property-details/due-installments",
     GET_PROPERTY_DETAILS: "/property-details/:id",
     UPDATE_INSTALLMENT_STATUS: "/property-details/:id/installments/:index",
+  },
+  BROKERS: {
+    CREATE: "/brokers",
+    GET_NAMES: "/brokers/names",
+  },
+  BANNERS: {
+    BASE: "/banners",
+    ALL: "/banners/all",
+  },
+  USERS: {
+    BASE: "/users",
+    UPDATE: "/users/:id",
   },
 };

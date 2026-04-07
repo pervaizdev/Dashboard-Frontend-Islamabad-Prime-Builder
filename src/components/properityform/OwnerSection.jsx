@@ -86,6 +86,8 @@ export default function OwnerSection({ formData, setFormData, usersList }) {
                   options={usersList || []} 
                   value={owner.userId} 
                   onChange={(val) => handleOwnerChange(i, "userId", val)}
+                  secondaryKey1="phone"
+                  secondaryKey2="email"
                   required
                 />
               </div>

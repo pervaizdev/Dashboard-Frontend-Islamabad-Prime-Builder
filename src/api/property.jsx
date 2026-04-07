@@ -40,4 +40,13 @@ export const propertyAPI = {
       throw error.response?.data || { message: "Error updating installment status" };
     }
   },
+
+  getAllProperties: async (params) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.PROPERTIES.GET_ALL, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching all properties" };
+    }
+  },
 };

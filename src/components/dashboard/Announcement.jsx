@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Megaphone, X, Bell, Settings, Loader2 } from "lucide-react";
+import { Megaphone, X, Bell, Settings, Loader2, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { notificationAPI } from "@/api/notification";
+import { announcementAPI } from "@/api/annoucement";
+import Link from "next/link";
 
 const AnnouncementsSection = () => {
   const { user } = useAuth();
@@ -16,54 +18,93 @@ const AnnouncementsSection = () => {
   const isSuperAdmin = user?.role === "super-admin";
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      // Don't hit API if admin or super-admin
-      if (!user || isAdmin) {
+    const fetchData = async () => {
+      if (!user) {
         setNotifications([]);
         return;
       }
 
       try {
         setLoading(true);
-        const data = await notificationAPI.getInstallmentNotifications();
-        if (data?.success) {
-          setNotifications(data.notifications || []);
+        let bannerRes, notificationRes;
+
+        if (isAdmin) {
+          // Admins see all banners
+          bannerRes = await announcementAPI.getAllAnnouncements();
+        } else {
+          // Regular users see active banners AND installment notifications
+          const [bRes, nRes] = await Promise.all([
+            announcementAPI.getActiveAnnouncements(),
+            notificationAPI.getInstallmentNotifications()
+          ]);
+          bannerRes = bRes;
+          notificationRes = nRes;
         }
+
+        const combined = [];
+
+        // Add Announcements/Banners
+        if (bannerRes?.success && bannerRes?.banners) {
+          combined.push(...bannerRes.banners.map(b => ({
+            ...b,
+            type: "announcement",
+            // For unified display
+            displayTitle: b.title,
+            displayMessage: b.description,
+            displayDate: b.start_datetime ? new Date(b.start_datetime).toLocaleDateString() : ""
+          })));
+        }
+
+        // Add Installment Notifications (only for non-admins)
+        if (notificationRes?.success && notificationRes?.notifications) {
+          combined.push(...notificationRes.notifications.map(n => ({
+            ...n,
+            type: "notification",
+            // For unified display
+            displayTitle: "Installment Due",
+            displayMessage: n.message,
+            displayDate: n.installment_month_year?.toUpperCase()
+          })));
+        }
+
+        setNotifications(combined);
       } catch (error) {
-        console.error("Failed to fetch notifications:", error);
+        console.error("Failed to fetch dashboard notifications:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNotifications();
+    fetchData();
   }, [user, isAdmin]);
 
   return (
     <>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         className="overflow-hidden rounded-2xl bg-white premium-border-glow h-full flex flex-col"
       >
         <div className="shimmer-gold px-6 py-4 flex items-center justify-between border-b border-primary/20 bg-charcoal/5">
           <div className="flex items-center gap-3">
-             <div className="bg-charcoal p-2 rounded-lg shadow-sm">
-                <Bell className="h-4 w-4 text-primary" />
-             </div>
-             <h3 className="font-serif text-base font-bold text-charcoal tracking-wide uppercase">NOTIFICATIONS</h3>
+            <div className="bg-charcoal p-2 rounded-lg shadow-sm">
+              <Bell className="h-4 w-4 text-primary" />
+            </div>
+            <h3 className="font-serif text-base font-bold text-charcoal tracking-wide uppercase">NOTIFICATIONS</h3>
           </div>
           <div className="flex items-center gap-3">
             {isSuperAdmin && (
-              <button 
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[10px] font-bold uppercase tracking-wider"
+              <Link
+                href="/dashboard/announcementform"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
               >
-                <Settings className="h-3 w-3" />
-                Manage Notifications
-              </button>
+                <Settings className="h-2.5 w-2.5" />
+                Manage
+              </Link>
             )}
-            {!isAdmin && (
+            {isAdmin ? (
+              <span></span>
+            ) : (
               <span className="text-[10px] font-bold text-black border border-black/10 px-2 py-1 rounded-full">{notifications.length} NEW</span>
             )}
           </div>
@@ -84,18 +125,28 @@ const AnnouncementsSection = () => {
                 className="w-full p-5 text-left transition-all duration-300 group"
               >
                 <div className="mb-2 flex items-start justify-between gap-3">
-                  <h4 className="font-serif text-sm font-bold text-charcoal leading-snug group-hover:text-primary transition-colors">
-                    Installment Due
-                  </h4>
-                  <span className="shrink-0 text-[10px] font-bold text-black px-2.5 py-1 rounded-md ">
-                    {item.installment_month_year?.toUpperCase()}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {item.type === "announcement" ? (
+                      <Megaphone className="h-3.5 w-3.5 text-primary shrink-0" />
+                    ) : (
+                      <Bell className="h-3.5 w-3.5 text-primary shrink-0" />
+                    )}
+                    <h4 className="font-serif text-sm font-bold text-charcoal leading-snug group-hover:text-primary transition-colors">
+                      {item.displayTitle}
+                    </h4>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="shrink-0 text-[10px] font-bold text-black px-2 py-0.5 rounded-md bg-slate-100 uppercase tracking-widest leading-none">
+                      {item.displayDate}
+                    </span>
+
+                  </div>
                 </div>
 
                 <p className="line-clamp-2 text-xs leading-relaxed text-charcoal/60 font-body">
-                  {item.message}
+                  {item.displayMessage}
                 </p>
-                
+
                 <div className="mt-3 flex items-center justify-between">
                 </div>
               </motion.button>
@@ -112,58 +163,73 @@ const AnnouncementsSection = () => {
       <AnimatePresence>
         {selectedNotification && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
               onClick={() => setSelectedNotification(null)}
             />
-            
+
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-lg glass rounded-[2.5rem] p-10 shadow-2xl premium-border-glow overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary/20 via-primary to-primary/20" />
-              
+              {/* Top Accent Bar */}
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
+
+              {/* Close Button */}
               <button
                 type="button"
                 onClick={() => setSelectedNotification(null)}
-                className="absolute right-8 top-8 rounded-full p-2 text-charcoal/40 hover:bg-primary/10 hover:text-primary transition-all backdrop-blur-none"
+                className="absolute right-6 top-6 rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all z-10"
               >
                 <X className="h-5 w-5" />
               </button>
 
-              <div className="mb-8 flex items-center gap-4">
-                <div className="rounded-2xl bg-primary/10 p-4 shadow-sm border border-primary/5">
-                  <Megaphone className="h-6 w-6 text-primary" />
+              <div className="p-8 sm:p-10">
+                {/* Header Section */}
+                <div className="mb-8 flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm">
+                    {selectedNotification.type === "announcement" ? (
+                      <Megaphone className="h-7 w-7 text-yellow-600" />
+                    ) : (
+                      <Bell className="h-7 w-7 text-yellow-600" />
+                    )}
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-600/80 px-2 py-0.5 bg-yellow-50 rounded-md border border-yellow-500/10">
+                      {selectedNotification.type === "announcement" ? "Announcement" : "System Alert"}
+                    </span>
+
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Notification Detail</span>
-                  <p className="text-xs font-bold text-charcoal/40">{selectedNotification.property_type} - {selectedNotification.property_number}</p>
+
+                <h2 className="mb-6 font-serif text-2xl font-bold text-slate-800 leading-tight">
+                  {selectedNotification.displayTitle}
+                </h2>
+
+                <div className="mb-8 p-6 rounded-2xl bg-slate-50 border border-slate-100 italic">
+                  <p className="text-sm font-body text-slate-600 leading-relaxed text-center">
+                    "{selectedNotification.displayMessage}"
+                  </p>
                 </div>
-              </div>
 
-              <h2 className="mb-8 pr-12 font-serif text-3xl font-bold text-charcoal leading-[1.2] tracking-tight">
-                Installment Payment Request
-              </h2>
+                {/* Metadata Section */}
 
-              <div className="p-6 rounded-3xl bg-charcoal/5 border border-charcoal/5 mb-8">
-                <p className="text-sm font-body text-charcoal/80 leading-relaxed text-center italic">
-                  "{selectedNotification.message}"
-                </p>
-              </div>
 
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setSelectedNotification(null)}
-                  className="flex-1 bg-charcoal text-white py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-charcoal/90 transition-all shadow-lg"
-                >
-                  Dismiss
-                </button>
+                {/* Footer Actions */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => setSelectedNotification(null)}
+                    className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm tracking-wide hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
+                  >
+                    Dismiss
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
