@@ -85,7 +85,7 @@ const TopNavbar = () => {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden bg-white p-2"
+                  className="absolute right-0 mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden bg-white p-2 z-50"
                 >
 
                   <Link href="/dashboard/profile" onClick={() => setOpenDropdown(false)}>

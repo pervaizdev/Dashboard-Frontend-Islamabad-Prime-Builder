@@ -85,30 +85,15 @@ const AnnouncementsSection = () => {
         animate={{ opacity: 1, x: 0 }}
         className="overflow-hidden rounded-2xl bg-white premium-border-glow h-full flex flex-col"
       >
-        <div className="shimmer-gold px-6 py-4 flex items-center justify-between border-b border-primary/20 bg-charcoal/5">
-          <div className="flex items-center gap-3">
-            <div className="bg-charcoal p-2 rounded-lg shadow-sm">
-              <Bell className="h-4 w-4 text-primary" />
-            </div>
-            <h3 className="font-serif text-base font-bold text-charcoal tracking-wide uppercase">NOTIFICATIONS</h3>
-          </div>
-          <div className="flex items-center gap-3">
-            {isSuperAdmin && (
-              <Link
-                href="/dashboard/announcementform"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
-              >
-                <Settings className="h-2.5 w-2.5" />
-                Manage
-              </Link>
-            )}
-            {isAdmin ? (
-              <span></span>
-            ) : (
-              <span className="text-[10px] font-bold text-black border border-black/10 px-2 py-1 rounded-full">{notifications.length} NEW</span>
-            )}
-          </div>
-        </div>
+        {(isSuperAdmin || isAdmin) && (
+          <Link
+            href="/dashboard/announcementform"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+          >
+            <Settings className="h-2.5 w-2.5" />
+            Manage
+          </Link>
+        )}
 
         <div className="flex-1 overflow-y-auto divide-y divide-primary/5 custom-scrollbar">
           {loading ? (

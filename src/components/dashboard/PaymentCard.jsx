@@ -10,10 +10,12 @@ import {
   Percent,
   Layers,
   Loader2,
+  Building,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { dashboardAPI } from "@/api/dashboard";
+import Link from "next/link";
 
 const icons = {
   wallet: Wallet,
@@ -23,6 +25,7 @@ const icons = {
   users: Users,
   percent: Percent,
   layers: Layers,
+  building: Building,
 };
 
 const PaymentCard = () => {
@@ -90,9 +93,13 @@ const PaymentCard = () => {
           helper: "Properties currently in system",
           icon: "layers",
         },
-        
-      
-   
+        {
+          title: "View All Properties",
+          value: "Go to List →",
+          helper: "Manage and view properties",
+          icon: "building",
+          href: "/dashboard/propertylist",
+        },
       ]
     : [
         {
@@ -140,13 +147,14 @@ const PaymentCard = () => {
       {displayStats.map((item, index) => {
         const Icon = icons[item.icon] || Wallet;
 
-        return (
+        const cardContent = (
           <motion.div
-            key={index}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow"
+            className={`group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow ${
+              item.href ? "hover:scale-105 hover:cursor-pointer hover:shadow-lg" : ""
+            }`}
           >
             {/* Hover Shimmer Effect */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
@@ -163,7 +171,7 @@ const PaymentCard = () => {
             </div>
 
             <div className="mt-6">
-              <h4 className="font-serif text-2xl font-bold tracking-tight text-neutral-800">
+              <h4 className={`font-serif text-2xl font-bold tracking-tight text-neutral-800 ${item.href ? "text-primary group-hover:underline" : ""}`}>
                 {item.value}
               </h4>
             </div>
@@ -175,6 +183,16 @@ const PaymentCard = () => {
             </div>
           </motion.div>
         );
+
+        if (item.href) {
+          return (
+            <Link key={index} href={item.href} className="block">
+              {cardContent}
+            </Link>
+          );
+        }
+
+        return <div key={index}>{cardContent}</div>;
       })}
     </div>
   );

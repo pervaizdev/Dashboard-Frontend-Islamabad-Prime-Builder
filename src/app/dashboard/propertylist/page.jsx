@@ -108,8 +108,7 @@ export default function PropertyListPage() {
             <table className="w-full border-collapse text-left">
               <thead>
                 <tr className="bg-slate-50/50 border-b border-slate-100">
-                  <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">ID</th>
-                  <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Property Details</th>
+                 <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Property Details</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Building Info</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Financials</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Plan</th>
@@ -136,9 +135,6 @@ export default function PropertyListPage() {
                       onClick={() => router.push(`/dashboard/proporitydetail?id=${property.property_id}`)}
                       className="hover:bg-slate-50 cursor-pointer transition-all group relative"
                     >
-                      <td className="px-8 py-6">
-                        <span className="text-xs font-bold text-slate-300 group-hover:text-yellow-600 transition-colors">#{property.property_id}</span>
-                      </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600">
