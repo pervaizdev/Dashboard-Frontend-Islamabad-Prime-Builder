@@ -30,7 +30,7 @@ const AnnouncementsSection = () => {
 
         if (isAdmin) {
           // Admins see all banners
-          bannerRes = await announcementAPI.getAllAnnouncements();
+          bannerRes = await announcementAPI.getActiveAnnouncements();
         } else {
           // Regular users see active banners AND installment notifications
           const [bRes, nRes] = await Promise.all([
