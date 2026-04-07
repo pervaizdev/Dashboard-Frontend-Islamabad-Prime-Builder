@@ -76,7 +76,7 @@ export default function PropertyFormPage() {
         brokers: formData.brokers.map(b => ({ ...b, broker_id: Number(b.broker_id), userId: Number(b.userId) }))
       };
 
-      const response = await axiosInstance.post("/api/property-details", payload);
+      const response = await axiosInstance.post("/property-details", payload);
       if (response.data.success) {
         toast.success("Property created successfully!");
         // Reset or redirect
