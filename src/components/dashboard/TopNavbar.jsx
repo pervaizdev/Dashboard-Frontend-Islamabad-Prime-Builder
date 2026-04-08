@@ -46,7 +46,7 @@ const TopNavbar = () => {
               <Image src="/images/logo.png" alt="Logo" fill sizes="48px" className="object-contain" />
             </div>
             <div className="hidden md:block">
-              <h2 className="font-serif text-lg font-bold leading-tight tracking-tight text-charcoal  transition-colors">
+              <h2 className="font-serif text-lg font-semibold leading-tight tracking-tight text-charcoal  transition-colors">
                 ISLAMABAD PRIME
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/40">Builders</p>
@@ -71,7 +71,7 @@ const TopNavbar = () => {
               </div>
               
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-bold text-charcoal leading-none mb-1 group-hover:text-primary transition-colors">
+                <p className="text-md font-bold text-charcoal leading-none mb-1 group-hover:text-primary transition-colors">
                   {userName}
                 </p>
               </div>

@@ -3,6 +3,12 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 
+const playfair = Poppins({
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-body",
+  subsets: ["latin"],
+});
+
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-body",
@@ -16,12 +22,12 @@ const parisienne = Parisienne({
   preload: false,
 });
 
-const playfair = Playfair_Display_SC({
-  weight: ["400", "700"],
-  variable: "--font-serif",
-  subsets: ["latin"],
-  preload: false,
-});
+// const playfair = Playfair_Display_SC({
+//   weight: ["400", "700"],
+//   variable: "--font-serif",
+//   subsets: ["latin"],
+//   preload: false,
+// });
 
 export const metadata = {
   title: "Client Portal",

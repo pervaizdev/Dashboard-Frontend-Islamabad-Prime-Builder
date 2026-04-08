@@ -160,7 +160,7 @@ const PaymentCard = () => {
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
             
             <div className="flex items-start justify-between">
-              <h3 className="font-serif text-sm font-bold mt-3 text-neutral-700">
+              <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 {item.title}
               </h3>
               <div
@@ -171,7 +171,7 @@ const PaymentCard = () => {
             </div>
 
             <div className="mt-6">
-              <h4 className={`font-serif text-2xl font-bold tracking-tight text-neutral-800 ${item.href ? "text-primary group-hover:underline" : ""}`}>
+              <h4 className={`font-body text-xl font-semibold tracking-tight text-neutral-800 ${item.href ? "text-primary group-hover:underline" : ""}`}>
                 {item.value}
               </h4>
             </div>
