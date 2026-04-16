@@ -38,7 +38,7 @@ const TopNavbar = () => {
   };
 
   return (
-    <div className="w-full   px-4 py-4 md:px-6 md:py-5">
+    <div className="w-full   px-4  md:px-6 mt-5">
       <div className="flex h-[80px] items-center justify-between rounded-[2rem] px-6 premium-border-glow">
         <Link href="/dashboard" className="group">
           <div className="flex items-center gap-4 cursor-pointer">

@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Eye, 
-  EyeOff, 
-  CheckCircle, 
-  XCircle, 
-  User, 
-  Phone, 
-  Calendar, 
-  ShieldCheck, 
+import {
+  Eye,
+  EyeOff,
+  CheckCircle,
+  XCircle,
+  User,
+  Phone,
+  Calendar,
+  ShieldCheck,
   Lock,
   Mail,
   X,
@@ -28,8 +28,25 @@ export default function ProfileSection() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const getStrength = (password) => {
+    if (!password) return { label: "", color: "transparent", width: "0%" };
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 10) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+    if (strength <= 2) return { label: "Weak", color: "#fb7185", width: "33%" };
+    if (strength <= 4) return { label: "Medium", color: "#fbbf24", width: "66%" };
+    return { label: "Strong", color: "#10b981", width: "100%" };
+  };
+
+  const strength = getStrength(newPassword);
+
   const isMatch =
-    newPassword.length >= 8 &&
+    newPassword.length >= 2 &&
     confirmPassword.length > 0 &&
     newPassword === confirmPassword;
 
@@ -37,7 +54,7 @@ export default function ProfileSection() {
 
   const handleUpdatePassword = async () => {
     if (!isMatch) return;
-    
+
     try {
       setIsUpdating(true);
       const res = await authAPI.updatePassword(newPassword);
@@ -72,41 +89,41 @@ export default function ProfileSection() {
   };
 
   const profileData = [
-    { 
-      label: "Full Name", 
-      value: user?.name || "N/A", 
-      icon: <User className="text-primary" size={18} /> 
+    {
+      label: "Full Name",
+      value: user?.name || "N/A",
+      icon: <User className="text-primary" size={18} />
     },
-    { 
-      label: "Phone Number", 
-      value: user?.phone || "N/A", 
-      icon: <Phone className="text-primary" size={18} /> 
+    {
+      label: "Phone Number",
+      value: user?.phone || "N/A",
+      icon: <Phone className="text-primary" size={18} />
     },
-    { 
-      label: "Email Address", 
-      value: user?.email || "N/A", 
-      icon: <Mail className="text-primary" size={18} /> 
+    {
+      label: "Email Address",
+      value: user?.email || "N/A",
+      icon: <Mail className="text-primary" size={18} />
     },
-    { 
-      label: "Active Membership", 
-      value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : "N/A", 
-      icon: <Calendar className="text-primary" size={18} /> 
+    {
+      label: "Active Membership",
+      value: user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : "N/A",
+      icon: <Calendar className="text-primary" size={18} />
     },
-    { 
-      label: "Residential Address", 
-      value: user?.owner_profile?.client_residential_address || "N/A", 
+    {
+      label: "Residential Address",
+      value: user?.owner_profile?.client_residential_address || "N/A",
       icon: <MapPin size={18} className="text-primary" />,
     },
-    { 
-      label: "Permanent Address", 
-      value: user?.owner_profile?.client_permanent_address || "N/A", 
+    {
+      label: "Permanent Address",
+      value: user?.owner_profile?.client_permanent_address || "N/A",
       icon: <ShieldCheck className="text-primary" size={18} />,
     },
   ];
 
   return (
     <div className="min-h-screen p-4 md:p-8 lg:p-12">
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -122,7 +139,7 @@ export default function ProfileSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Read-only Information Section */}
             <motion.div variants={itemVariants} className="glass rounded-[2rem] overflow-hidden premium-border-glow">
               <div className="shimmer-gold px-8 py-5 flex items-center justify-between border-b border-primary/20">
@@ -131,7 +148,7 @@ export default function ProfileSection() {
                   PERSONAL INFORMATION
                 </h3>
               </div>
-              
+
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {profileData.map((item, idx) => (
@@ -162,7 +179,7 @@ export default function ProfileSection() {
                   SECURITY SETTINGS
                 </h3>
               </div>
-              
+
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* New Password */}
@@ -187,6 +204,29 @@ export default function ProfileSection() {
                         {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
+
+                    {/* Strength Indicator */}
+                    {newPassword && (
+                      <div className="space-y-2 pt-1">
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-[10px] uppercase tracking-wider font-bold text-charcoal/40">Security Level</span>
+                          <span 
+                            className="text-[10px] font-bold uppercase tracking-wider"
+                            style={{ color: strength.color }}
+                          >
+                            {strength.label}
+                          </span>
+                        </div>
+                        <div className="h-1 w-full bg-charcoal/5 rounded-full overflow-hidden">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: strength.width }}
+                            className="h-full transition-all duration-500 ease-out"
+                            style={{ backgroundColor: strength.color }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Confirm Password */}
@@ -201,11 +241,10 @@ export default function ProfileSection() {
                         placeholder="••••••••"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full bg-white border rounded-xl px-4 py-3 pr-20 text-sm text-charcoal outline-none transition-all duration-300 ${
-                          hasConfirmValue && isMatch ? 'border-primary' : hasConfirmValue ? 'border-rose-400' : 'border-primary/20'
-                        } focus:border-primary`}
+                        className={`w-full bg-white border rounded-xl px-4 py-3 pr-20 text-sm text-charcoal outline-none transition-all duration-300 ${hasConfirmValue && isMatch ? 'border-primary' : hasConfirmValue ? 'border-rose-400' : 'border-primary/20'
+                          } focus:border-primary`}
                       />
-                      
+
                       {/* Live Tick/Cross Overlay */}
                       <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center">
                         <AnimatePresence mode="wait">
@@ -247,17 +286,16 @@ export default function ProfileSection() {
                     whileTap={isMatch && !isUpdating ? { scale: 0.98 } : {}}
                     onClick={handleUpdatePassword}
                     disabled={!isMatch || isUpdating}
-                    className={`relative min-w-[220px] overflow-hidden rounded-xl px-10 py-4 text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${
-                      isMatch
+                    className={`relative min-w-[220px] overflow-hidden rounded-xl px-10 py-4 text-[10px] font-bold uppercase tracking-widest transition-all duration-500 ${isMatch
                         ? "bg-charcoal text-white hover:bg-black shadow-lg shadow-charcoal/20"
                         : "bg-charcoal/20 text-charcoal/40 cursor-not-allowed"
-                    }`}
+                      }`}
                   >
                     <span className="relative z-10">
                       {isUpdating ? "Updating..." : "Update Password"}
                     </span>
                     {isMatch && !isUpdating && (
-                      <motion.div 
+                      <motion.div
                         initial={{ x: "-100%" }}
                         animate={{ x: "100%" }}
                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}

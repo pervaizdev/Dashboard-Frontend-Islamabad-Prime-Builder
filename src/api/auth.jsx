@@ -82,7 +82,7 @@ export const authAPI = {
       throw error.response?.data || { message: "Password reset failed" };
     }
   },
-  
+
   updatePassword: async (password) => {
     try {
       const response = await axiosInstance.post(

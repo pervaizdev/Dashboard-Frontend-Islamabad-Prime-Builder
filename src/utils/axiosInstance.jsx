@@ -9,15 +9,17 @@ const axiosInstance = axios.create({
   },
 });
 
+const NON_AUTHENTICATED_ENDPOINTS = [
+  ENDPOINTS.AUTH.LOGIN,
+  ENDPOINTS.AUTH.REGISTER,
+  ENDPOINTS.AUTH.FORGETPASSWORD,
+  ENDPOINTS.AUTH.VERIFYCODE,
+  ENDPOINTS.AUTH.RESETPASSWORD,
+];
+
 axiosInstance.interceptors.request.use(
   (config) => {
-    const nonAuthenticatedEndpoints = [
-      ENDPOINTS.AUTH.LOGIN,
-      ENDPOINTS.AUTH.REGISTER,
-      ENDPOINTS.AUTH.FORGET_PASSWORD,
-    ];
-
-    if (nonAuthenticatedEndpoints.some((endpoint) => config.url === endpoint)) {
+    if (NON_AUTHENTICATED_ENDPOINTS.some((endpoint) => config.url === endpoint)) {
       return config;
     }
 
@@ -51,8 +53,12 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // If 401 and not already retrying
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // If 401 and not already retrying and not a non-authenticated endpoint
+    if (
+      error.response?.status === 401 && 
+      !originalRequest._retry &&
+      !NON_AUTHENTICATED_ENDPOINTS.some((endpoint) => originalRequest.url === endpoint)
+    ) {
       originalRequest._retry = true;
 
       try {

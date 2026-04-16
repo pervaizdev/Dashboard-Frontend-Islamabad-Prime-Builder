@@ -245,7 +245,7 @@ const PropertyDetailContent = () => {
         className="flex flex-col gap-6 rounded-[2.5rem] glass p-8 premium-border-glow md:flex-row md:items-center md:justify-between shadow-2xl shadow-primary/5"
       >
         <div className="space-y-1">
-          <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal lg:text-5xl">
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-charcoal lg:text-4xl">
             {propertyData.property_number}
           </h1>
         </div>
@@ -404,6 +404,19 @@ const PropertyDetailContent = () => {
                     <User size={14} className="text-primary/60" />
                     <span>Relationship: {broker.relationship}</span>
                   </div>
+                  {broker.broker_commission > 0 && (
+                    <div className="mt-2 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-500/10 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg shadow-emerald-500/20">
+                          <CircleDollarSign size={14} className="text-white" />
+                        </div>
+                        <span className="text-md font-bold ">Broker Commission</span>
+                      </div>
+                      <span className="font-serif font-bold">
+                        Rs. {broker.broker_commission.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -499,8 +512,8 @@ const PropertyDetailContent = () => {
                   <td className="px-6 py-4 text-center">
                     <span
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest ${item.status === "paid"
-                          ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
-                          : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
+                        ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                        : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
                         }`}
                     >
                       {item.status === "paid" ? (

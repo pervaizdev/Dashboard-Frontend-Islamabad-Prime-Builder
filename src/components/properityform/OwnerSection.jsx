@@ -81,8 +81,8 @@ export default function OwnerSection({ formData, setFormData, usersList }) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <div>
                 <SearchableSelect 
-                  label="User ID" 
-                  placeholder="Enter User ID"
+                  label="Client Name" 
+                  placeholder="Enter Client"
                   options={usersList || []} 
                   value={owner.userId} 
                   onChange={(val) => handleOwnerChange(i, "userId", val)}

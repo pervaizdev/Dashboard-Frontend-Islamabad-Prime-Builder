@@ -104,8 +104,8 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               <div>
                 <SearchableSelect 
-                  label="Broker ID" 
-                  placeholder="Enter Broker ID"
+                  label="Broker Name" 
+                  placeholder="Enter Broker Name"
                   options={brokersList || []} 
                   idKey="broker_id"
                   nameKey="name"

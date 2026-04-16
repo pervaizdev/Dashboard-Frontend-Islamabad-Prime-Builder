@@ -20,6 +20,7 @@ export default function PropertyFormPage() {
     down_payment: "",
     payment_plan: "",
     startDate: "",
+    broker_commission: "",
     owners: [
       {
         userId: "",
@@ -73,7 +74,12 @@ export default function PropertyFormPage() {
         total_price: Number(formData.total_price),
         down_payment: Number(formData.down_payment),
         owners: formData.owners.map(o => ({ ...o, age: Number(o.age), userId: Number(o.userId) })),
-        brokers: formData.brokers.map(b => ({ ...b, broker_id: Number(b.broker_id), userId: Number(b.userId) }))
+        brokers: formData.brokers.map(b => ({ 
+          ...b, 
+          broker_id: Number(b.broker_id), 
+          userId: Number(b.userId),
+          broker_commission: Number(formData.broker_commission) > 0 ? Number(formData.broker_commission) : 0
+        }))
       };
 
       const response = await axiosInstance.post("/property-details", payload);

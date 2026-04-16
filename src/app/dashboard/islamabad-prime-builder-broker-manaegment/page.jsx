@@ -9,17 +9,16 @@ import {
   Edit, 
   Trash2,
   User, 
-  Phone, 
-  CreditCard, 
-  MapPin, 
   Plus,
   X,
-  CheckCircle2,
-  ShieldAlert
+  Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function BrokerManagementPage() {
+  const router = useRouter();
+
   const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -222,6 +221,12 @@ export default function BrokerManagementPage() {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => router.push(`/dashboard/broker-details?id=${broker.broker_id}`)}
+                            className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-emerald-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
                           <button 
                             onClick={() => handleEditClick(broker)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-yellow-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
