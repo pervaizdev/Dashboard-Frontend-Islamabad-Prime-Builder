@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { authAPI } from "@/api/auth";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -14,13 +14,13 @@ export const AuthProvider = ({ children }) => {
 
   const publicRoutes = ["/", "/login", "/register", "/forget-password", "/reset-password"];
 
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("token");
-    
+
     if (!token) {
       setUser(null);
       setLoading(false);
-      // Redirect to root if not using a public route
+
       if (!publicRoutes.includes(pathname)) {
         router.push("/");
       }
@@ -29,9 +29,10 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const data = await authAPI.Me();
+
       if (data?.success) {
         setUser(data.user);
-        // If logged in and on a public route, redirect to dashboard
+
         if (publicRoutes.includes(pathname)) {
           router.push("/dashboard");
         }
@@ -39,6 +40,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
         setUser(null);
+
         if (!publicRoutes.includes(pathname)) {
           router.push("/");
         }
@@ -48,27 +50,27 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       setUser(null);
+
       if (!publicRoutes.includes(pathname)) {
         router.push("/");
       }
     } finally {
       setLoading(false);
     }
-
-  };
-
-
+  }, [pathname, router]);
 
   useEffect(() => {
     checkAuth();
-  }, [pathname]); // Re-check on navigation
+  }, [checkAuth]);
 
   const login = async (credentials) => {
     const data = await authAPI.login(credentials);
+
     if (data?.success) {
       setUser(data.user);
       router.push("/dashboard");
     }
+
     return data;
   };
 

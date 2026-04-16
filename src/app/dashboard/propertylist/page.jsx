@@ -112,6 +112,7 @@ export default function PropertyListPage() {
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Building Info</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Financials</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Plan</th>
+                  <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400">Status</th>
                   <th className="px-8 py-5 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
                 </tr>
               </thead>
@@ -168,6 +169,19 @@ export default function PropertyListPage() {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
                           ${property.payment_plan === "monthly" ? "bg-blue-50 text-blue-600 border border-blue-100" : "bg-orange-50 text-orange-600 border border-orange-100"}`}>
                           {property.payment_plan}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6 text-sm font-medium whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold
+                         ${property.property_owned_status === "Owned"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-blue-100 text-blue-700"
+                            }`}
+                        >
+                          {property.property_owned_status === "Owned"
+                            ? "Owned"
+                            : "Transferred"}
                         </span>
                       </td>
                       <td className="px-8 py-6 text-right">

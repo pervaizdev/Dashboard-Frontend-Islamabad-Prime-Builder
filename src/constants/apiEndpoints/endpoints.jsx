@@ -4,7 +4,7 @@ export const ENDPOINTS = {
     REGISTER: "/auth/signup",
     ME: "/auth/me",
     FORGETPASSWORD: "/auth/forgot-password",
-    VERIFYCODE: "/auth/verify-code", 
+    VERIFYCODE: "/auth/verify-otp", 
     RESETPASSWORD: "/auth/reset-password",
     REFRESH_TOKEN: "/auth/refresh-token",
     UPDATE_PASSWORD: "/auth/update-password",
@@ -22,10 +22,13 @@ export const ENDPOINTS = {
     GET_DUE_INSTALLMENTS: "/property-details/due-installments",
     GET_PROPERTY_DETAILS: "/property-details/:id",
     UPDATE_INSTALLMENT_STATUS: "/property-details/:id/installments/:index",
+    GET_FILTERED: "/property-details/filtered",
   },
   BROKERS: {
     CREATE: "/brokers",
     GET_NAMES: "/brokers/names",
+    GET_OVERALL_STATS: "/brokers/overall-stats",
+    GET_REPORTS: "/brokers/reports",
   },
   BANNERS: {
     BASE: "/banners",

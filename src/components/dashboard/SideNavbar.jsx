@@ -34,7 +34,7 @@ const navItems = [
     href: "/dashboard/islamabad-prime-builder-broker-manaegment",
     icon: Briefcase,
   },
-  
+
   {
     title: "Add Property",
     href: "/dashboard/properityform",
@@ -45,10 +45,20 @@ const navItems = [
     href: "/dashboard/propertylist",
     icon: List,
   },
-    {
+  {
     title: "Client Management",
     href: "/dashboard/Islamabad-prime-builder-client-user",
     icon: Users,
+  },
+  {
+    title: "Reports Broker Commission",
+    href: "/dashboard/reports-broker-commission",
+    icon: Building2,
+  },
+  {
+    title: "Reports Property",
+    href: "/dashboard/reports-property-commission",
+    icon: Building2,
   },
 ];
 
@@ -78,10 +88,18 @@ const SideNavbar = () => {
         )}
       </button>
 
-      <div className={`flex h-24 items-center border-b border-[#c29e6d]/10 ${isCollapsed ? "justify-center px-2" : "px-6"}`}>
+      <div
+        className={`flex h-24 items-center border-b border-[#c29e6d]/10 ${isCollapsed ? "justify-center px-2" : "px-6"}`}
+      >
         <div className="flex items-center gap-3">
           <div className="relative shrink-0">
-            <Image src="/images/logo.png" alt="Logo" width={42} height={42} className="object-contain" />
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={42}
+              height={42}
+              className="object-contain"
+            />
           </div>
           {!isCollapsed && (
             <div className="overflow-hidden">

@@ -5,23 +5,23 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Input from "@/components/Input.jsx";
 import Button from "@/components/Button.jsx";
-import AuthBlobBackground from "@/components/AnimatedBackground";
 import AuthShowcasePanel from "@/components/AuthShowcasePanel";
 import AuthCard from "@/components/AuthCard";
 import AuthHeader from "@/components/AuthHeader";
 import { fadeUp, fadeRight } from "@/animation/motion";
-import { authAPI } from "@/api/auth";
 import { useAuth } from "@/context/AuthContext";
+
+import { toast } from "react-hot-toast";
 
 const LoginPage = () => {
   const router = useRouter();
-  const { user, checkAuth } = useAuth();
+  const { user, login } = useAuth();
 
   const [formData, setFormData] = useState({
-    identifier: "", 
+    identifier: "",
     password: "",
   });
-  const [error, setError] = useState("");
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -29,7 +29,6 @@ const LoginPage = () => {
       router.push("/dashboard");
     }
   }, [user, router]);
-
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
@@ -42,19 +41,23 @@ const LoginPage = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const isEmail = formData.identifier.includes("@");
-      const loginParams = isEmail 
+      const loginParams = isEmail
         ? { email: formData.identifier, password: formData.password }
         : { phone: formData.identifier, password: formData.password };
 
-      await authAPI.login(loginParams);
-      router.push("/dashboard");
+      const data = await login(loginParams);
+
+      if (!data?.success) {
+        toast.error(data?.message || "Invalid credentials. Please try again.");
+      } else {
+        toast.success("Login successful!");
+      }
     } catch (err) {
       console.error("Login Error:", err);
-      setError(err.message || "Invalid credentials. Please try again.");
+      toast.error(err?.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -80,12 +83,6 @@ const LoginPage = () => {
             />
 
             <form onSubmit={onSubmitHandler} className="space-y-6">
-              {error && (
-                <div className="rounded-lg bg-red-500/10 p-3 text-center text-sm text-red-500">
-                  {error}
-                </div>
-              )}
-
               <motion.div
                 variants={fadeUp}
                 initial="hidden"
@@ -125,13 +122,13 @@ const LoginPage = () => {
                 custom={0.5}
                 className="flex justify-end text-sm"
               >
-                {/* <button
+                <button
                   type="button"
                   onClick={() => router.push("/forget-password")}
                   className="font-medium text-[#c29e6d] transition-colors duration-300 hover:text-[#e2c08f]"
                 >
                   Forgot password?
-                </button> */}
+                </button>
               </motion.div>
 
               <motion.div

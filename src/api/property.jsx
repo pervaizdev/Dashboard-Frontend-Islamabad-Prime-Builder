@@ -49,4 +49,22 @@ export const propertyAPI = {
       throw error.response?.data || { message: "Error fetching all properties" };
     }
   },
+
+  getFilteredProperties: async (params) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.PROPERTIES.GET_FILTERED, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching filtered properties" };
+    }
+  },
+  
+  transferProperty: async (id, data) => {
+    try {
+      const response = await axiosInstance.post(`${ENDPOINTS.PROPERTIES.GET_ALL}/${id}/transfer`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error transferring property" };
+    }
+  },
 };

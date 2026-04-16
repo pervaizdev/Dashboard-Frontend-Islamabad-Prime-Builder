@@ -22,14 +22,14 @@ const OverView = () => {
         </div>
       </div>
       
-      {isAdmin ? (
+      {/* {isAdmin ? (
         <Admin_due_payment />
       ) : (
         <Propority />
-      )}
+      )} */}
       
-       {/* <Admin_due_payment />
-       <Propority /> */}
+       <Admin_due_payment />
+       <Propority />
       <Gallery />
     </>
   );

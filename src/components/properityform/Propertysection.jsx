@@ -3,7 +3,18 @@
 export default function PropertySection({ formData, setFormData }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    if (name === "total_price") {
+      const price = Math.max(0, parseFloat(value) || 0);
+      const commission = (price * 0.05).toFixed(2);
+      setFormData((prev) => ({ 
+        ...prev, 
+        [name]: price,
+        broker_commission: commission 
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   return (

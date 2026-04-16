@@ -35,6 +35,125 @@ import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
 // --- Custom Modal Component ---
+const TransferModal = ({ isOpen, onClose, onConfirm, loading }) => {
+  const [formData, setFormData] = useState({
+    newOwnerName: "",
+    newOwnerCNIC: "",
+    newOwnerPhone: "",
+    temporaryAddress: "",
+    permanentAddress: ""
+  });
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onConfirm(formData);
+  };
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="absolute h-[100vh] inset-0 bg-charcoal/60 backdrop-blur-sm"
+        />
+
+        <motion.div
+          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          exit={{ scale: 0.95, opacity: 0, y: 20 }}
+          className="relative w-full max-w-lg overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
+        >
+          <button
+            onClick={onClose}
+            className="absolute right-6 top-6 rounded-full p-2 text-charcoal/20 hover:bg-slate-50 hover:text-charcoal transition-colors"
+          >
+            <X size={20} />
+          </button>
+
+          <div className="mb-8 items-start">
+            <h3 className="font-serif text-2xl font-bold text-charcoal">Property Transfer</h3>
+            <p className="mt-2 text-[10px] font-bold text-charcoal/40 uppercase tracking-widest">
+              Assign this portfolio entry to a new owner
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30 px-1">Full Name *</label>
+                <input
+                  required
+                  placeholder="New Owner Name"
+                  className="w-full h-12 rounded-xl bg-slate-50 border border-primary/5 px-4 text-xs font-bold outline-none focus:border-primary transition-all"
+                  value={formData.newOwnerName}
+                  onChange={e => setFormData({ ...formData, newOwnerName: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30 px-1">CNIC Number *</label>
+                <input
+                  required
+                  placeholder="00000-0000000-0"
+                  className="w-full h-12 rounded-xl bg-slate-50 border border-primary/5 px-4 text-xs font-bold outline-none focus:border-primary transition-all"
+                  value={formData.newOwnerCNIC}
+                  onChange={e => setFormData({ ...formData, newOwnerCNIC: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30 px-1">Phone Number *</label>
+              <input
+                required
+                placeholder="+92 000 0000000"
+                className="w-full h-12 rounded-xl bg-slate-50 border border-primary/5 px-4 text-xs font-bold outline-none focus:border-primary transition-all"
+                value={formData.newOwnerPhone}
+                onChange={e => setFormData({ ...formData, newOwnerPhone: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30 px-1">Temporary Address (Optional)</label>
+              <input
+                placeholder="Street address, City"
+                className="w-full h-12 rounded-xl bg-slate-50 border border-primary/5 px-4 text-xs font-bold outline-none focus:border-primary transition-all"
+                value={formData.temporaryAddress}
+                onChange={e => setFormData({ ...formData, temporaryAddress: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-charcoal/30 px-1">Permanent Address (Optional)</label>
+              <input
+                placeholder="Village, Tehsil, District"
+                className="w-full h-12 rounded-xl bg-slate-50 border border-primary/5 px-4 text-xs font-bold outline-none focus:border-primary transition-all"
+                value={formData.permanentAddress}
+                onChange={e => setFormData({ ...formData, permanentAddress: e.target.value })}
+              />
+            </div>
+
+            <div className="pt-4">
+              <button
+                disabled={loading}
+                type="submit"
+                className="w-full rounded-2xl bg-charcoal py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-primary shadow-xl shadow-charcoal/10 flex justify-center items-center gap-2"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck size={16} />}
+                Confirm Transfer
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+};
+
 const PaymentModal = ({ isOpen, onClose, onConfirm, installment, loading }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -123,7 +242,9 @@ const PropertyDetailContent = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [selectedInstIndex, setSelectedInstIndex] = useState(null);
+  const [isTransferring, setIsTransferring] = useState(false);
 
   const isAdmin = user?.role === "admin" || user?.role === "super-admin";
   const isSuperAdmin = user?.role === "super-admin";
@@ -169,6 +290,22 @@ const PropertyDetailContent = () => {
       toast.error(error.message || "Failed to update status");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleTransferProperty = async (formData) => {
+    try {
+      setIsTransferring(true);
+      const res = await propertyAPI.transferProperty(id, formData);
+      if (res.success) {
+        toast.success("Property ownership transferred!");
+        setIsTransferModalOpen(false);
+        fetchDetails();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Transfer failed");
+    } finally {
+      setIsTransferring(false);
     }
   };
 
@@ -228,13 +365,19 @@ const PropertyDetailContent = () => {
   return (
     <div className="min-h-screen px-4 py-8 md:px-10 lg:px-16 space-y-10">
 
-      {/* Payment Modal */}
       <PaymentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmPayment}
         installment={propertyData.installments[selectedInstIndex]}
         loading={updatingId !== null}
+      />
+
+      <TransferModal
+        isOpen={isTransferModalOpen}
+        onClose={() => setIsTransferModalOpen(false)}
+        onConfirm={handleTransferProperty}
+        loading={isTransferring}
       />
 
       {/* Header Section */}
@@ -245,7 +388,7 @@ const PropertyDetailContent = () => {
         className="flex flex-col gap-6 rounded-[2.5rem] glass p-8 premium-border-glow md:flex-row md:items-center md:justify-between shadow-2xl shadow-primary/5"
       >
         <div className="space-y-1">
-          <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal lg:text-5xl">
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-charcoal lg:text-4xl">
             {propertyData.property_number}
           </h1>
         </div>
@@ -404,11 +547,70 @@ const PropertyDetailContent = () => {
                     <User size={14} className="text-primary/60" />
                     <span>Relationship: {broker.relationship}</span>
                   </div>
+                  {broker.broker_commission > 0 && (
+                    <div className="mt-2 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-500/10 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg shadow-emerald-500/20">
+                          <CircleDollarSign size={14} className="text-white" />
+                        </div>
+                        <span className="text-md font-bold ">Broker Commission</span>
+                      </div>
+                      <span className="font-serif font-bold">
+                        Rs. {broker.broker_commission.toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </motion.div>
+
+        {/* Transfer History (New Owner Record) */}
+        {propertyData.transferHistory && propertyData.transferHistory.length > 0 && (
+          <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl col-span-1 md:col-span-2">
+            <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
+              <BadgeDollarSign className="text-primary" size={24} />
+              <h3 className="font-serif text-xl font-bold text-charcoal">Transfer Record</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {propertyData.transferHistory.map((record, idx) => (
+                <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-emerald-500/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="font-serif text-lg font-bold text-emerald-700">{record.newOwnerName}</p>
+                    <span className="text-[8px] font-bold uppercase bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">New Owner</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                      <ShieldCheck size={14} className="text-primary/60" />
+                      <span className="font-bold">CNIC:</span> {record.newOwnerCNIC}
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                      <Phone size={14} className="text-primary/60" />
+                      <span className="font-bold">Phone:</span> {record.newOwnerPhone}
+                    </div>
+                    {record.temporaryAddress && (
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <MapPin size={14} className="text-primary/60" />
+                        <span className="font-bold">Temp Addr:</span> {record.temporaryAddress}
+                      </div>
+                    )}
+                    {record.permanentAddress && (
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <MapPin size={14} className="text-primary/60" />
+                        <span className="font-bold">Perm Addr:</span> {record.permanentAddress}
+                      </div>
+                    )}
+                    <div className="mt-4 pt-4 border-t border-primary/5 flex items-center justify-between">
+                      <span className="text-[10px] text-charcoal/40 font-bold uppercase">Transferred On</span>
+                      <span className="text-xs font-bold text-charcoal">{new Date(record.transferDate).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Installment Table */}
@@ -431,6 +633,15 @@ const PropertyDetailContent = () => {
           </div>
 
           <div className="flex items-center gap-6">
+            {isAdmin && (
+              <button
+                onClick={() => setIsTransferModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-primary hover:text-charcoal transition-all shadow-lg"
+              >
+                <BadgeDollarSign size={14} />
+                Transfer Unit
+              </button>
+            )}
             <div className="px-6 py-3 rounded-2xl bg-white/60 border border-primary/10">
               <p className="text-[9px] font-bold text-charcoal/40 uppercase tracking-widest mb-1">Installments Progress</p>
               <div className="flex items-center gap-2">
@@ -499,8 +710,8 @@ const PropertyDetailContent = () => {
                   <td className="px-6 py-4 text-center">
                     <span
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest ${item.status === "paid"
-                          ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
-                          : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
+                        ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                        : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
                         }`}
                     >
                       {item.status === "paid" ? (

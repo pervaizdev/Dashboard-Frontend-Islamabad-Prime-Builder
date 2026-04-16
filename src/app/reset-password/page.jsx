@@ -12,6 +12,8 @@ import AuthCard from "@/components/AuthCard";
 import AuthHeader from "@/components/AuthHeader";
 import { fadeUp, popIn } from "@/animation/motion";
 
+import { authAPI } from "@/api/auth";
+
 const ResetPasswordContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,12 +53,13 @@ const ResetPasswordContent = () => {
 
     try {
       setLoading(true);
-      // Mocking API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Password reset successfully! You can now login.");
-      router.push("/login");
+      const res = await authAPI.resetPassword(token, formData.password);
+      if (res.success) {
+        toast.success("Password reset successfully! You can now login.");
+        router.push("/login"); // or "/" if your login is at root
+      }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
