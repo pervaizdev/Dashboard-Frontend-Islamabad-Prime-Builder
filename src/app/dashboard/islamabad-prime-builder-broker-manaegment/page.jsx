@@ -11,7 +11,11 @@ import {
   User, 
   Plus,
   X,
-  Eye
+  Eye,
+  BadgeDollarSign,
+  CreditCard,
+  Wallet,
+  CircleDollarSign
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -22,6 +26,12 @@ export default function BrokerManagementPage() {
   const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [overallStats, setOverallStats] = useState({
+    total_commission: 0,
+    total_paid: 0,
+    total_balance: 0,
+    properties_count: 0
+  });
   
   // Modals state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -54,8 +64,20 @@ export default function BrokerManagementPage() {
     }
   };
 
+  const fetchOverallStats = async () => {
+    try {
+      const response = await brokersAPI.getOverallBrokerStats();
+      if (response.success) {
+        setOverallStats(response.stats);
+      }
+    } catch (error) {
+      console.error("Failed to fetch overall stats", error);
+    }
+  };
+
   useEffect(() => {
     fetchBrokers();
+    fetchOverallStats();
   }, []);
 
   const handleInputChange = (e) => {
@@ -158,9 +180,105 @@ export default function BrokerManagementPage() {
             Add Broker
           </button>
         </div>
+        
+        {/* Overall Stats Cards */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Total Commission Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            
+            <div className="flex items-start justify-between">
+              <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
+                Total Commission
+              </h3>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                <CircleDollarSign className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-body text-xl font-semibold tracking-tight text-neutral-800">
+                Rs. {(overallStats.total_commission || 0).toLocaleString()}
+              </h4>
+            </div>
+
+            <div className="mt-2 border-t border-primary/5 pt-3">
+              <p className="text-[11px] font-medium text-neutral-400 italic font-body">
+                Aggregate commission assigned
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Total Paid Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            
+            <div className="flex items-start justify-between">
+              <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
+                Total Paid
+              </h3>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                <CreditCard className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-body text-xl font-semibold tracking-tight text-neutral-800">
+                Rs. {(overallStats.total_paid || 0).toLocaleString()}
+              </h4>
+            </div>
+
+            <div className="mt-2 border-t border-primary/5 pt-3">
+              <p className="text-[11px] font-medium text-neutral-400 italic font-body">
+                Total disbursements to brokers
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Remaining Balance Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow border-l-4 border-l-yellow-500"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            
+            <div className="flex items-start justify-between">
+              <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
+                Remaining Balance
+              </h3>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                <BadgeDollarSign className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-body text-xl font-semibold tracking-tight text-neutral-800">
+                Rs. {(overallStats.total_balance || 0).toLocaleString()}
+              </h4>
+            </div>
+
+            <div className="mt-2 border-t border-primary/5 pt-3">
+              <p className="text-[11px] font-medium text-neutral-400 italic font-body">
+                Pending commission amount
+              </p>
+            </div>
+          </motion.div>
+        </div>
 
         {/* Search */}
-        <div className="relative group max-w-md w-full">
+        <div className="flex justify-end w-full">
+        <div className="relative group max-w-md w-full ">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
           <input
             type="text"
@@ -169,6 +287,7 @@ export default function BrokerManagementPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
           />
+        </div>
         </div>
 
         {/* Brokers Table Card */}

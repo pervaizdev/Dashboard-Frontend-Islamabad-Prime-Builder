@@ -5,11 +5,11 @@ export default function PropertySection({ formData, setFormData }) {
     const { name, value } = e.target;
     
     if (name === "total_price") {
-      const price = parseFloat(value) || 0;
+      const price = Math.max(0, parseFloat(value) || 0);
       const commission = (price * 0.05).toFixed(2);
       setFormData((prev) => ({ 
         ...prev, 
-        [name]: value,
+        [name]: price,
         broker_commission: commission 
       }));
     } else {
@@ -137,21 +137,6 @@ export default function PropertySection({ formData, setFormData }) {
             type="number"
             placeholder="Enter total price"
             className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
-          />
-        </div>
-
-        {/* Broker Commission */}
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Broker Commission (5%)
-          </label>
-          <input
-            name="broker_commission"
-            value={formData.broker_commission}
-            onChange={handleChange}
-            type="number"
-            placeholder="Auto-calculated at 5%"
-            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500 font-bold text-emerald-600"
           />
         </div>
 

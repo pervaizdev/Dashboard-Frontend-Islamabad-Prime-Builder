@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Building2, LayoutPanelLeft, Ruler, Landmark, Loader2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Building2,
+  LayoutPanelLeft,
+  Ruler,
+  Landmark,
+  Loader2,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { propertyAPI } from "@/api/property";
 
@@ -39,7 +46,7 @@ const PropertyTable = () => {
 
   return (
     <div className="mt-16 lg:mt-28 w-full px-5">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
@@ -49,13 +56,14 @@ const PropertyTable = () => {
           Your <span className="text-primary">Investments</span>
         </h2>
         <div className="mt-4">
-            <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto md:mx-0 leading-relaxed">
-              A professionally managed property portfolio where you can easily see real-time values and clear details anytime.
-            </p>
+          <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto md:mx-0 leading-relaxed">
+            A professionally managed property portfolio where you can easily see
+            real-time values and clear details anytime.
+          </p>
         </div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true }}
@@ -75,7 +83,13 @@ const PropertyTable = () => {
               >
                 <div className="flex items-center gap-4 border-b border-primary/5 pb-4">
                   <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-sm p-1">
-                    <Image src={"/images/logo.png"} alt={item.property_number} fill sizes="56px" className="object-cover rounded-xl" />
+                    <Image
+                      src={"/images/logo.png"}
+                      alt={item.property_number}
+                      fill
+                      sizes="56px"
+                      className="object-cover rounded-xl"
+                    />
                   </div>
                   <div className="flex-1">
                     <p className="font-serif text-lg font-bold text-charcoal leading-tight">
@@ -121,7 +135,9 @@ const PropertyTable = () => {
               </motion.div>
             ))
           ) : (
-            <p className="p-8 text-center text-charcoal/40 font-medium">No properties found</p>
+            <p className="p-8 text-center text-charcoal/40 font-medium">
+              No properties found
+            </p>
           )}
         </div>
 
@@ -132,19 +148,32 @@ const PropertyTable = () => {
               <thead>
                 <tr className="bg-charcoal text-white">
                   <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
-                    <div className="flex items-center gap-2"><Building2 size={14}/> Property & Building</div>
+                    <div className="flex items-center gap-2">
+                      <Building2 size={14} /> Property & Building
+                    </div>
                   </th>
                   <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
-                    <div className="flex items-center gap-2"><LayoutPanelLeft size={14}/> Type</div>
+                    <div className="flex items-center gap-2">
+                      <LayoutPanelLeft size={14} /> Type
+                    </div>
                   </th>
                   <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
-                    <div className="flex items-center gap-2"><LayoutPanelLeft size={14}/> Floor</div>
+                    <div className="flex items-center gap-2">
+                      <LayoutPanelLeft size={14} /> Floor
+                    </div>
                   </th>
                   <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
-                     <div className="flex items-center gap-2"><Ruler size={14}/> Size</div>
+                    <div className="flex items-center gap-2">
+                      <Ruler size={14} /> Size
+                    </div>
+                  </th>
+                  <th className="px-8 py-6 text-left text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      <Ruler size={14} /> Status
+                    </div>
                   </th>
                   <th className="px-8 py-6 text-right text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80 whitespace-nowrap">
-                     Action
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -175,7 +204,7 @@ const PropertyTable = () => {
                             {item.property_number}
                           </p>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60">
-                             {item.building_name}
+                            {item.building_name}
                           </p>
                         </div>
                       </div>
@@ -183,7 +212,7 @@ const PropertyTable = () => {
 
                     <td className="px-8 py-6 whitespace-nowrap">
                       <span className="inline-flex items-center rounded-lg bg-primary/5 px-3 py-1 text-[11px] font-bold text-primary uppercase tracking-wider">
-                         {item.type}
+                        {item.type}
                       </span>
                     </td>
 
@@ -193,6 +222,20 @@ const PropertyTable = () => {
 
                     <td className="px-8 py-6 text-sm font-medium text-charcoal/60 font-body whitespace-nowrap">
                       {item.size}
+                    </td>
+
+                    <td className="px-8 py-6 text-sm font-medium whitespace-nowrap">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold
+                         ${item.property_owned_status === "Owned"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-blue-100 text-blue-700"
+                          }`}
+                      >
+                        {item.property_owned_status === "Owned"
+                          ? "Owned"
+                          : "Transferred"}
+                      </span>
                     </td>
 
                     <td className="px-8 py-6 text-right whitespace-nowrap">
@@ -209,7 +252,9 @@ const PropertyTable = () => {
               </tbody>
             </table>
           ) : (
-            <p className="p-12 text-center text-charcoal/40 font-medium">No properties yet.</p>
+            <p className="p-12 text-center text-charcoal/40 font-medium">
+              No properties yet.
+            </p>
           )}
         </div>
       </motion.div>
@@ -218,4 +263,3 @@ const PropertyTable = () => {
 };
 
 export default PropertyTable;
-

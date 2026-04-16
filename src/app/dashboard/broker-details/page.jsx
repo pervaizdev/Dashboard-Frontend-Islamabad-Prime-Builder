@@ -15,9 +15,12 @@ import {
   Phone,
   CalendarDays,
   X,
-  History,
-  TrendingUp,
   ReceiptText,
+  TrendingUp,
+  Layers,
+  Building,
+  CreditCard,
+  History
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { brokersAPI } from "@/api/brokers";
@@ -47,7 +50,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm w-full"
         />
 
         <motion.div
@@ -195,8 +198,7 @@ const BrokerDetailsContent = () => {
   const stats = data.stats;
 
   return (
-    <div className="min-h-screen px-4 py-10 md:px-10 lg:px-16 bg-slate-50/50 space-y-10">
-      
+    <div className="h-full px-4 py-10 md:px-10 lg:px-16 bg-slate-50/50 space-y-10">   
       {/* Payment Modal */}
       <BrokerPaymentModal
         isOpen={isModalOpen}
@@ -231,26 +233,63 @@ const BrokerDetailsContent = () => {
       </motion.div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Total Commissions", value: `Rs. ${stats.total_commission?.toLocaleString()}`, icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50" },
-          { label: "Amount Received", value: `Rs. ${stats.total_paid?.toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Pending Balance", value: `Rs. ${stats.total_balance?.toLocaleString()}`, icon: Clock3, color: "text-amber-600", bg: "bg-amber-50" },
-        ].map((stat, i) => (
+          { 
+            label: "Total Commissions", 
+            value: `Rs. ${stats.total_commission?.toLocaleString()}`, 
+            helper: "Aggregate commission assigned", 
+            icon: CircleDollarSign 
+          },
+          { 
+            label: "Amount Received", 
+            value: `Rs. ${stats.total_paid?.toLocaleString()}`, 
+            helper: "Total disbursements received", 
+            icon: CreditCard 
+          },
+          { 
+            label: "Pending Balance", 
+            value: `Rs. ${stats.total_balance?.toLocaleString()}`, 
+            helper: "Outstanding amount to be paid", 
+            icon: BadgeDollarSign,
+            highlight: true
+          },
+          { 
+            label: "Associated Properties", 
+            value: stats.properties_count || 0, 
+            helper: "Total properties brokered", 
+            icon: Building2 
+          },
+        ].map((item, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-lg shadow-slate-200/40 relative overflow-hidden group"
+            className={`group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow ${item.highlight ? 'border-l-4 border-l-yellow-500' : ''}`}
           >
-            <div className={`absolute top-0 right-0 w-24 h-24 ${stat.bg} rounded-full -mr-8 -mt-8 opacity-40 blur-2xl group-hover:scale-150 transition-transform duration-700`} />
-            <div className="relative">
-              <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center mb-6 shadow-sm`}>
-                <stat.icon size={24} />
+            {/* Hover Shimmer Effect */}
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
+            
+            <div className="flex items-start justify-between">
+              <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
+                {item.label}
+              </h3>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
+                <item.icon className="h-6 w-6 text-primary" />
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-2">{stat.label}</p>
-              <h4 className="text-2xl font-bold text-slate-800">{stat.value}</h4>
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-body text-xl font-semibold tracking-tight text-neutral-800">
+                {item.value}
+              </h4>
+            </div>
+
+            <div className="mt-2 border-t border-primary/5 pt-3">
+              <p className="text-[11px] font-medium text-neutral-400 italic font-body">
+                {item.helper}
+              </p>
             </div>
           </motion.div>
         ))}

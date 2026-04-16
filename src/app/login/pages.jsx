@@ -122,13 +122,13 @@ const LoginPage = () => {
                 custom={0.5}
                 className="flex justify-end text-sm"
               >
-                {/* <button
+                <button
                   type="button"
                   onClick={() => router.push("/forget-password")}
                   className="font-medium text-[#c29e6d] transition-colors duration-300 hover:text-[#e2c08f]"
                 >
                   Forgot password?
-                </button> */}
+                </button>
               </motion.div>
 
               <motion.div

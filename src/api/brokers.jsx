@@ -47,6 +47,24 @@ export const brokersAPI = {
     }
   },
 
+  getOverallBrokerStats: async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.BROKERS.GET_OVERALL_STATS);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching overall broker stats" };
+    }
+  },
+
+  getFilteredBrokerReports: async (params) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.BROKERS.GET_REPORTS, { params });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching broker reports" };
+    }
+  },
+
   getCommissionStats: async (brokerId) => {
     try {
       const response = await axiosInstance.get(`${ENDPOINTS.BROKERS.CREATE}/${brokerId}/commission-stats`);

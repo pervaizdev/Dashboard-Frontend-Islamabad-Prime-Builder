@@ -47,11 +47,11 @@ export const authAPI = {
     }
   },
 
-  forgotPassword: async (email) => {
+  forgotPassword: async (identifier) => {
     try {
       const response = await axiosInstance.post(
         ENDPOINTS.AUTH.FORGETPASSWORD,
-        { email }
+        { identifier }
       );
       return response.data;
     } catch (error) {
@@ -59,23 +59,23 @@ export const authAPI = {
     }
   },
 
-  verifyCode: async (email, code) => {
+  verifyOTP: async (phone, otp) => {
     try {
       const response = await axiosInstance.post(
-        ENDPOINTS.AUTH.VERIFYCODE,
-        { email, code }
+        ENDPOINTS.AUTH.VERIFYCODE, // mappings to /auth/verify-otp
+        { phone, otp }
       );
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: "Code verification failed" };
+      throw error.response?.data || { message: "OTP verification failed" };
     }
   },
 
-  resetPassword: async (email, code, password, password_confirmation) => {
+  resetPassword: async (token, password) => {
     try {
       const response = await axiosInstance.post(
         ENDPOINTS.AUTH.RESETPASSWORD,
-        { email, code, password, password_confirmation }
+        { token, password }
       );
       return response.data;
     } catch (error) {

@@ -11,25 +11,55 @@ import AuthCard from "@/components/AuthCard";
 import AuthHeader from "@/components/AuthHeader";
 import { fadeUp, popIn } from "@/animation/motion";
 
+import { authAPI } from "@/api/auth";
+
 const ForgetPasswordPage = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [step, setStep] = useState("identifier"); 
+  const [requestMethod, setRequestMethod] = useState(null); 
+  const [phoneValue, setPhoneValue] = useState("");
 
-  const onSubmitHandler = async (e) => {
+  const onIdentifierSubmit = async (e) => {
     e.preventDefault();
-
-    if (!email) return toast.error("Email is required");
+    if (!identifier) return toast.error("Email or phone is required");
 
     try {
       setLoading(true);
-      // Mocking API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setSent(true);
-      toast.success("Password reset link sent to your email!");
+      const res = await authAPI.forgotPassword(identifier);
+      if (res.success) {
+        setRequestMethod(res.method);
+        if (res.method === "phone") {
+          setPhoneValue(res.phone);
+          setStep("otp");
+          toast.success("OTP sent to your phone");
+        } else {
+          toast.success("Reset link sent to your email");
+          setStep("confirmed");
+        }
+      }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onOtpSubmit = async (e) => {
+    e.preventDefault();
+    if (!otp) return toast.error("OTP is required");
+
+    try {
+      setLoading(true);
+      const res = await authAPI.verifyOTP(phoneValue, otp);
+      if (res.success) {
+        toast.success("OTP verified!");
+        router.push(`/reset-password?token=${res.resetToken}`);
+      }
+    } catch (error) {
+      toast.error(error.message || "Invalid OTP");
     } finally {
       setLoading(false);
     }
@@ -51,54 +81,40 @@ const ForgetPasswordPage = () => {
       >
         <AuthCard className="bg-white/5">
           <AuthHeader
-            title="Forgot Password"
+            title={step === "otp" ? "Verify OTP" : "Forgot Password"}
             subtitle={
-              sent
+              step === "otp"
+                ? `Enter the 6-digit code sent to ${phoneValue}`
+                : step === "confirmed"
                 ? "Check your email for the reset link."
-                : "Enter your email to receive a password reset link."
+                : "Enter your email or phone to reset password."
             }
           />
 
-          {!sent ? (
-            <form onSubmit={onSubmitHandler} className="space-y-6">
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                custom={0.25}
-              >
+          {step === "identifier" && (
+            <form onSubmit={onIdentifierSubmit} className="space-y-6">
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.25}>
                 <Input
-                  label="Email Address"
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  label="Email or Phone Number"
+                  type="text"
+                  name="identifier"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="e.g. user@app.com or 03001234567"
                 />
               </motion.div>
 
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                custom={0.35}
-              >
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.35}>
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30"
+                  className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5"
                 >
-                  {loading ? "Sending..." : "Send Reset Link"}
+                  {loading ? "Processing..." : "Continue"}
                 </Button>
               </motion.div>
 
-              {/* ✅ Back to Login Button */}
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                custom={0.45}
-              >
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.45}>
                 <Button
                   type="button"
                   onClick={() => router.push("/")}
@@ -108,18 +124,52 @@ const ForgetPasswordPage = () => {
                 </Button>
               </motion.div>
             </form>
-          ) : (
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0.3}
-            >
+          )}
+
+          {step === "otp" && (
+            <form onSubmit={onOtpSubmit} className="space-y-6">
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.25}>
+                <Input
+                  label="6-Digit OTP"
+                  type="text"
+                  maxLength={6}
+                  name="otp"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  placeholder="123456"
+                  className="text-center text-2xl tracking-[0.5em] font-bold"
+                />
+              </motion.div>
+
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.35}>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5"
+                >
+                  {loading ? "Verifying..." : "Verify OTP"}
+                </Button>
+              </motion.div>
+
+              <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.45}>
+                 <button 
+                  type="button"
+                  onClick={() => setStep("identifier")}
+                  className="w-full text-center text-xs text-primary/60 hover:text-primary transition-colors"
+                >
+                  Used wrong number? Go back
+                </button>
+              </motion.div>
+            </form>
+          )}
+
+          {step === "confirmed" && (
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0.3}>
               <Button
                 onClick={() => router.push("/")}
-                className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/30"
+                className="w-full bg-linear-to-r from-primary to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-primary/20"
               >
-                Back to Login
+                Return to Login
               </Button>
             </motion.div>
           )}
