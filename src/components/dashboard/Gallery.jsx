@@ -10,25 +10,34 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-// Import required modules
 import { Pagination, Navigation, Autoplay } from "swiper/modules";
-import { X, ArrowUpRight, Maximize2 } from "lucide-react";
+import { X, ArrowUpRight, Maximize2, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getPropertyImages } from "@/api/propertyImage";
 
 export default function Gallery() {
   const [mounted, setMounted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setMounted(true);
+    const fetchGallery = async () => {
+      try {
+        const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
+        if (response.success) {
+          // Show latest 6 images
+          setImages(response.data.slice(0, 6));
+        }
+      } catch (error) {
+        console.error("Gallery fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGallery();
   }, []);
-
-  const galleryImages = [
-    "/images/building2.png",
-    "/images/building2.png",
-    "/images/building2.png",
-    "/images/building2.png",
-  ];
 
   return (
     <>
@@ -53,11 +62,15 @@ export default function Gallery() {
           </div>
 
           <div className="relative group w-full">
-            {mounted && (
+            {loading ? (
+              <div className="h-[400px] flex items-center justify-center bg-charcoal/5 rounded-[2.5rem]">
+                <Loader2 className="animate-spin text-primary" size={48} />
+              </div>
+            ) : images.length > 0 ? (
               <Swiper
                 slidesPerView={1}
                 spaceBetween={30}
-                loop={true}
+                loop={images.length > 1}
                 pagination={{
                   clickable: true,
                   el: ".gallery-pagination",
@@ -73,12 +86,12 @@ export default function Gallery() {
                 modules={[Pagination, Navigation, Autoplay]}
                 className="gallerySwiper rounded-[2.5rem] overflow-hidden premium-border-glow shadow-2xl"
               >
-                {galleryImages.map((image, index) => (
-                  <SwiperSlide key={index}>
+                {images.map((item, index) => (
+                  <SwiperSlide key={item._id}>
                     <div className="group/card relative w-full overflow-hidden aspect-4/3 md:aspect-21/9 bg-white">
                       <Image
-                        src={image}
-                        alt={`Gallery ${index + 1}`}
+                        src={item.url}
+                        alt={item.title || `Gallery ${index + 1}`}
                         fill
                         sizes="(max-width: 768px) 100vw, 1200px"
                         className="object-cover transition-transform duration-700 group-hover/card:scale-105"
@@ -93,11 +106,11 @@ export default function Gallery() {
                             Prime Builder
                           </p>
                           <h4 className="font-serif text-2xl md:text-4xl font-bold italic shadow-black drop-shadow-lg">
-                            Building View {index + 1}
+                            {item.title || `Building View ${index + 1}`}
                           </h4>
                         </div>
                         <button
-                          onClick={() => setSelectedImage(image)}
+                          onClick={() => setSelectedImage(item.url)}
                           className="bg-white/10 backdrop-blur-md p-4 rounded-full text-white hover:bg-primary hover:text-charcoal transition-all border border-white/20"
                         >
                           <Maximize2 size={24} />
@@ -107,7 +120,7 @@ export default function Gallery() {
                   </SwiperSlide>
                 ))}
 
-                {/* Custom Navigation Arrows overlaying the image */}
+                {/* Custom Navigation Arrows */}
                 <div className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-charcoal/50 text-white backdrop-blur-sm border border-white/10 hover:bg-primary hover:border-primary cursor-pointer transition-all">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </div>
@@ -115,6 +128,11 @@ export default function Gallery() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </div>
               </Swiper>
+            ) : (
+              <div className="h-[400px] flex flex-col items-center justify-center bg-charcoal/5 rounded-[2.5rem] text-charcoal/40 border-2 border-dashed border-charcoal/10">
+                <Maximize2 size={48} className="mb-4 opacity-10" />
+                <p>No gallery images found</p>
+              </div>
             )}
           </div>
 

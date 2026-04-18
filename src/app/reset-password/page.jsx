@@ -25,6 +25,11 @@ const ResetPasswordContent = () => {
   });
   const [loading, setLoading] = useState(false);
 
+  const passwordsMatch =
+    formData.password &&
+    formData.confirmPassword &&
+    formData.password === formData.confirmPassword;
+
   useEffect(() => {
     if (!token) {
       toast.error("Invalid or missing reset token");
@@ -47,16 +52,17 @@ const ResetPasswordContent = () => {
       return toast.error("Both fields are required");
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!passwordsMatch) {
       return toast.error("Passwords do not match");
     }
 
     try {
       setLoading(true);
       const res = await authAPI.resetPassword(token, formData.password);
+
       if (res.success) {
         toast.success("Password reset successfully! You can now login.");
-        router.push("/login"); // or "/" if your login is at root
+        router.push("/");
       }
     } catch (error) {
       toast.error(error.message || "Something went wrong");
@@ -64,7 +70,6 @@ const ResetPasswordContent = () => {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#08211e] px-4">
@@ -116,6 +121,18 @@ const ResetPasswordContent = () => {
                 onChange={onChangeHandler}
                 placeholder="Confirm new password"
               />
+
+              {formData.confirmPassword && (
+                <p
+                  className={`mt-2 text-sm ${
+                    passwordsMatch ? "text-green-400" : "text-red-400"
+                  }`}
+                >
+                  {passwordsMatch
+                    ? "Passwords match"
+                    : "Passwords do not match"}
+                </p>
+              )}
             </motion.div>
 
             <motion.div
@@ -126,8 +143,14 @@ const ResetPasswordContent = () => {
             >
               <Button
                 type="submit"
-                disabled={loading || !token}
-                className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30"
+                disabled={
+                  loading ||
+                  !token ||
+                  !formData.password ||
+                  !formData.confirmPassword ||
+                  !passwordsMatch
+                }
+                className="w-full bg-gradient-to-r from-[#c29e6d] to-[#b68c57] py-3 text-[#08211e] shadow-lg shadow-[#c29e6d]/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#c29e6d]/30 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </Button>
@@ -141,7 +164,13 @@ const ResetPasswordContent = () => {
 
 const ResetPasswordPage = () => {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#08211e] text-white">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#08211e] text-white">
+          Loading...
+        </div>
+      }
+    >
       <ResetPasswordContent />
     </Suspense>
   );

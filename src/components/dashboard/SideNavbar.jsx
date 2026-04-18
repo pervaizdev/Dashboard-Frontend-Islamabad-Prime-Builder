@@ -14,6 +14,7 @@ import {
   List,
   ChevronLeft,
   ChevronRight,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -59,6 +60,11 @@ const navItems = [
     title: "Reports Property",
     href: "/dashboard/reports-property-commission",
     icon: Building2,
+  },
+  {
+    title: "Property Images",
+    href: "/dashboard/property-images",
+    icon: ImageIcon,
   },
 ];
 

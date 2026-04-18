@@ -190,17 +190,9 @@ const PropertyTable = () => {
                   >
                     <td className="px-8 py-6 whitespace-nowrap">
                       <div className="flex items-center gap-4">
-                        <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-primary/10 bg-white shadow-sm p-1 transition-transform group-hover:scale-110">
-                          <Image
-                            src={"/images/logo.png"}
-                            alt={item.property_number}
-                            fill
-                            sizes="56px"
-                            className="object-cover rounded-xl"
-                          />
-                        </div>
+                       
                         <div>
-                          <p className="font-serif text-base font-bold text-charcoal">
+                          <p className="text-center font-serif text-base font-bold text-charcoal">
                             {item.property_number}
                           </p>
                           <p className="text-[10px] font-bold uppercase tracking-widest text-primary/60">
