@@ -10,6 +10,7 @@ const Input = ({
   value,
   onChange,
   placeholder,
+  prefix,
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const isPasswordField = type === "password";
@@ -26,13 +27,18 @@ const Input = ({
       )}
 
       <div className="relative group">
+        {prefix && (
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center border-r border-[#c29e6d]/30 pr-3 z-10">
+            {prefix}
+          </div>
+        )}
         <input
           type={inputType}
           name={name}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className="w-full rounded-xl border border-[#c29e6d]/30 bg-white/10 px-4 py-3 text-sm text-white placeholder:text-[#cbb89a]/70 outline-none transition-all duration-300 focus:border-[#c29e6d] focus:bg-white/15 focus:ring-2 focus:ring-[#c29e6d]/30 pr-12"
+          className={`w-full rounded-xl border border-[#c29e6d]/30 bg-white/10 ${prefix ? "pl-30" : "px-4"} py-3 text-sm text-white placeholder:text-[#cbb89a]/70 outline-none transition-all duration-300 focus:border-[#c29e6d] focus:bg-white/15 focus:ring-2 focus:ring-[#c29e6d]/30 pr-12`}
         />
         {isPasswordField && (
           <button
