@@ -44,7 +44,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "broker_commission") {
-      const numericValue = Math.max(0, parseFloat(value) || 0);
+      const numericValue = Math.round(Math.max(0, parseFloat(value) || 0));
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
