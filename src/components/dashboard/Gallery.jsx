@@ -38,7 +38,14 @@ export default function Gallery() {
     };
     fetchGallery();
   }, []);
-
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }).toUpperCase();
+    };
   const selectedImage =
     selectedImageIndex !== null ? images[selectedImageIndex] : null;
 
@@ -122,12 +129,10 @@ export default function Gallery() {
 
                       <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 flex items-end justify-between">
                         <div className="text-white">
-                          <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md md:text-xs">
-                            Prime Builder
+                          <p className="mb-2 text-lg font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md ">
+                            {formatDate(item.createdAt)}
                           </p>
-                          <h4 className="font-serif text-2xl font-bold italic shadow-black drop-shadow-lg md:text-4xl">
-                            {item.title || `Building View ${index + 1}`}
-                          </h4>
+                         
                         </div>
 
                         <button
