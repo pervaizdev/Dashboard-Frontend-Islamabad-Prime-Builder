@@ -1,6 +1,6 @@
 "use client";
 
-export default function PropertySection({ formData, setFormData }) {
+export default function PropertySection({ formData, setFormData, isEdit }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -150,8 +150,9 @@ export default function PropertySection({ formData, setFormData }) {
             value={formData.down_payment}
             onChange={handleChange}
             type="number"
+            disabled={isEdit}
             placeholder="Enter down payment"
-            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
+            className={`w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500 ${isEdit ? "opacity-50 cursor-not-allowed bg-slate-100" : ""}`}
           />
         </div>
 

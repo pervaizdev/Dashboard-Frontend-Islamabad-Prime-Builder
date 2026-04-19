@@ -149,7 +149,7 @@ const ForgetPasswordPage = () => {
               step === "otp"
                 ? `Enter the 6-digit code sent to ${phoneValue}`
                 : step === "confirmed"
-                  ? "Check your email for the reset link."
+                  ? "Check your email for the reset link. If you don't see it, please check your spam/junk folder."
                   : "Enter your email or phone to reset password."
             }
           />

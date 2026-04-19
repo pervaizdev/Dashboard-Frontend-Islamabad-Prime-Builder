@@ -74,9 +74,21 @@ export const brokersAPI = {
     }
   },
 
-  recordCommissionPayment: async (brokerId, propertyNumber, paymentData) => {
+  recordCommissionPayment: async (brokerId, propertyNumber, paymentData, folder = null) => {
     try {
-      const response = await axiosInstance.post(`${ENDPOINTS.BROKERS.CREATE}/${brokerId}/${propertyNumber}/record-payment`, paymentData);
+      let url = `${ENDPOINTS.BROKERS.CREATE}/${brokerId}/${propertyNumber}/record-payment`;
+      if (folder) {
+        url += `?folder=${folder}`;
+      }
+
+      const config = {};
+      if (paymentData instanceof FormData) {
+        config.headers = {
+          "Content-Type": "multipart/form-data",
+        };
+      }
+
+      const response = await axiosInstance.post(url, paymentData, config);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error recording commission payment" };

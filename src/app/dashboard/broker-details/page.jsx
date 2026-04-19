@@ -20,16 +20,28 @@ import {
   Layers,
   Building,
   CreditCard,
-  History
+  History,
+  Eye,
+  Download
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { brokersAPI } from "@/api/brokers";
 import toast from "react-hot-toast";
+import { useAuth } from "@/context/AuthContext";
 
 // --- Record Payment Modal ---
 const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) => {
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [receiptImage, setReceiptImage] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setAmount("");
+      setDate(new Date().toISOString().split('T')[0]);
+      setReceiptImage(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -39,25 +51,27 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
       toast.error("Please enter a valid amount");
       return;
     }
-    onConfirm({ amount: Number(amount), paidDate: date });
+    onConfirm({ amount: Number(amount), paidDate: date, receiptImage });
   };
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+        {/* Full Screen Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm w-full"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
         />
 
+        {/* Modal Card */}
         <motion.div
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
+          className="relative z-10 w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
         >
           <button
             onClick={onClose}
@@ -110,6 +124,26 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
               </div>
             </div>
 
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 px-1">
+                Payment Receipt (Optional)
+              </label>
+              <div className="relative h-14 w-full group">
+                <div className="absolute inset-0 rounded-2xl border border-slate-100 bg-slate-50 flex items-center px-4 transition-all group-hover:border-primary group-focus-within:ring-4 group-focus-within:ring-primary/5">
+                  <Download className="text-primary mr-4" size={18} />
+                  <span className="text-xs font-bold text-slate-400 truncate pr-4">
+                    {receiptImage ? receiptImage.name : "Select Receipt Image"}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setReceiptImage(e.target.files[0])}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                />
+              </div>
+            </div>
+
             <button
               disabled={loading}
               type="submit"
@@ -132,6 +166,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
 const BrokerDetailsContent = () => {
   const searchParams = useSearchParams();
   const brokerId = searchParams.get("id");
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -167,10 +202,19 @@ const BrokerDetailsContent = () => {
   const handleConfirmPayment = async (paymentData) => {
     try {
       setProcessing(true);
+      
+      const formData = new FormData();
+      formData.append("amount", paymentData.amount);
+      formData.append("paidDate", paymentData.paidDate);
+      if (paymentData.receiptImage) {
+        formData.append("receiptImage", paymentData.receiptImage);
+      }
+
       const res = await brokersAPI.recordCommissionPayment(
         brokerId,
         selectedProperty.property_number,
-        paymentData
+        formData,
+        "Islamabad_Prime_Builder/BrokerPayment"
       );
 
       if (res.success) {
@@ -198,7 +242,7 @@ const BrokerDetailsContent = () => {
   const stats = data.stats;
 
   return (
-    <div className="h-full px-4 py-10 md:px-10 lg:px-16 bg-slate-50/50 space-y-10">   
+    <div className="h-full px-4 py-10 md:px-10 lg:px-16 bg-slate-50/50 space-y-10">
       {/* Payment Modal */}
       <BrokerPaymentModal
         isOpen={isModalOpen}
@@ -235,30 +279,30 @@ const BrokerDetailsContent = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { 
-            label: "Total Commissions", 
-            value: `Rs. ${stats.total_commission?.toLocaleString()}`, 
-            helper: "Aggregate commission assigned", 
-            icon: CircleDollarSign 
+          {
+            label: "Total Commissions",
+            value: `Rs. ${stats.total_commission?.toLocaleString()}`,
+            helper: "Aggregate commission assigned",
+            icon: CircleDollarSign
           },
-          { 
-            label: "Amount Received", 
-            value: `Rs. ${stats.total_paid?.toLocaleString()}`, 
-            helper: "Total disbursements received", 
-            icon: CreditCard 
+          {
+            label: "Amount Received",
+            value: `Rs. ${stats.total_paid?.toLocaleString()}`,
+            helper: "Total disbursements received",
+            icon: CreditCard
           },
-          { 
-            label: "Pending Balance", 
-            value: `Rs. ${stats.total_balance?.toLocaleString()}`, 
-            helper: "Outstanding amount to be paid", 
+          {
+            label: "Pending Balance",
+            value: `Rs. ${stats.total_balance?.toLocaleString()}`,
+            helper: "Outstanding amount to be paid",
             icon: BadgeDollarSign,
             highlight: true
           },
-          { 
-            label: "Associated Properties", 
-            value: stats.properties_count || 0, 
-            helper: "Total properties brokered", 
-            icon: Building2 
+          {
+            label: "Associated Properties",
+            value: stats.properties_count || 0,
+            helper: "Total properties brokered",
+            icon: Building2
           },
         ].map((item, i) => (
           <motion.div
@@ -270,7 +314,7 @@ const BrokerDetailsContent = () => {
           >
             {/* Hover Shimmer Effect */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            
+
             <div className="flex items-start justify-between">
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 {item.label}
@@ -296,7 +340,7 @@ const BrokerDetailsContent = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-10">
-        
+
         {/* Properties Table */}
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
@@ -312,20 +356,24 @@ const BrokerDetailsContent = () => {
               <thead>
                 <tr className="bg-slate-50/50 text-left">
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Property</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Building</th>
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Commission</th>
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Paid</th>
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Balance</th>
-                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Action</th>
-                </tr>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">
+                    {user?.role === "super-admin" ? "Action" : "Status"}
+                  </th>      </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {data.properties?.map((prop, idx) => (
                   <tr key={idx} className="hover:bg-slate-50/30 transition-colors group">
                     <td className="px-8 py-6">
                       <div>
-                        <p className="font-bold text-slate-800 text-sm">{prop.property_number}</p>
-                        <p className="text-[10px] text-slate-400 uppercase tracking-tighter font-bold">{prop.type} • {prop.building_name}</p>
+                        <p className="font-bold text-slate-800 text-sm">{prop.type} - {prop.property_number}</p>
                       </div>
+                    </td>
+                    <td className="px-8 py-6 text-center font-bold text-slate-600 text-sm">
+                      {prop.building_name}
                     </td>
                     <td className="px-8 py-6 text-center font-bold text-slate-600 text-sm">
                       Rs. {prop.commission_amount?.toLocaleString()}
@@ -336,19 +384,32 @@ const BrokerDetailsContent = () => {
                     <td className="px-8 py-6 text-center font-bold text-slate-800 text-sm">
                       Rs. {prop.balance?.toLocaleString()}
                     </td>
-                    <td className="px-8 py-6 text-right">
-                      {prop.balance > 0 ? (
-                        <button
-                          onClick={() => handlePayClick(prop)}
-                          className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-slate-900/10 hover:shadow-emerald-600/20"
-                        >
-                          <BadgeDollarSign size={14} />
-                          Record Pay
-                        </button>
+                    <td className="px-8 py-6 text-center">
+                      {user?.role === "super-admin" ? (
+                        // ✅ Super Admin → full control
+                        prop.balance > 0 ? (
+                          <button
+                            onClick={() => handlePayClick(prop)}
+                            className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-slate-900/10 hover:shadow-emerald-600/20"
+                          >
+                            <BadgeDollarSign size={14} />
+                            Record Pay
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest">
+                            <CheckCircle2 size={14} />
+                            Cleared
+                          </span>
+                        )
                       ) : (
-                        <span className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-600 px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest">
-                          <CheckCircle2 size={14} />
-                          Cleared
+                        // ❌ Non-super-admin → only status
+                        <span
+                          className={`inline-flex items-center gap-2 px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest ${prop.balance > 0
+                            ? "bg-yellow-50 text-yellow-600"
+                            : "bg-emerald-50 text-emerald-600"
+                            }`}
+                        >
+                          {prop.balance > 0 ? "Pending" : "Cleared"}
                         </span>
                       )}
                     </td>
@@ -375,37 +436,66 @@ const BrokerDetailsContent = () => {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-slate-50/50 text-left">
-                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Date</th>
-                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Property Ref</th>
-                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Transaction Value</th>
-                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Status</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Date</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Property Ref</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Transaction Value</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Status</th>
+                  <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Receipt</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.properties.flatMap(p => p.payment_history.map(h => ({ ...h, propNum: p.property_number }))).sort((a,b) => new Date(b.paidDate) - new Date(a.paidDate)).length > 0 ? (
-                  data.properties.flatMap(p => p.payment_history.map(h => ({ ...h, propNum: p.property_number }))).sort((a,b) => new Date(b.paidDate) - new Date(a.paidDate)).map((pay, i) => (
+                {data.properties.flatMap(p => p.payment_history.map(h => ({ ...h, propNum: p.property_number }))).sort((a, b) => new Date(b.paidDate) - new Date(a.paidDate)).length > 0 ? (
+                  data.properties.flatMap(p => p.payment_history.map(h => ({ ...h, propNum: p.property_number }))).sort((a, b) => new Date(b.paidDate) - new Date(a.paidDate)).map((pay, i) => (
                     <tr key={i} className="hover:bg-slate-50/30 transition-colors">
-                      <td className="px-8 py-5 text-sm font-semibold text-slate-600">
-                        {new Date(pay.paidDate).toLocaleDateString()}
+                      <td className="px-8 py-5 text-sm font-semibold text-slate-600 text-center">
+                        {new Date(pay.paidDate).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric"                                                 
+                        })}
                       </td>
-                      <td className="px-8 py-5">
+                      <td className="px-8 py-5 text-center">
                         <span className="text-xs font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200">
                           {pay.propNum}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-sm font-bold text-emerald-600">
+                      <td className="px-8 py-5 text-sm font-bold text-emerald-600 text-center">
                         Rs. {pay.amount?.toLocaleString()}
                       </td>
-                      <td className="px-8 py-5 text-right">
-                        <span className="text-[9px] font-bold uppercase tracking-tighter text-emerald-600 flex items-center justify-end gap-1">
-                          <CheckCircle2 size={12} /> Successfully Disbursed
+                      <td className="px-8 py-5 text-center">
+                        <span className=" font-bold text-emerald-600 flex items-center justify-center gap-1">
+                          <CheckCircle2 size={12} /> Successfully Paid
                         </span>
+                      </td>
+                      <td className="px-8 py-5 text-center">
+                        {pay.receiptImage ? (
+                          <div className="flex items-center justify-center gap-2">
+                             <a 
+                                href={pay.receiptImage} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all"
+                                title="View Receipt"
+                              >
+                                <Eye size={14} />
+                              </a>
+                              <a 
+                                href={pay.receiptImage.replace('/upload/', '/upload/fl_attachment/')} 
+                                className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-400 hover:bg-slate-900 hover:text-white transition-all"
+                                title="Download Receipt"
+                              >
+                                <Download size={14} />
+                              </a>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No Receipt</span>
+                        )}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="px-8 py-10 text-center text-slate-400 italic text-sm">No payment history found yet.</td>
+                    <td colSpan={5} className="px-8 py-10 text-center text-slate-400 italic text-sm">No payment history found yet.</td>
                   </tr>
                 )}
               </tbody>

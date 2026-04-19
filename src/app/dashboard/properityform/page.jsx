@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import PropertySection from "@/components/properityform/Propertysection";
 import OwnerSection from "@/components/properityform/OwnerSection";
 import BrokerSection from "@/components/properityform/BrokerSection";
@@ -9,6 +10,11 @@ import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
 export default function PropertyFormPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const propertyId = searchParams.get("id");
+  const isEdit = !!propertyId;
+
   const [formData, setFormData] = useState({
     type: "",
     property_number: "",
@@ -45,6 +51,7 @@ export default function PropertyFormPage() {
   const [usersList, setUsersList] = useState([]);
   const [brokersList, setBrokersList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     const fetchOptions = async () => {
@@ -63,12 +70,35 @@ export default function PropertyFormPage() {
     fetchOptions();
   }, []);
 
+  useEffect(() => {
+    if (isEdit) {
+      const fetchProperty = async () => {
+        try {
+          setFetching(true);
+          const res = await axiosInstance.get(`/property-details/${propertyId}`);
+          if (res.data.success) {
+            const p = res.data.property;
+            setFormData({
+              ...p,
+              startDate: p.startDate ? new Date(p.startDate).toISOString().split('T')[0] : "",
+              broker_commission: p.brokers?.[0]?.broker_commission || ""
+            });
+          }
+        } catch (error) {
+          toast.error("Failed to load property details");
+        } finally {
+          setFetching(false);
+        }
+      };
+      fetchProperty();
+    }
+  }, [isEdit, propertyId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Validate data structure if needed
       const payload = {
         ...formData,
         total_price: Number(formData.total_price),
@@ -82,32 +112,46 @@ export default function PropertyFormPage() {
         }))
       };
 
-      const response = await axiosInstance.post("/property-details", payload);
+      let response;
+      if (isEdit) {
+        response = await axiosInstance.put(`/property-details/${propertyId}`, payload);
+      } else {
+        response = await axiosInstance.post("/property-details", payload);
+      }
+
       if (response.data.success) {
-        toast.success("Property created successfully!");
-        // Reset or redirect
+        toast.success(isEdit ? "Property updated successfully!" : "Property created successfully!");
+        router.push("/dashboard/propertylist");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create property");
+      toast.error(error.response?.data?.message || "Operation failed");
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-slate-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-10">
       <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-6 py-5 sm:px-8">
           <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">
-            Property Form
+            {isEdit ? "Update Property" : "Property Form"}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Enter property, owner, and broker details below.
+            {isEdit ? `Editing property #${propertyId}` : "Enter property, owner, and broker details below."}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 px-6 py-6 sm:px-8">
-          <PropertySection formData={formData} setFormData={setFormData} />
+          <PropertySection formData={formData} setFormData={setFormData} isEdit={isEdit} />
           <OwnerSection 
             formData={formData} 
             setFormData={setFormData} 
@@ -127,7 +171,7 @@ export default function PropertyFormPage() {
               className="rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white hover:bg-slate-800 transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Submit Form
+              {isEdit ? "Update Property" : "Submit Form"}
             </button>
           </div>
         </form>
