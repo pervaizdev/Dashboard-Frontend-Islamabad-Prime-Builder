@@ -73,7 +73,7 @@ export const propertyAPI = {
   
   transferProperty: async (id, data) => {
     try {
-      const response = await axiosInstance.post(`${ENDPOINTS.BROKERS.CREATE}/${id}/transfer`, data);
+      const response = await axiosInstance.post(`${ENDPOINTS.PROPERTIES.GET_ALL}/${id}/transfer`, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error transferring property" };
