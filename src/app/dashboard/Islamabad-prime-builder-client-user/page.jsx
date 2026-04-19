@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 import { userAPI } from "@/api/user";
 import { authAPI } from "@/api/auth";
 import toast from "react-hot-toast";
-import { 
-  Loader2, 
-  Search, 
-  Edit, 
+import {
+  Loader2,
+  Search,
+  Edit,
   Trash2,
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  Settings, 
+  User as UserIcon,
+  Mail,
+  Phone,
+  Settings,
   X,
   CheckCircle2,
   XCircle,
@@ -22,18 +22,19 @@ import {
   Plus,
   Lock
 } from "lucide-react";
+import { countryCodes } from "@/constants/countryCodes";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ClientUserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Modals state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [processing, setProcessing] = useState(false);
 
@@ -41,6 +42,7 @@ export default function ClientUserManagement() {
   const [editFormData, setEditFormData] = useState({
     name: "",
     email: "",
+    countryCode: "+92",
     phone: "",
     isActive: true,
     isBlocked: false,
@@ -51,6 +53,7 @@ export default function ClientUserManagement() {
   const [addFormData, setAddFormData] = useState({
     name: "",
     email: "",
+    countryCode: "+92",
     phone: "",
     password: ""
   });
@@ -75,10 +78,24 @@ export default function ClientUserManagement() {
 
   const handleEditClick = (user) => {
     setSelectedUser(user);
+
+    // Try to extract country code from phone
+    let phoneNum = user.phone || "";
+    let cCode = "+92";
+
+    for (const country of countryCodes) {
+      if (phoneNum.startsWith(country.code)) {
+        cCode = country.code;
+        phoneNum = phoneNum.slice(country.code.length);
+        break;
+      }
+    }
+
     setEditFormData({
       name: user.name || "",
       email: user.email || "",
-      phone: user.phone || "",
+      countryCode: cCode,
+      phone: phoneNum,
       isActive: user.isActive ?? true,
       isBlocked: user.isBlocked ?? false,
       role: user.role || "user"
@@ -106,7 +123,11 @@ export default function ClientUserManagement() {
     e.preventDefault();
     setProcessing(true);
     try {
-      const response = await userAPI.updateUser(selectedUser.userId, editFormData);
+      const payload = {
+        ...editFormData,
+        phone: `${editFormData.countryCode}${editFormData.phone}`
+      };
+      const response = await userAPI.updateUser(selectedUser.userId, payload);
       if (response.success) {
         toast.success("User updated successfully!");
         setIsEditModalOpen(false);
@@ -127,11 +148,15 @@ export default function ClientUserManagement() {
     }
     setProcessing(true);
     try {
-      const response = await authAPI.signUp(addFormData);
+      const payload = {
+        ...addFormData,
+        phone: `${addFormData.countryCode}${addFormData.phone}`
+      };
+      const response = await authAPI.signUp(payload);
       if (response.success) {
         toast.success("Client added successfully!");
         setIsAddModalOpen(false);
-        setAddFormData({ name: "", email: "", phone: "", password: "" });
+        setAddFormData({ name: "", email: "", countryCode: "+92", phone: "", password: "" });
         fetchUsers();
       }
     } catch (error) {
@@ -141,7 +166,7 @@ export default function ClientUserManagement() {
     }
   };
 
-  const filteredUsers = (users || []).filter(u => 
+  const filteredUsers = (users || []).filter(u =>
     u.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -182,7 +207,7 @@ export default function ClientUserManagement() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => setIsAddModalOpen(true)}
               className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform hover:scale-105 active:scale-95"
             >
@@ -229,10 +254,10 @@ export default function ClientUserManagement() {
                   ))
                 ) : filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
-                    <motion.tr 
+                    <motion.tr
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      key={user.userId} 
+                      key={user.userId}
                       className="hover:bg-slate-50/30 transition-colors group"
                     >
                       <td className="px-8 py-6">
@@ -248,9 +273,9 @@ export default function ClientUserManagement() {
                       </td>
                       <td className="px-8 py-6">
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border shadow-sm
-                          ${user.role === "super-admin" ? "bg-purple-50 text-purple-600 border-purple-100" : 
-                            user.role === "admin" ? "bg-blue-50 text-blue-600 border-blue-100" : 
-                            "bg-slate-50 text-slate-600 border-slate-100"}`}
+                          ${user.role === "super-admin" ? "bg-purple-50 text-purple-600 border-purple-100" :
+                            user.role === "admin" ? "bg-blue-50 text-blue-600 border-blue-100" :
+                              "bg-slate-50 text-slate-600 border-slate-100"}`}
                         >
                           {user.role === "super-admin" ? <ShieldCheck className="h-3 w-3" /> : (user.role === "admin" ? <ShieldCheck className="h-3 w-3" /> : <UserIcon className="h-3 w-3" />)}
                           {user.role === "admin" ? "Partners" : user.role}
@@ -259,29 +284,29 @@ export default function ClientUserManagement() {
                       <td className="px-8 py-6">
                         <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-2">
-                             <div className={`h-2 w-2 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-slate-300"} shadow-sm`}></div>
-                             <span className={`text-[10px] font-bold uppercase tracking-tight ${user.isActive ? "text-emerald-600" : "text-slate-400"}`}>
-                               {user.isActive ? "Active" : "Inactive"}
-                             </span>
+                            <div className={`h-2 w-2 rounded-full ${user.isActive ? "bg-emerald-500" : "bg-slate-300"} shadow-sm`}></div>
+                            <span className={`text-[10px] font-bold uppercase tracking-tight ${user.isActive ? "text-emerald-600" : "text-slate-400"}`}>
+                              {user.isActive ? "Active" : "Inactive"}
+                            </span>
                           </div>
                           {user.isBlocked && (
                             <div className="flex items-center gap-2">
-                               <ShieldAlert className="h-3 w-3 text-rose-500" />
-                               <span className="text-[10px] font-bold uppercase text-rose-500">Blocked</span>
+                              <ShieldAlert className="h-3 w-3 text-rose-500" />
+                              <span className="text-[10px] font-bold uppercase text-rose-500">Blocked</span>
                             </div>
                           )}
                         </div>
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
-                          <button 
+                          <button
                             onClick={() => handleEditClick(user)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-yellow-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                             title="Edit"
                           >
                             <Edit className="h-4 w-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteClick(user)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                             title="Delete"
@@ -296,8 +321,8 @@ export default function ClientUserManagement() {
                   <tr>
                     <td colSpan={5} className="px-8 py-20 text-center">
                       <div className="flex flex-col items-center justify-center opacity-40">
-                         <Search className="h-12 w-12 text-slate-200 mb-4" />
-                         <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No users found</p>
+                        <Search className="h-12 w-12 text-slate-200 mb-4" />
+                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No users found</p>
                       </div>
                     </td>
                   </tr>
@@ -312,23 +337,23 @@ export default function ClientUserManagement() {
       <AnimatePresence>
         {isEditModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
               onClick={() => setIsEditModalOpen(false)}
             />
-            
+
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
+              className="relative w-full max-w-3xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
-              
+
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
@@ -352,7 +377,7 @@ export default function ClientUserManagement() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 px-1">
                       Display Name
                     </label>
-                    <input 
+                    <input
                       name="name"
                       type="text"
                       value={editFormData.name}
@@ -365,7 +390,7 @@ export default function ClientUserManagement() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 px-1">
                       Email Address
                     </label>
-                    <input 
+                    <input
                       name="email"
                       type="email"
                       value={editFormData.email}
@@ -378,13 +403,26 @@ export default function ClientUserManagement() {
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 px-1">
                       Phone Number
                     </label>
-                    <input 
-                      name="phone"
-                      type="tel"
-                      value={editFormData.phone}
-                      onChange={handleEditChange}
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
-                    />
+                    <div className="flex gap-2">
+                      <select
+                        name="countryCode"
+                        value={editFormData.countryCode}
+                        onChange={handleEditChange}
+                        className="w-[100px] bg-slate-50 border border-slate-100 rounded-2xl px-2 py-3 text-xs font-bold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all appearance-none cursor-pointer"
+                      >
+                        {countryCodes.map((c) => (
+                          <option key={c.code + c.label} value={c.code}>{c.label} ({c.code})</option>
+                        ))}
+                      </select>
+                      <input
+                        name="phone"
+                        type="tel"
+                        value={editFormData.phone}
+                        onChange={handleEditChange}
+                        placeholder="3001234567"
+                        className="flex-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -392,7 +430,7 @@ export default function ClientUserManagement() {
                       Access Role
                     </label>
                     <div className="relative group">
-                      <select 
+                      <select
                         name="role"
                         value={editFormData.role}
                         onChange={handleEditChange}
@@ -411,45 +449,45 @@ export default function ClientUserManagement() {
 
                 {/* Toggles */}
                 <div className="flex flex-wrap gap-4 mb-10">
-                   <label className={`flex-1 flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer shadow-sm
+                  <label className={`flex-1 flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer shadow-sm
                      ${editFormData.isActive ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Active</span>
-                      </div>
-                      <input 
-                        name="isActive"
-                        type="checkbox"
-                        checked={editFormData.isActive}
-                        onChange={handleEditChange}
-                        className="w-4 h-4"
-                      />
-                   </label>
-                   <label className={`flex-1 flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer shadow-sm
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Active</span>
+                    </div>
+                    <input
+                      name="isActive"
+                      type="checkbox"
+                      checked={editFormData.isActive}
+                      onChange={handleEditChange}
+                      className="w-4 h-4"
+                    />
+                  </label>
+                  <label className={`flex-1 flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer shadow-sm
                      ${editFormData.isBlocked ? "bg-rose-50 border-rose-100 text-rose-700" : "bg-slate-50 border-slate-100 text-slate-400"}`}>
-                      <div className="flex items-center gap-2">
-                        <ShieldAlert className="h-4 w-4" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Blocked</span>
-                      </div>
-                      <input 
-                        name="isBlocked"
-                        type="checkbox"
-                        checked={editFormData.isBlocked}
-                        onChange={handleEditChange}
-                        className="w-4 h-4"
-                      />
-                   </label>
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Blocked</span>
+                    </div>
+                    <input
+                      name="isBlocked"
+                      type="checkbox"
+                      checked={editFormData.isBlocked}
+                      onChange={handleEditChange}
+                      className="w-4 h-4"
+                    />
+                  </label>
                 </div>
 
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsEditModalOpen(false)}
                     className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-slate-100 transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     disabled={processing}
                     className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
@@ -468,23 +506,23 @@ export default function ClientUserManagement() {
       <AnimatePresence>
         {isAddModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
               onClick={() => setIsAddModalOpen(false)}
             />
-            
+
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
+              className="relative w-full max-w-2xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
-              
+
               <button
                 onClick={() => setIsAddModalOpen(false)}
                 className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
@@ -494,8 +532,8 @@ export default function ClientUserManagement() {
 
               <form onSubmit={handleAddSubmit} className="p-8 sm:p-12">
                 <div className="mb-10 text-center">
-                    <h2 className="text-2xl font-bold text-slate-800">Add New Client</h2>
-                    <p className="text-sm text-slate-500 mt-1 uppercase tracking-widest font-bold text-[9px]">Join the elite network</p>
+                  <h2 className="text-2xl font-bold text-slate-800">Add New Client</h2>
+                  <p className="text-sm text-slate-500 mt-1 uppercase tracking-widest font-bold text-[9px]">Join the elite network</p>
                 </div>
 
                 <div className="space-y-6 mb-8">
@@ -534,17 +572,29 @@ export default function ClientUserManagement() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 px-1">Phone Number *</label>
-                      <div className="relative">
-                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                        <input
-                          name="phone"
-                          value={addFormData.phone}
+                      <div className="flex gap-2">
+                        <select
+                          name="countryCode"
+                          value={addFormData.countryCode}
                           onChange={handleAddChange}
-                          type="text"
-                          placeholder="03001234567"
-                          className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50/50 pl-11 pr-4 text-[13px] text-slate-800 outline-none transition-all focus:border-yellow-600 focus:ring-4 focus:ring-yellow-600/5 font-semibold"
-                          required
-                        />
+                          className="w-[90px] h-11 rounded-xl border border-slate-100 bg-slate-50/50 px-2 text-[11px] font-bold text-slate-800 outline-none transition-all focus:border-yellow-600 focus:ring-4 focus:ring-yellow-600/5 appearance-none cursor-pointer"
+                        >
+                          {countryCodes.map((c) => (
+                            <option key={c.code + c.label} value={c.code}>{c.label} ({c.code})</option>
+                          ))}
+                        </select>
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                          <input
+                            name="phone"
+                            value={addFormData.phone}
+                            onChange={handleAddChange}
+                            type="text"
+                            placeholder="3001234567"
+                            className="h-11 w-full rounded-xl border border-slate-100 bg-slate-50/50 pl-11 pr-4 text-[13px] text-slate-800 outline-none transition-all focus:border-yellow-600 focus:ring-4 focus:ring-yellow-600/5 font-semibold"
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
                     <div className="space-y-1.5">
@@ -566,14 +616,14 @@ export default function ClientUserManagement() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
                     className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm tracking-wide hover:bg-slate-100 transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     disabled={processing}
                     className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
@@ -591,14 +641,14 @@ export default function ClientUserManagement() {
       <AnimatePresence>
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
               onClick={() => setIsDeleteModalOpen(false)}
             />
-            
+
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -609,20 +659,20 @@ export default function ClientUserManagement() {
               <div className="h-20 w-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-100">
                 <Trash2 className="h-10 w-10 text-rose-500" />
               </div>
-              
+
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Delete User?</h2>
               <p className="text-slate-500 mb-8 px-4 text-sm">
                 Are you sure you want to delete <span className="font-bold text-slate-800">{selectedUser?.name}</span>? This action is permanent and cannot be undone.
               </p>
 
               <div className="flex gap-4">
-                <button 
+                <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all"
                 >
                   No, Keep User
                 </button>
-                <button 
+                <button
                   onClick={handleDeleteConfirm}
                   disabled={processing}
                   className="flex-1 bg-rose-600 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-rose-600/20 hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
