@@ -27,7 +27,8 @@ import {
   Tag,
   CheckCircle,
   X,
-  CalendarDays
+  CalendarDays,
+  Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { propertyAPI } from "@/api/property";
@@ -156,19 +157,27 @@ const TransferModal = ({ isOpen, onClose, onConfirm, loading }) => {
 
 const PaymentModal = ({ isOpen, onClose, onConfirm, installment, loading }) => {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [receiptImage, setReceiptImage] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setDate(new Date().toISOString().split('T')[0]);
+      setReceiptImage(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute h-[100vh] inset-0 bg-charcoal/60 backdrop-blur-sm"
+          className="fixed inset-0 bg-charcoal/60 backdrop-blur-sm"
         />
 
         {/* Modal Card */}
@@ -176,7 +185,7 @@ const PaymentModal = ({ isOpen, onClose, onConfirm, installment, loading }) => {
           initial={{ scale: 0.95, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
+          className="relative z-10 w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
         >
           <button
             onClick={onClose}
@@ -211,10 +220,30 @@ const PaymentModal = ({ isOpen, onClose, onConfirm, installment, loading }) => {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-charcoal/30 px-1">
+                Payment Receipt (Optional)
+              </label>
+              <div className="relative h-14 w-full group">
+                <div className="absolute inset-0 rounded-2xl border border-primary/10 bg-slate-50 flex items-center px-4 transition-all group-hover:border-primary group-focus-within:ring-4 group-focus-within:ring-primary/5">
+                  <Download className="text-primary mr-4" size={18} />
+                  <span className="text-xs font-bold text-charcoal/60 truncate pr-4">
+                    {receiptImage ? receiptImage.name : "Select Receipt Image"}
+                  </span>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setReceiptImage(e.target.files[0])}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                />
+              </div>
+            </div>
+
             <div className="pt-2">
               <button
                 disabled={loading}
-                onClick={() => onConfirm(date)}
+                onClick={() => onConfirm(date, receiptImage)}
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-charcoal py-4 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-primary shadow-xl shadow-charcoal/10"
               >
                 {loading ? (
@@ -273,13 +302,25 @@ const PropertyDetailContent = () => {
     setIsModalOpen(true);
   };
 
-  const handleConfirmPayment = async (paidDate) => {
+  const handleConfirmPayment = async (paidDate, receiptImage) => {
     try {
       setUpdatingId(selectedInstIndex);
-      const res = await propertyAPI.updateInstallmentStatus(id, selectedInstIndex, {
-        status: "paid",
-        paidDate: paidDate || new Date().toISOString()
-      });
+
+      const formData = new FormData();
+      formData.append("status", "paid");
+      formData.append("paidDate", paidDate || new Date().toISOString());
+      
+      if (receiptImage) {
+        formData.append("receiptImage", receiptImage);
+      }
+
+      // We pass "Islamabad_Prime_Builder/Installement" as the 4th argument to help the backend/cloudinary utility
+      const res = await propertyAPI.updateInstallmentStatus(
+        id, 
+        selectedInstIndex, 
+        formData,
+        "Islamabad_Prime_Builder/Installement"
+      );
 
       if (res.success) {
         toast.success("Installment marked as paid!");
@@ -417,9 +458,9 @@ const PropertyDetailContent = () => {
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold text-charcoal">
-                Unit Specifications
+              Property Details 
               </h2>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Structural Specs</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Basic Information</p>
             </div>
           </div>
 
@@ -427,8 +468,8 @@ const PropertyDetailContent = () => {
             {[
               { icon: Building2, label: propertyData?.type, value: propertyData?.property_number },
               { icon: Layers3, label: "Floor Elevation", value: propertyData?.floor },
-              { icon: Ruler, label: "Architectural Footprint", value: propertyData?.size },
-              { icon: ShieldCheck, label: "Classification", value: propertyData?.type },
+              { icon: Ruler, label: "Area", value: propertyData?.size },
+              { icon: ShieldCheck, label: "Type", value: propertyData?.type },
               { icon: MapPin, label: "Building Name", value: propertyData?.building_name },
               { icon: Tag, label: "Category", value: propertyData?.category },
             ].map((item, idx) => (
@@ -475,7 +516,7 @@ const PropertyDetailContent = () => {
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
               { label: "Total Installment Remaining", value: `${propertyData.total_installment_remaining?.toLocaleString()}` },
 
-              { label: "Payment Plan", value: propertyData.payment_plan, highlight: true },
+              { label: "Payment Plan", value: propertyData.payment_plan.toUpperCase(), highlight: true },
             ].map((item, idx) => (
               <div
                 key={idx}
@@ -516,11 +557,11 @@ const PropertyDetailContent = () => {
                     <span>{owner.client_father_name}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <ShieldCheck size={14} className="text-primary/60" />
+                    <Phone size={14} className="text-primary/60" />
                     <span>{owner.client_cnic}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <Phone size={14} className="text-primary/60" />
+                    <ShieldCheck size={14} className="text-primary/60" />
                     <span>{owner.nationality}</span>
                   </div>
                 </div>
@@ -578,7 +619,6 @@ const PropertyDetailContent = () => {
                 <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-emerald-500/10">
                   <div className="flex items-center justify-between mb-4">
                     <p className="font-serif text-lg font-bold text-emerald-700">{record.newOwnerName}</p>
-                    <span className="text-[8px] font-bold uppercase bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">New Owner</span>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center gap-3 text-xs text-charcoal/60">
@@ -633,7 +673,7 @@ const PropertyDetailContent = () => {
           </div>
 
           <div className="flex items-center gap-6">
-            {isAdmin && (
+            {user?.role === "super-admin" && (
               <button
                 onClick={() => setIsTransferModalOpen(true)}
                 className="inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-primary hover:text-charcoal transition-all shadow-lg"
@@ -656,20 +696,23 @@ const PropertyDetailContent = () => {
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="bg-charcoal text-white">
-                <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
-                  {propertyData.type}
+                <th className="px-6 py-4 text-xs  font-bold uppercase tracking-[0.25em] text-primary/70 text-center">
+                  Property
                 </th>
-                <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
+                <th className="px-6 py-4  text-xs  font-bold uppercase tracking-[0.25em] text-primary/70 text-center">
                   Month
                 </th>
-                <th className="px-6 py-4 text-left text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
+                <th className="px-6 py-4 text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
                   Value
                 </th>
-                <th className="px-6 py-4 text-center text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
+                <th className="px-6 py-4 text-center text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
                   Status
                 </th>
+                <th className="px-6 py-4 text-center text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
+                  View
+                </th>
                 {isSuperAdmin && (
-                  <th className="px-6 py-4 text-right text-[9px] font-bold uppercase tracking-[0.25em] text-primary/70">
+                  <th className="px-6 py-4 text-center text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
                     Admin
                   </th>
                 )}
@@ -683,33 +726,37 @@ const PropertyDetailContent = () => {
                   className="transition-colors hover:bg-primary/[0.02]"
                 >
                   {/* Property Number */}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     <p className="font-serif text-sm font-bold text-charcoal">
-                      {propertyData.property_number}
+                      {propertyData.type} {propertyData.property_number}
                     </p>
                   </td>
 
                   {/* Month */}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-center">
                     <p className="font-serif text-sm font-bold text-charcoal">
                       {item.monthYear}
                     </p>
                     {item.status === "paid" && item.paidDate && (
-                      <p className="text-[8px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
-                        {new Date(item.paidDate).toLocaleDateString()}
+                      <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-0.5">
+                        {new Date(item.paidDate).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric"
+                        })}
                       </p>
                     )}
                   </td>
 
                   {/* Value */}
-                  <td className="px-6 py-4 font-body text-charcoal/60 font-medium text-xs">
+                  <td className="px-6 py-4 font-body text-charcoal/60 font-medium text-center">
                     Rs. {item.amount?.toLocaleString()}
                   </td>
 
                   {/* Status */}
                   <td className="px-6 py-4 text-center">
                     <span
-                      className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest ${item.status === "paid"
+                      className={`inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-widest ${item.status === "paid"
                         ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
                         : "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
                         }`}
@@ -721,6 +768,36 @@ const PropertyDetailContent = () => {
                       )}
                       {item.status === "paid" ? "Paid" : "Unpaid"}
                     </span>
+                  </td>
+
+                  {/* View Receipt */}
+                  <td className="px-6 py-4 text-center">
+                    {item.status === "paid" ? (
+                      item.receiptImage ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <a 
+                            href={item.receiptImage} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
+                            title="View Receipt"
+                          >
+                            <Eye size={18} />
+                          </a>
+                          <a 
+                            href={item.receiptImage.replace('/upload/', '/upload/fl_attachment/')} 
+                            className="flex h-9 w-9 items-center justify-center rounded-xl bg-charcoal/5 text-charcoal/40 hover:bg-charcoal hover:text-white hover:shadow-lg hover:shadow-charcoal/20 transition-all duration-300"
+                            title="Download Receipt"
+                          >
+                            <Download size={18} />
+                          </a>
+                        </div>
+                      ) : (
+                        <span className="text-charcoal/30 font-bold text-[10px] uppercase tracking-widest">No Receipt</span>
+                      )
+                    ) : (
+                      <span className="text-charcoal/30 font-bold text-[10px] uppercase tracking-widest">Pending</span>
+                    )}
                   </td>
 
                   {isSuperAdmin && (

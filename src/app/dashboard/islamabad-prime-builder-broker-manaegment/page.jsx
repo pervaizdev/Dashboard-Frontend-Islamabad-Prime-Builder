@@ -3,25 +3,26 @@
 import { useEffect, useState } from "react";
 import { brokersAPI } from "@/api/brokers";
 import toast from "react-hot-toast";
-import { 
-  Loader2, 
-  Search, 
-  Edit, 
+import {
+  Loader2,
+  Search,
+  Edit,
   Trash2,
-  User, 
+  User,
   Plus,
   X,
-  Eye,
   BadgeDollarSign,
   CreditCard,
-  Wallet,
+  ChevronRight,
   CircleDollarSign
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function BrokerManagementPage() {
   const router = useRouter();
+  const { user } = useAuth();
 
   const [brokers, setBrokers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,12 +33,12 @@ export default function BrokerManagementPage() {
     total_balance: 0,
     properties_count: 0
   });
-  
+
   // Modals state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   const [selectedBroker, setSelectedBroker] = useState(null);
   const [processing, setProcessing] = useState(false);
 
@@ -156,7 +157,7 @@ export default function BrokerManagementPage() {
     }
   };
 
-  const filteredBrokers = (brokers || []).filter(b => 
+  const filteredBrokers = (brokers || []).filter(b =>
     b.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     b.cnic?.includes(searchTerm) ||
     b.phone?.includes(searchTerm)
@@ -172,15 +173,17 @@ export default function BrokerManagementPage() {
             <p className="mt-2 text-slate-500">View and manage registered brokers in Islamabad Prime Builder.</p>
           </div>
 
-          <button 
-            onClick={handleAddClick}
-            className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform hover:scale-105 active:scale-95 shrink-0"
-          >
-            <Plus className="h-5 w-5" />
-            Add Broker
-          </button>
+          {user?.role === "super-admin" && (
+            <button
+              onClick={handleAddClick}
+              className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform hover:scale-105 active:scale-95 shrink-0"
+            >
+              <Plus className="h-5 w-5" />
+              Add Broker
+            </button>
+          )}
         </div>
-        
+
         {/* Overall Stats Cards */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {/* Total Commission Card */}
@@ -190,7 +193,7 @@ export default function BrokerManagementPage() {
             className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            
+
             <div className="flex items-start justify-between">
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Total Commission
@@ -221,7 +224,7 @@ export default function BrokerManagementPage() {
             className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            
+
             <div className="flex items-start justify-between">
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Total Paid
@@ -252,7 +255,7 @@ export default function BrokerManagementPage() {
             className="group relative overflow-hidden rounded-2xl border border-primary/10 bg-white p-6 transition-all duration-300 premium-border-glow border-l-4 border-l-yellow-500"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/5 to-transparent transition-transform duration-1000 group-hover:translate-x-full" />
-            
+
             <div className="flex items-start justify-between">
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Remaining Balance
@@ -278,16 +281,16 @@ export default function BrokerManagementPage() {
 
         {/* Search */}
         <div className="flex justify-end w-full">
-        <div className="relative group max-w-md w-full ">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
-          <input
-            type="text"
-            placeholder="Search by name, CNIC, or phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
-          />
-        </div>
+          <div className="relative group max-w-md w-full ">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
+            <input
+              type="text"
+              placeholder="Search by name, CNIC, or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
         {/* Brokers Table Card */}
@@ -315,10 +318,10 @@ export default function BrokerManagementPage() {
                   ))
                 ) : filteredBrokers.length > 0 ? (
                   filteredBrokers.map((broker) => (
-                    <motion.tr 
+                    <motion.tr
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      key={broker.broker_id} 
+                      key={broker.broker_id}
                       className="hover:bg-slate-50/30 transition-colors group"
                     >
                       <td className="px-8 py-6">
@@ -340,25 +343,31 @@ export default function BrokerManagementPage() {
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-2">
-                          <button 
+                          <button
                             onClick={() => router.push(`/dashboard/broker-details?id=${broker.broker_id}`)}
-                            className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-emerald-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button 
-                            onClick={() => handleEditClick(broker)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-yellow-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                           >
-                            <Edit className="h-4 w-4" />
+                           <ChevronRight className="h-5 w-5" />
                           </button>
-                          {/* <button 
-                            onClick={() => handleDeleteClick(broker)}
-                            className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button> */}
+
+                          {user?.role === "super-admin" && (
+                            <button
+                              onClick={() => handleEditClick(broker)}
+                              className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-yellow-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                          )}
+                          {user?.role === "super-admin" && (
+                            <button 
+                              onClick={() => handleDeleteClick(broker)}
+                              className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                          </button>
+                          )}
                         </div>
+
                       </td>
                     </motion.tr>
                   ))
@@ -379,14 +388,14 @@ export default function BrokerManagementPage() {
       <AnimatePresence>
         {(isAddModalOpen || isEditModalOpen) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
               onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
             />
-            
+
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -395,7 +404,7 @@ export default function BrokerManagementPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
-              
+
               <button
                 onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
                 className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all font-bold"
@@ -419,7 +428,7 @@ export default function BrokerManagementPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Broker Name</label>
-                      <input 
+                      <input
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
@@ -429,7 +438,7 @@ export default function BrokerManagementPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">CNIC Number</label>
-                      <input 
+                      <input
                         name="cnic"
                         value={formData.cnic}
                         onChange={handleInputChange}
@@ -440,7 +449,7 @@ export default function BrokerManagementPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Phone Number</label>
-                      <input 
+                      <input
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
@@ -454,7 +463,7 @@ export default function BrokerManagementPage() {
                   {/* Residential Address */}
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Residential Address</label>
-                    <textarea 
+                    <textarea
                       name="residential_address"
                       value={formData.residential_address}
                       onChange={handleInputChange}
@@ -466,14 +475,14 @@ export default function BrokerManagementPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
                     className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all"
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     type="submit"
                     disabled={processing}
                     className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
@@ -492,14 +501,14 @@ export default function BrokerManagementPage() {
       <AnimatePresence>
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
               onClick={() => setIsDeleteModalOpen(false)}
             />
-            
+
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -510,20 +519,20 @@ export default function BrokerManagementPage() {
               <div className="h-20 w-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-rose-100">
                 <Trash2 className="h-10 w-10 text-rose-500" />
               </div>
-              
+
               <h2 className="text-2xl font-bold text-slate-800 mb-2">Delete Broker?</h2>
               <p className="text-slate-500 mb-8 px-4 text-sm text-center">
                 Are you sure you want to delete <span className="font-bold text-slate-800">{selectedBroker?.name}</span>? This action is permanent.
               </p>
 
               <div className="flex gap-4">
-                <button 
+                <button
                   onClick={() => setIsDeleteModalOpen(false)}
                   className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleDeleteConfirm}
                   disabled={processing}
                   className="flex-1 bg-rose-600 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-rose-600/20 hover:bg-rose-700 transition-all flex items-center justify-center gap-2"

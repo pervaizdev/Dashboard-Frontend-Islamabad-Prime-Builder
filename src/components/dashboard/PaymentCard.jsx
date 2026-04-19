@@ -100,6 +100,13 @@ const PaymentCard = () => {
           icon: "building",
           href: "/dashboard/propertylist",
         },
+        {
+          title: "View All Brokers",
+          value: "Go to List →",
+          helper: "Manage and view brokers",
+          icon: "users",
+          href: "/dashboard/islamabad-prime-builder-broker-manaegment",
+        },
       ]
     : [
         {

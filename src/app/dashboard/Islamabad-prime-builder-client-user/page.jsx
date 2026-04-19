@@ -253,7 +253,7 @@ export default function ClientUserManagement() {
                             "bg-slate-50 text-slate-600 border-slate-100"}`}
                         >
                           {user.role === "super-admin" ? <ShieldCheck className="h-3 w-3" /> : (user.role === "admin" ? <ShieldCheck className="h-3 w-3" /> : <UserIcon className="h-3 w-3" />)}
-                          {user.role}
+                          {user.role === "admin" ? "Partners" : user.role}
                         </div>
                       </td>
                       <td className="px-8 py-6">
@@ -399,7 +399,7 @@ export default function ClientUserManagement() {
                         className="w-full appearance-none bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
                       >
                         <option value="user">User</option>
-                        <option value="admin">Admin</option>
+                        <option value="admin">Partners</option>
                         <option value="super-admin">Super Admin</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
