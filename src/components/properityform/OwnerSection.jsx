@@ -1,6 +1,8 @@
 "use client";
 
 import SearchableSelect from "./SearchableSelect";
+import axiosInstance from "@/utils/axiosInstance";
+import toast from "react-hot-toast";
 
 export default function OwnerSection({ formData, setFormData, usersList }) {
   const addOwner = () => {
@@ -29,12 +31,41 @@ export default function OwnerSection({ formData, setFormData, usersList }) {
     }));
   };
 
-  const handleOwnerChange = (index, field, value) => {
+  const handleOwnerChange = async (index, field, value) => {
     setFormData((prev) => {
       const newOwners = [...prev.owners];
       newOwners[index] = { ...newOwners[index], [field]: value };
       return { ...prev, owners: newOwners };
     });
+
+    // If userId is selected, try to fetch existing owner details for auto-population
+    if (field === "userId" && value) {
+      try {
+        const res = await axiosInstance.get(`/property-details/owner/${value}`);
+        if (res.data.success && res.data.ownerDetails) {
+          const details = res.data.ownerDetails;
+          setFormData((prev) => {
+            const newOwners = [...prev.owners];
+            // Only update current owner at this index
+            newOwners[index] = {
+              ...newOwners[index],
+              client_father_name: details.client_father_name || newOwners[index].client_father_name,
+              client_residential_address: details.client_residential_address || newOwners[index].client_residential_address,
+              client_permanent_address: details.client_permanent_address || newOwners[index].client_permanent_address,
+              occupation: details.occupation || newOwners[index].occupation,
+              age: details.age || newOwners[index].age,
+              client_cnic: details.client_cnic || newOwners[index].client_cnic,
+              nationality: details.nationality || newOwners[index].nationality,
+            };
+            return { ...prev, owners: newOwners };
+          });
+          toast.success("Previous records found! Owner details auto-populated.");
+        }
+      } catch (error) {
+        // Silently fail if no records exist
+        console.log("No previous property records found for this user to auto-populate.");
+      }
+    }
   };
 
   return (

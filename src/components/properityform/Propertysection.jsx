@@ -6,7 +6,7 @@ export default function PropertySection({ formData, setFormData, isEdit }) {
     
     if (name === "total_price") {
       const price = Math.max(0, parseFloat(value) || 0);
-      const commission = (price * 0.05).toFixed(2);
+      const commission = Math.round(price * 0.05);
       setFormData((prev) => ({ 
         ...prev, 
         [name]: price,
