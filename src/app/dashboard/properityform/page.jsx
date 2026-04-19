@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import PropertySection from "@/components/properityform/Propertysection";
 import OwnerSection from "@/components/properityform/OwnerSection";
@@ -9,7 +9,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import toast from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
-export default function PropertyFormPage() {
+function PropertyFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const propertyId = searchParams.get("id");
@@ -177,5 +177,17 @@ export default function PropertyFormPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function PropertyFormPage() {
+  return (
+    <Suspense fallback={
+       <div className="flex h-screen items-center justify-center">
+         <Loader2 className="h-10 w-10 animate-spin text-slate-400" />
+       </div>
+    }>
+      <PropertyFormContent />
+    </Suspense>
   );
 }
