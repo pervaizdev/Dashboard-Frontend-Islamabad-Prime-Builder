@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronLeft, X, MoveLeft, MoveRight, ArrowLeft, Camera, Maximize2 } from "lucide-react";
@@ -22,6 +22,7 @@ const GalleryPage = () => {
     const [allImages, setAllImages] = React.useState([]);
     const [filteredImages, setFilteredImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
+    const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
     const tabs = ["Recent", "1 month ago", "3 months ago"];
 
@@ -82,39 +83,60 @@ const GalleryPage = () => {
         }).toUpperCase();
     };
 
+    const selectedImage =
+        selectedImageIndex !== null ? filteredImages[selectedImageIndex] : null;
+
+    const showPrevImage = () => {
+        if (!filteredImages.length || selectedImageIndex === null) return;
+        setSelectedImageIndex(
+            selectedImageIndex === 0 ? filteredImages.length - 1 : selectedImageIndex - 1
+        );
+    };
+
+    const showNextImage = () => {
+        if (!filteredImages.length || selectedImageIndex === null) return;
+        setSelectedImageIndex(
+            selectedImageIndex === filteredImages.length - 1 ? 0 : selectedImageIndex + 1
+        );
+    };
+
     return (
         <div className="min-h-screen px-4 py-8 lg:px-16 space-y-12 bg-white">
             <div className="max-w-[1600px] mx-auto">
-                
+
                 {/* Header & Navigation */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16"
+                    className="mb-16"
                 >
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                             <div className="h-[1px] w-12 bg-primary/30" />
-                             <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-primary">Private Collection</p>
+                    <div className="space-y-6 w-full">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal md:text-6xl text-[#0d2d29]">
+                                Architectural <span className="text-primary">Gallery</span>
+                            </h1>
+                            <Link
+                                href="/dashboard"
+                                className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
+                            >
+                                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                                Return Home
+                            </Link>
                         </div>
-                        <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal md:text-6xl text-[#0d2d29]">
-                            Architectural <span className="text-primary italic">Gallery</span>
-                        </h1>
-                        
+
                         <div className="flex items-center gap-10 pt-4 border-t border-primary/10">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`relative text-[10px] font-bold uppercase tracking-widest transition-all ${
-                                        activeTab === tab ? "text-primary" : "text-[#0d2d29]/40 hover:text-[#0d2d29]"
-                                    }`}
+                                    className={`relative text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab ? "text-primary" : "text-[#0d2d29]/40 hover:text-[#0d2d29]"
+                                        }`}
                                 >
                                     {tab}
                                     {activeTab === tab && (
-                                        <motion.div 
+                                        <motion.div
                                             layoutId="activeTabLine"
-                                            className="absolute -bottom-2 left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_0_10px_rgba(194,158,109,0.5)]" 
+                                            className="absolute -bottom-2 left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_0_10px_rgba(194,158,109,0.5)]"
                                         />
                                     )}
                                 </button>
@@ -122,16 +144,9 @@ const GalleryPage = () => {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-4">
-                        <p className="font-script text-2xl text-primary opacity-60 pr-4">Prime-Builder Estates</p>
-                        <Link
-                            href="/dashboard"
-                            className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
-                        >
-                            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                            Return Home
-                        </Link>
-                    </div>
+
+
+
                 </motion.div>
 
                 {/* Gallery Grid */}
@@ -141,7 +156,7 @@ const GalleryPage = () => {
                         <p className="uppercase tracking-widest font-bold">Curating Collection...</p>
                     </div>
                 ) : filteredImages.length > 0 ? (
-                    <motion.div 
+                    <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
@@ -151,7 +166,7 @@ const GalleryPage = () => {
                             <motion.div
                                 key={item._id}
                                 variants={itemVariants}
-                                onClick={() => setSelectedIdx(index)}
+                                onClick={() => setSelectedImageIndex(index)}
                                 className={`group relative rounded-[2.5rem] overflow-hidden cursor-pointer premium-border-glow shadow-xl bg-white`}
                             >
                                 <Image
@@ -160,13 +175,13 @@ const GalleryPage = () => {
                                     fill
                                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
-                                
+
                                 {/* Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
                                     <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
                                         <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">{formatDate(item.createdAt)}</p>
-                                            <h3 className="font-serif text-lg font-bold italic">{item.title || "Gallery View"}</h3>
+                                            <p className=" font-bold uppercase text-white opacity-80 mb-1">{formatDate(item.createdAt)}</p>
+                                            
                                         </div>
                                         <div className="bg-white/10 backdrop-blur-md p-3 rounded-full text-white transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 delay-100">
                                             <Maximize2 size={20} />
@@ -186,70 +201,146 @@ const GalleryPage = () => {
 
             {/* Premium Lightbox */}
             <AnimatePresence>
-                {selectedIdx !== null && (
-                    <motion.div 
+                {selectedImage && (
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9999] bg-charcoal/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 md:p-10"
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xl"
+                        onClick={() => setSelectedImageIndex(null)}
                     >
-                        <div className="absolute top-0 left-0 w-full h-1 shimmer-gold z-[10000]" />
-                        
-                        <button
-                            onClick={() => setSelectedIdx(null)}
-                            className="absolute top-[60px] right-[70px] text-white/50 hover:text-primary transition-all z-[10000] bg-white/5 p-4 rounded-full backdrop-blur-md"
-                        >
-                            <X size={28} />
-                        </button>
+                        <div className="relative flex items-center justify-center">
+                            {/* Prev Button - outside modal box */}
+                            {filteredImages.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showPrevImage();
+                                    }}
+                                    className="absolute -left-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="m15 18-6-6 6-6" />
+                                    </svg>
+                                </button>
+                            )}
 
-                        <div className="w-full h-full max-w-screen-2xl relative">
-                            <SwiperComp
-                                initialSlide={selectedIdx}
-                                onSlideChange={(swiper) => setSelectedIdx(swiper.activeIndex)}
-                                modules={[Navigation, Pagination, Autoplay, EffectFade]}
-                                effect="fade"
-                                navigation={{
-                                    prevEl: '.swiper-btn-prev',
-                                    nextEl: '.swiper-btn-next',
-                                }}
-                                pagination={{ 
-                                    clickable: true,
-                                    renderBullet: (index, className) => {
-                                        return `<span class="${className}"></span>`;
-                                    }
-                                }}
-                                className="h-full w-full gallery-viewer-swiper"
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                className="relative overflow-hidden rounded-[2rem] premium-border-glow shadow-2xl bg-black"
+                                onClick={(e) => e.stopPropagation()}
                             >
-                                {filteredImages.map((item) => (
-                                    <SwiperSlide key={item._id}>
-                                        <div className="relative w-full h-full p-2  flex flex-col">
-                                            <div className="flex-1 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden premium-border-glow shadow-2xl bg-black/20">
-                                                <Image
-                                                    src={item.url}
-                                                    alt={item.title || "Gallery item"}
-                                                    fill
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                            <div className="mt-8 text-center space-y-2">
-                                                <p className="text-[10px] font-bold uppercase tracking-[0.5em] text-primary">{formatDate(item.createdAt)}</p>
-                                            </div>
-                                        </div>
-                                    </SwiperSlide>
-                                ))}
-                            </SwiperComp>
+                                <button
+                                    type="button"
+                                    onClick={() => setSelectedImageIndex(null)}
+                                    className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
+                                >
+                                    <X className="h-6 w-6" />
+                                </button>
 
-                            {/* Nav Buttons */}
-                            <div className="absolute inset-y-0 -left-6 md:-left-20 hidden lg:flex items-center z-50">
-                                <button className="swiper-btn-prev group p-5 rounded-full bg-white/5 text-white hover:bg-primary hover:text-charcoal transition-all shadow-xl">
-                                    <MoveLeft size={24} className="group-hover:-translate-x-1 transition-transform" />
+                                <div className="relative max-h-[85vh] max-w-[90vw]">
+                                    <Image
+                                        src={selectedImage.url}
+                                        alt={selectedImage.title || "Selected gallery image"}
+                                        width={1600}
+                                        height={1200}
+                                        sizes="90vw"
+                                        className="h-100vh w-100vw object-contain"
+                                    />
+                                </div>
+
+                            </motion.div>
+
+                            {/* Next Button - outside modal box */}
+                            {filteredImages.length > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        showNextImage();
+                                    }}
+                                    className="absolute -right-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    >
+                                        <path d="m9 18 6-6-6-6" />
+                                    </svg>
                                 </button>
-                            </div>
-                            <div className="absolute inset-y-0 -right-6 md:-right-20 hidden lg:flex items-center z-50">
-                                <button className="swiper-btn-next group p-5 rounded-full bg-white/5 text-white hover:bg-primary hover:text-charcoal transition-all shadow-xl">
-                                    <MoveRight size={24} className="group-hover:translate-x-1 transition-transform" />
-                                </button>
-                            </div>
+                            )}
+
+                            {/* Mobile buttons */}
+                            {filteredImages.length > 1 && (
+                                <div className="absolute -bottom-16 left-1/2 flex -translate-x-1/2 gap-4 md:hidden">
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showPrevImage();
+                                        }}
+                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="m15 18-6-6 6-6" />
+                                        </svg>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            showNextImage();
+                                        }}
+                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        >
+                                            <path d="m9 18 6-6-6-6" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     </motion.div>
                 )}

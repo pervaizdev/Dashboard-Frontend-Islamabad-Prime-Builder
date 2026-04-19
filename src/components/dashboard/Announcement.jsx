@@ -218,18 +218,7 @@ const AnnouncementsSection = () => {
                   </p>
                 </div>
 
-                {/* Metadata Section */}
-
-
-                {/* Footer Actions */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => setSelectedNotification(null)}
-                    className="flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm tracking-wide hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl active:scale-[0.98]"
-                  >
-                    Dismiss
-                  </button>
-                </div>
+                {/* Metadata Section */}               
               </div>
             </motion.div>
           </div>

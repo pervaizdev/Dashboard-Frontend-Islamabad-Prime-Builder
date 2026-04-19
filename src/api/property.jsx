@@ -29,12 +29,24 @@ export const propertyAPI = {
     }
   },
 
-  updateInstallmentStatus: async (id, index, data) => {
+  updateInstallmentStatus: async (id, index, data, folder = null) => {
     try {
-      const url = ENDPOINTS.PROPERTIES.UPDATE_INSTALLMENT_STATUS
+      let url = ENDPOINTS.PROPERTIES.UPDATE_INSTALLMENT_STATUS
         .replace(":id", id)
         .replace(":index", index);
-      const response = await axiosInstance.patch(url, data);
+      
+      if (folder) {
+        url += `?folder=${folder}`;
+      }
+
+      const config = {};
+      if (data instanceof FormData) {
+        config.headers = {
+          "Content-Type": "multipart/form-data",
+        };
+      }
+
+      const response = await axiosInstance.patch(url, data, config);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error updating installment status" };
@@ -61,10 +73,28 @@ export const propertyAPI = {
   
   transferProperty: async (id, data) => {
     try {
-      const response = await axiosInstance.post(`${ENDPOINTS.PROPERTIES.GET_ALL}/${id}/transfer`, data);
+      const response = await axiosInstance.post(`${ENDPOINTS.BROKERS.CREATE}/${id}/transfer`, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: "Error transferring property" };
+    }
+  },
+
+  updateProperty: async (id, data) => {
+    try {
+      const response = await axiosInstance.put(`${ENDPOINTS.PROPERTIES.GET_ALL}/${id}`, data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error updating property" };
+    }
+  },
+
+  deleteProperty: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`${ENDPOINTS.PROPERTIES.GET_ALL}/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error deleting property" };
     }
   },
 };

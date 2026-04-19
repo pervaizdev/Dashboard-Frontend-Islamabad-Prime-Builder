@@ -25,11 +25,14 @@ export default function AnnouncementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
   // Form state
+  // ... (existing formData state)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -135,17 +138,27 @@ export default function AnnouncementPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this announcement?")) return;
+  const handleDelete = (id) => {
+    setDeletingId(id);
+    setIsDeleteModalOpen(true);
+  };
 
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+    
+    setSubmitting(true);
     try {
-      const response = await announcementAPI.deleteAnnouncement(id);
+      const response = await announcementAPI.deleteAnnouncement(deletingId);
       if (response.success) {
         toast.success("Announcement deleted successfully!");
         fetchAnnouncements();
+        setIsDeleteModalOpen(false);
+        setDeletingId(null);
       }
     } catch (error) {
       toast.error(error.message || "Failed to delete announcement");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -511,6 +524,57 @@ export default function AnnouncementPage() {
                      <Trash2 className="h-4 w-4" /> Delete
                    </button>
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              onClick={() => setIsDeleteModalOpen(false)}
+            />
+            
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden p-6 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center mb-4">
+                <div className="h-16 w-16 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500">
+                  <AlertCircle className="h-8 w-8" />
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Confirm Delete</h3>
+              <p className="text-sm text-slate-500 mb-8 px-4">
+                Are you sure you want to delete this announcement? This action cannot be undone.
+              </p>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="flex-1 bg-slate-50 text-slate-500 py-3 rounded-xl font-bold text-xs tracking-wide hover:bg-slate-100 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  disabled={submitting}
+                  className="flex-1 bg-rose-600 text-white py-3 rounded-xl font-bold text-xs tracking-wide shadow-lg shadow-rose-600/20 hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
+                >
+                  {submitting && <Loader2 className="h-3 w-3 animate-spin" />}
+                  {submitting ? "Deleting..." : "Delete"}
+                </button>
               </div>
             </motion.div>
           </div>
