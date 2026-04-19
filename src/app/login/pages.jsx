@@ -146,6 +146,21 @@ const LoginPage = () => {
                 </Button>
               </motion.div>
             </form>
+
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              custom={0.7}
+              className="mt-6 flex justify-center"
+            >
+              <button
+                onClick={() => router.push("https://www.islamabadprimebuilders.com")}
+                className="flex cursor-pointer gap-2 text-sm font-medium text-white/50 transition-colors duration-300 hover:text-[#c29e6d]"
+              >
+                <span>←</span> Back to Home
+              </button>
+            </motion.div>
           </AuthCard>
         </motion.div>
       </div>
