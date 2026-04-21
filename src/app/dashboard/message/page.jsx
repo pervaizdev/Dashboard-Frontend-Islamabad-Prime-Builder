@@ -67,6 +67,13 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, loading, itemName
   );
 };
 
+const truncateWords = (text, wordLimit = 6) => {
+  if (!text) return "";
+  const words = text.split(/\s+/);
+  if (words.length <= wordLimit) return text;
+  return words.slice(0, wordLimit).join(" ") + "...";
+};
+
 function DetailCard({ label, value, icon: Icon, fullWidth = false }) {
   return (
     <div
@@ -179,7 +186,7 @@ export default function MessagesPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold ">User <span className="text-primary">Messages</span></h1>
-            <p className="mt-2 text-sm">Review and manage inquiries sent through the contact form.</p>
+            <p className="mt-2 text-sm">Review and manage messages sent through the contact form.</p>
           </div>
 
           
@@ -243,8 +250,8 @@ export default function MessagesPage() {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <p className="text-sm text-slate-600 max-w-xs truncate font-medium">
-                          {item.message}
+                        <p className="text-sm text-slate-600 max-w-xs font-medium">
+                          {truncateWords(item.message, 6)}
                         </p>
                       </td>
                       <td className="px-8 py-6">
