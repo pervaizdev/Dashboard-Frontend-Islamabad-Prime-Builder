@@ -55,6 +55,24 @@ body {
   background: linear-gradient(135deg, rgb(247,242,234) 0%, rgb(240,232,214) 100%);
 }
 
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(194, 158, 109, 0.2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 158, 109, 0.5);
+}
+
 /* .glass {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);

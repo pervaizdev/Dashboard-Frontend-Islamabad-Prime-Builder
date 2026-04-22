@@ -125,7 +125,7 @@ const SideNavbar = () => {
         </div>
       </div>
 
-      <nav className={`flex-1 space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
+      <nav className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
