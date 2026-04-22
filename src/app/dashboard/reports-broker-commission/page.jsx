@@ -14,7 +14,11 @@ import {
   ChevronDown,
   X,
   TrendingUp,
-  CreditCard
+  CreditCard,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -24,7 +28,15 @@ import autoTable from "jspdf-autotable";
 
 export default function ReportsBrokerCommissionPage() {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({ report: [], summary: { total_commission_paid: 0, records_count: 0 } });
+  const [data, setData] = useState({ 
+    report: [], 
+    summary: { total_commission_paid: 0, records_count: 0 },
+    totalPages: 1,
+    currentPage: 1,
+    totalCount: 0
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [brokerList, setBrokerList] = useState([]);
 
@@ -58,17 +70,32 @@ export default function ReportsBrokerCommissionPage() {
     fetchReports();
   }, []);
 
-  const fetchReports = async () => {
+  const fetchReports = async (page = 1, newLimit = limit) => {
     try {
       setLoading(true);
-      const res = await brokersAPI.getFilteredBrokerReports(filters);
+      const res = await brokersAPI.getFilteredBrokerReports({ ...filters, page, limit: newLimit });
       if (res.success) {
         setData(res);
+        setCurrentPage(res.currentPage);
+        setLimit(newLimit);
       }
     } catch (error) {
       toast.error(error.message || "Failed to fetch reports");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllForExport = async () => {
+    try {
+      toast.loading("Preparing full data for export...");
+      const res = await brokersAPI.getFilteredBrokerReports({ ...filters, limit: 5000, page: 1 });
+      toast.dismiss();
+      return res.report || [];
+    } catch (err) {
+      toast.dismiss();
+      toast.error("Failed to fetch full data for export");
+      return [];
     }
   };
 
@@ -120,17 +147,22 @@ export default function ReportsBrokerCommissionPage() {
       startDate: "",
       endDate: ""
     });
+    fetchReports(1);
     setSearchTerm("");
   };
 
-  const exportToExcel = () => {
-    if (!data.report.length) return toast.error("No data to export");
+  const exportToExcel = async () => {
+    const fullData = await fetchAllForExport();
+    if (!fullData.length) return toast.error("No data to export");
 
-    const exportData = data.report.map(record => ({
+    const exportData = fullData.map(record => ({
+      "Broker Name": record.broker_name,
       "Broker ID": record.broker_id,
       "Property Number": record.property_number,
       "Total Commission": record.broker_commission,
-      "Disbursed in Period": record.paid_in_range,
+      "Paid in Period": record.paid_in_range,
+      "Total Paid": record.paid_ever,
+      "Remaining Balance": record.balance,
       "Latest Payment Date": record.payments.length > 0 ? new Date(record.payments[0].paidDate).toLocaleDateString() : "N/A"
     }));
 
@@ -140,49 +172,93 @@ export default function ReportsBrokerCommissionPage() {
     XLSX.writeFile(wb, `Broker_Comm_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
-  const exportToPDF = () => {
-    if (!data.report.length) return toast.error("No data to export");
+  const exportToPDF = async () => {
+    const fullData = await fetchAllForExport();
+    if (!fullData.length) return toast.error("No data to export");
 
     const doc = new jsPDF("p", "pt", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
 
-    doc.setFontSize(22);
-    doc.setTextColor(30, 41, 59);
-    doc.text("Islamabad Prime Builder", 40, 40);
-    doc.setFontSize(14);
-    doc.setTextColor(71, 85, 105);
-    doc.text("Broker Disbursement & Commission Report", 40, 65);
+    // --- Luxury Header Section ---
+    doc.setFillColor(17, 17, 17); // Rich Charcoal
+    doc.rect(0, 0, pageWidth, 130, 'F');
 
-    doc.setFontSize(9);
-    doc.text(`Period: ${filters.startDate || "All Time"} to ${filters.endDate || "Present"}`, 40, 95);
-    doc.text(`Broker ID: ${filters.broker_id || "All Brokers"}`, 40, 110);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 125);
+    // Accent Line (Gold)
+    doc.setFillColor(212, 175, 55); // Metallic Gold
+    doc.rect(0, 125, pageWidth, 5, 'F');
 
-    doc.setDrawColor(226, 232, 240);
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(40, 140, 515, 40, 10, 10, 'FD');
-    doc.setTextColor(30, 41, 59);
+    doc.setTextColor(212, 175, 55);
+    doc.setFontSize(24);
+    doc.setFont("times", "bold");
+    doc.text("ISLAMABAD PRIME BUILDER", 40, 60);
+
     doc.setFontSize(10);
-    doc.text(`Records Count: ${data.summary.records_count}`, 60, 165);
-    doc.text(`Total Paid Out in Range: Rs. ${data.summary.total_commission_paid.toLocaleString()}`, 250, 165);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(160, 160, 160);
+    doc.text("BROKER COMMISSION DISBURSEMENT REGISTRY", 42, 85);
 
-    const tableColumn = ["Prop #", "Broker ID", "Total Comm.", "Paid in Range"];
-    const tableRows = data.report.map(r => [
+    // Header Metadata
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(`DATE GENERATED: ${new Date().toLocaleString().toUpperCase()}`, pageWidth - 200, 60);
+    doc.text(`PERIOD: ${filters.startDate || "INITIAL"} — ${filters.endDate || "PRESENT"}`, pageWidth - 200, 75);
+
+    // --- Elegant Summary Section ---
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(212, 175, 55);
+    doc.setLineWidth(0.5);
+    doc.roundedRect(40, 150, pageWidth - 80, 50, 2, 2, 'D');
+
+    doc.setTextColor(17, 17, 17);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("COMMISSION SUMMARY", 60, 168);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text(`TOTAL TRANSACTIONS: ${data.totalCount}`, 60, 185);
+
+    doc.setTextColor(17, 17, 17);
+    doc.setFont("helvetica", "bold");
+    const recoveredText = `TOTAL DISBURSED: Rs. ${data.summary.total_commission_paid.toLocaleString()}`;
+    const textWidth = doc.getTextWidth(recoveredText);
+    doc.text(recoveredText, pageWidth - 60 - textWidth, 185);
+
+    const tableColumn = ["Broker Name", "Property Number", "Total Amount", "Paid Amount", "Balance", "Date"];
+    const tableRows = fullData.map(r => [
+      r.broker_name.toUpperCase(),
       r.property_number,
-      `#${r.broker_id}`,
       `Rs. ${r.broker_commission.toLocaleString()}`,
-      `Rs. ${r.paid_in_range.toLocaleString()}`
+      `Rs. ${r.paid_in_range.toLocaleString()}`,
+      `Rs. ${r.balance.toLocaleString()}`,
+      r.payments.length > 0 ? new Date(r.payments[0].paidDate).toLocaleDateString() : "-"
     ]);
 
     autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
-      startY: 200,
+      startY: 220,
       theme: "grid",
-      styles: { fontSize: 8, cellPadding: 10 },
-      headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255] }
+      styles: { fontSize: 8, cellPadding: 10, font: "helvetica", textColor: [60, 60, 60] },
+      headStyles: { 
+        fillColor: [17, 17, 17], 
+        textColor: [212, 175, 55],
+        fontStyle: "bold",
+        lineWidth: 0.5,
+        lineColor: [212, 175, 55] 
+      },
+      alternateRowStyles: { fillColor: [252, 251, 248] },
+      columnStyles: {
+        0: { fontStyle: 'bold', textColor: [17, 17, 17] },
+        2: { halign: 'right' },
+        3: { halign: 'right' },
+        4: { halign: 'right', fontStyle: 'bold', textColor: [17, 17, 17] },
+        5: { halign: 'center' }
+      },
+      margin: { left: 40, right: 40 }
     });
 
-    doc.save(`Broker_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`Broker_Report_${new Date().getTime()}.pdf`);
   };
 
   return (
@@ -305,8 +381,8 @@ export default function ReportsBrokerCommissionPage() {
                   </div>
 
                   <div className="flex justify-end gap-4">
-                    <button onClick={clearFilters} className="px-8 py-3 rounded-2xl font-bold text-sm text-slate-400 hover:bg-slate-50 transition-all">Clear</button>
-                    <button onClick={fetchReports} className="bg-slate-900 text-white px-10 py-3 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Apply Search</button>
+                      <button onClick={clearFilters} className="px-8 py-3 rounded-2xl font-bold text-sm text-slate-400 hover:bg-slate-50 transition-all">Clear</button>
+                      <button onClick={() => fetchReports(1)} className="bg-slate-900 text-white px-10 py-3 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Apply Search</button>
                   </div>
                 </div>
               </motion.div>
@@ -390,6 +466,107 @@ export default function ReportsBrokerCommissionPage() {
                 )}
               </tbody>
             </table>
+          </div>
+          {/* Pagination Controls */}
+          <div className="px-10 py-10 border-t border-slate-50 bg-white space-y-8">
+            <div className="text-center text-sm font-medium text-slate-500">
+              Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, data.totalCount)} of {data.totalCount} entries
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-6 overflow-hidden">
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-slate-500">Show:</span>
+                <select
+                  value={limit}
+                  onChange={(e) => fetchReports(1, Number(e.target.value))}
+                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
+                >
+                  {[10, 25, 50, 100].map(v => (
+                    <option key={v} value={v}>{v}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => fetchReports(1)}
+                  disabled={currentPage === 1 || loading}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => fetchReports(currentPage - 1)}
+                  disabled={currentPage === 1 || loading}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+
+                <div className="flex items-center gap-1.5 px-2">
+                  {[...Array(data.totalPages)].map((_, i) => {
+                    const pageNum = i + 1;
+                    if (pageNum === 1 || pageNum === data.totalPages || (pageNum >= currentPage - 2 && pageNum <= currentPage + 2)) {
+                      return (
+                        <button
+                          key={i}
+                          onClick={() => fetchReports(pageNum)}
+                          className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${
+                            currentPage === pageNum 
+                              ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                              : "border border-slate-200 text-slate-500 hover:bg-slate-50"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    }
+                    if (pageNum === currentPage - 3 || pageNum === currentPage + 3) {
+                      return <span key={i} className="px-1 text-slate-300">...</span>;
+                    }
+                    return null;
+                  })}
+                </div>
+
+                <button
+                  onClick={() => fetchReports(currentPage + 1)}
+                  disabled={currentPage === data.totalPages || loading}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => fetchReports(data.totalPages)}
+                  disabled={currentPage === data.totalPages || loading}
+                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <span className="text-sm font-medium text-slate-600">
+                  Page <span className="font-bold text-slate-900">{currentPage}</span> of <span className="font-bold text-slate-900">{data.totalPages}</span>
+                </span>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-slate-500 whitespace-nowrap">Go to page:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max={data.totalPages}
+                    value={currentPage}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      if (val >= 1 && val <= data.totalPages) {
+                        fetchReports(val);
+                      }
+                    }}
+                    className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-sm font-bold text-center text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

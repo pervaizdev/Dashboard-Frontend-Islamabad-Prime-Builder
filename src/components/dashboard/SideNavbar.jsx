@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  UserPlus,
+  FileText,
   Users,
   Building2,
   Megaphone,
@@ -66,6 +66,11 @@ const navItems = [
     href: "/dashboard/property-images",
     icon: ImageIcon,
   },
+  {
+    title: "Messages",
+    href: "/dashboard/message",
+    icon: FileText,
+  }
 ];
 
 const SideNavbar = () => {
@@ -120,7 +125,7 @@ const SideNavbar = () => {
         </div>
       </div>
 
-      <nav className={`flex-1 space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
+      <nav className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;

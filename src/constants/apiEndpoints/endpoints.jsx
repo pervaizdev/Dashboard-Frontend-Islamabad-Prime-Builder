@@ -38,4 +38,8 @@ export const ENDPOINTS = {
     BASE: "/users",
     UPDATE: "/users/:id",
   },
+  CONTACT_MESSAGES: {
+    BASE: "/add-message",
+    UPDATE_DESCRIPTION: "/add-message/phone/:phone/description",
+  },
 };
