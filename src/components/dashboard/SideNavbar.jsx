@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  UserPlus,
+  FileText,
   Users,
   Building2,
   Megaphone,
@@ -66,6 +66,11 @@ const navItems = [
     href: "/dashboard/property-images",
     icon: ImageIcon,
   },
+  {
+    title: "Messages",
+    href: "/dashboard/message",
+    icon: FileText,
+  }
 ];
 
 const SideNavbar = () => {
