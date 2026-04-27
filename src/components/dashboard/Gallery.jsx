@@ -79,13 +79,13 @@ export default function Gallery() {
             <p className="text-md mt-4 max-w-2xl mx-auto text-charcoal/50 text-center">Take a closer look at our recent work and project highlights.
               See how ideas turn into reality with quality and precision.
               Our gallery captures every step of the journey.</p>
-            <div className="mt-13 flex justify-between">
+            <div className="mt-13 lg:flex justify-between">
               <h2 className="text-primary font-serif text-3xl font-bold mt-3 lg:text-5xl">
                 Latest <hr className="-bottom-2 h-[3px] w-2/3 rounded-full bg-primary" />
               </h2>
               <Link
                 href="/dashboard/gallery"
-                className="group mt-6 mb-3 inline-flex gap-3 rounded-full bg-charcoal px-8 py-4 text-xs font-bold uppercase text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
+                className="group mt-6 mb-3 inline-flex w-full lg:w-auto justify-center lg:justify-end gap-3 rounded-full bg-charcoal px-8 py-4 text-xs font-bold uppercase text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
               >
                 Explore Full Gallery
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
