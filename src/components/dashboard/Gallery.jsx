@@ -65,7 +65,7 @@ export default function Gallery() {
 
   return (
     <>
-      <section className="mt-24 mb-16 px-4 md:px-8">
+      <section className="mt-20 lg:mt-26 mb-16 px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}

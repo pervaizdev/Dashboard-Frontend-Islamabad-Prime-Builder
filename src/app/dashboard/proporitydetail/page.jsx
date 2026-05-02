@@ -28,6 +28,7 @@ import {
   CheckCircle,
   X,
   CalendarDays,
+  BadgeCheck,
   Eye
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -557,7 +558,7 @@ const PropertyDetailContent = () => {
                     <span>{owner.client_father_name}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <Phone size={14} className="text-primary/60" />
+                    <BadgeCheck size={14} className="text-primary/60" />
                     <span>{owner.client_cnic}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-charcoal/60">
@@ -622,7 +623,7 @@ const PropertyDetailContent = () => {
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                      <ShieldCheck size={14} className="text-primary/60" />
+                      <BadgeCheck size={14} className="text-primary/60" />
                       <span className="font-bold">CNIC:</span> {record.newOwnerCNIC}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-charcoal/60">
