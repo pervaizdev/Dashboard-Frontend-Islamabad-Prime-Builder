@@ -38,14 +38,14 @@ export default function Gallery() {
     };
     fetchGallery();
   }, []);
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric"
-        }).toUpperCase();
-    };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric"
+    }).toUpperCase();
+  };
   const selectedImage =
     selectedImageIndex !== null ? images[selectedImageIndex] : null;
 
@@ -132,7 +132,7 @@ export default function Gallery() {
                           <p className="mb-2 text-lg font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md ">
                             {formatDate(item.createdAt)}
                           </p>
-                         
+
                         </div>
 
                         <button
@@ -248,55 +248,7 @@ export default function Gallery() {
               )}
 
               {/* Mobile buttons */}
-              {images.length > 1 && (
-                <div className="absolute -bottom-16 left-1/2 flex -translate-x-1/2 gap-4 md:hidden">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      showPrevImage();
-                    }}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m15 18-6-6 6-6" />
-                    </svg>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      showNextImage();
-                    }}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="m9 18 6-6-6-6" />
-                    </svg>
-                  </button>
-                </div>
-              )}
+            
             </div>
           </motion.div>
         )}

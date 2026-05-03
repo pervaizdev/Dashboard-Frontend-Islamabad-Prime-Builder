@@ -55,8 +55,8 @@ const PropertyTable = () => {
         <h2 className="font-serif text-3xl font-bold tracking-tight text-charcoal md:text-5xl lg:text-6xl">
           Your <span className="text-primary">Investments</span>
         </h2>
-        <div className="mt-4">
-          <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto md:mx-0 leading-relaxed">
+        <div className="mt-4 ">
+          <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto  leading-relaxed">
             A professionally managed property portfolio where you can easily see
             real-time values and clear details anytime.
           </p>

@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import PaymentCard from "@/components/dashboard/PaymentCard.jsx";
 import Announcement from "@/components/dashboard/Announcement.jsx";
 import Propority from "@/components/dashboard/Propority.jsx";
@@ -27,7 +29,6 @@ const OverView = () => {
         <>
         <Admin_due_payment />
         <Propority />
-        <Table_Message/>
         </>
       ) : (
         <Propority />
