@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import Input from "@/components/Input.jsx";
 import Button from "@/components/Button.jsx";
 import AuthShowcasePanel from "@/components/AuthShowcasePanel";
@@ -12,6 +13,7 @@ import { fadeUp, fadeRight } from "@/animation/motion";
 import { useAuth } from "@/context/AuthContext";
 
 import { toast } from "react-hot-toast";
+import { countryCodes } from "@/constants/countryCodes";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -23,6 +25,41 @@ const LoginPage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [isPhone, setIsPhone] = useState(false);
+  const [countryCode, setCountryCode] = useState("+92");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+    if (!isDropdownOpen) {
+      setSearchTerm("");
+    }
+  }, [isDropdownOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredCountries = countryCodes.filter(c =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.code.includes(searchTerm) ||
+    c.label.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const selectedCountry = countryCodes.find(c => c.code === countryCode) || countryCodes.find(c => c.label === "PAK");
 
   useEffect(() => {
     if (user) {
@@ -36,6 +73,22 @@ const LoginPage = () => {
       ...prev,
       [name]: value,
     }));
+
+    if (name === "identifier") {
+      // Auto-detect phone vs email
+      // If it contains '@', it's definitely an email
+      if (value.includes("@")) {
+        setIsPhone(false);
+      } else {
+        // If it starts with a digit or '+', treat as phone
+        const phoneRegex = /^[0-9+]/;
+        if (phoneRegex.test(value)) {
+          setIsPhone(true);
+        } else {
+          setIsPhone(false);
+        }
+      }
+    }
   };
 
   const onSubmitHandler = async (e) => {
@@ -43,10 +96,16 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const isEmail = formData.identifier.includes("@");
-      const loginParams = isEmail
-        ? { email: formData.identifier, password: formData.password }
-        : { phone: formData.identifier, password: formData.password };
+      let finalIdentifier = formData.identifier;
+      if (isPhone) {
+        // Remove leading 0 if user added it after picking country code
+        const cleanPhone = formData.identifier.replace(/^0+/, "");
+        finalIdentifier = `${countryCode}${cleanPhone}`;
+      }
+
+      const loginParams = !isPhone
+        ? { email: finalIdentifier, password: formData.password }
+        : { phone: finalIdentifier, password: formData.password };
 
       const data = await login(loginParams);
 
@@ -95,7 +154,74 @@ const LoginPage = () => {
                   name="identifier"
                   value={formData.identifier}
                   onChange={onChangeHandler}
-                  placeholder="Enter your email or phone number"
+                  placeholder={isPhone ? "3001234567" : "Enter your email or phone number"}
+                  prefix={
+                    isPhone ? (
+                      <div className="relative" ref={dropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          className="flex items-center gap-1.5 text-[#c19c6a] font-bold text-sm outline-none cursor-pointer hover:opacity-80 transition-opacity whitespace-nowrap"
+                        >
+                          <span>{selectedCountry.label} {countryCode}</span>
+                          <ChevronDown
+                            size={14}
+                            className={`transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                          />
+                        </button>
+
+                        <AnimatePresence>
+                          {isDropdownOpen && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 4 }}
+                              exit={{ opacity: 0, y: 10 }}
+                              className="absolute left-[-20px] top-full z-[100] mt-2 w-48 max-h-64 overflow-hidden rounded-xl border border-[#c29e6d]/30 bg-[#08211e] shadow-2xl backdrop-blur-xl"
+                            >
+                              <div className="p-2 border-b border-[#c29e6d]/10">
+                                <input
+                                  ref={searchInputRef}
+                                  type="text"
+                                  placeholder="Search country..."
+                                  value={searchTerm}
+                                  onChange={(e) => setSearchTerm(e.target.value)}
+                                  className="w-full bg-white/5 border border-[#c29e6d]/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-[#cbb89a]/50 outline-none focus:border-[#c29e6d]/50 transition-colors"
+                                />
+                              </div>
+                              <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                                <div className="py-1">
+                                  {filteredCountries.length > 0 ? (
+                                    filteredCountries.map((c) => (
+                                      <button
+                                        key={`${c.label}-${c.code}`}
+                                        type="button"
+                                        onClick={() => {
+                                          setCountryCode(c.code);
+                                          setIsDropdownOpen(false);
+                                        }}
+                                        className={`flex w-full items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-[#c29e6d]/10 ${countryCode === c.code ? "bg-[#c29e6d]/20 text-white" : "text-[#cbb89a]"
+                                          }`}
+                                      >
+                                        <div className="flex flex-col items-start">
+                                          <span className="font-semibold text-xs">{c.name}</span>
+                                          <span className="text-[10px] opacity-60">{c.label}</span>
+                                        </div>
+                                        <span className="text-xs font-bold text-[#c29e6d]">{c.code}</span>
+                                      </button>
+                                    ))
+                                  ) : (
+                                    <div className="px-4 py-3 text-xs text-[#cbb89a]/50 text-center">
+                                      No countries found
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : null
+                  }
                 />
               </motion.div>
 
