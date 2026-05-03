@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Megaphone, X, Bell, Settings, Loader2, Info } from "lucide-react";
+import { Megaphone, X, Bell, Settings, Loader2, Info, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { notificationAPI } from "@/api/notification";
@@ -94,13 +94,22 @@ const AnnouncementsSection = () => {
           </div>
           <div className="flex items-center gap-3">
             {(isSuperAdmin || isAdmin) && (
-              <Link
-                href="/dashboard/announcementform"
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
-              >
-                <Settings className="h-2.5 w-2.5" />
-                Manage
-              </Link>
+              <>
+                <Link
+                  href="/dashboard/message"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                >
+                  <MessageSquare className="h-2.5 w-2.5" />
+                
+                </Link>
+                <Link
+                  href="/dashboard/announcementform"
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                >
+                  <Settings className="h-2.5 w-2.5" />
+                  Manage
+                </Link>
+              </>
             )}
             {isAdmin ? (
               <span></span>

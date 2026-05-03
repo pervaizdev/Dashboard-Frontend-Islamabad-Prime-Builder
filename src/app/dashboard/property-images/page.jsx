@@ -99,13 +99,22 @@ const PropertyImagesPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this?")) return;
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
+  const handleDeleteClick = (id) => {
+    setItemToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      const response = await deletePropertyImage(id);
+      const response = await deletePropertyImage(itemToDelete);
       if (response.success) {
         toast.success("Deleted successfully");
+        setIsDeleteModalOpen(false);
+        setItemToDelete(null);
         fetchImages();
       }
     } catch (error) {
@@ -236,7 +245,7 @@ const PropertyImagesPage = () => {
                       <Edit3 size={20} />
                     </button>
                     <button 
-                      onClick={() => handleDelete(item._id)}
+                      onClick={() => handleDeleteClick(item._id)}
                       className="p-3 bg-white/10 hover:bg-red-500 hover:text-white rounded-full transition-all"
                       title="Delete"
                     >
@@ -410,6 +419,51 @@ const PropertyImagesPage = () => {
                   Save Changes
                 </button>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="absolute inset-0 bg-[#0d2d29]/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-sm bg-white border border-red-500/20 rounded-[2rem] shadow-2xl overflow-hidden p-8"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-red-50 rounded-full text-red-500">
+                  <AlertCircle size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800">Confirm Deletion</h3>
+              </div>
+              <p className="text-sm font-medium text-slate-600 mb-8 leading-relaxed">
+                Are you sure you want to delete this item? This action is permanent and cannot be undone.
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleConfirmDelete}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-red-500/20"
+                >
+                  Delete
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
