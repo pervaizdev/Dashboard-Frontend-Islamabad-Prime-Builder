@@ -4,7 +4,7 @@ export const ENDPOINTS = {
     REGISTER: "/auth/signup",
     ME: "/auth/me",
     FORGETPASSWORD: "/auth/forgot-password",
-    VERIFYCODE: "/auth/verify-otp", 
+    VERIFYCODE: "/auth/verify-otp",
     RESETPASSWORD: "/auth/reset-password",
     REFRESH_TOKEN: "/auth/refresh-token",
     UPDATE_PASSWORD: "/auth/update-password",
@@ -37,5 +37,9 @@ export const ENDPOINTS = {
   USERS: {
     BASE: "/users",
     UPDATE: "/users/:id",
+  },
+  CONTACT_MESSAGES: {
+    BASE: "/add-message",
+    UPDATE_DESCRIPTION: "/add-message/phone/:phone/description",
   },
 };
