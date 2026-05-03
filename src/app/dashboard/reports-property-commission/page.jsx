@@ -257,7 +257,13 @@ export default function ReportsPropertyPage() {
 
     doc.setTextColor(17, 17, 17);
     doc.setFont("helvetica", "bold");
-    const recoveredText = `TOTAL RECOVERED AMOUNT: Rs. ${data.summary.total_paid_in_range.toLocaleString()}`;
+    let recoveredText = "";
+    if (filters.status === "unpaid") {
+      const totalDue = fullData.reduce((sum, r) => sum + r.remaining_amount, 0);
+      recoveredText = `TOTAL DUE AMOUNT: Rs. ${totalDue.toLocaleString()}`;
+    } else {
+      recoveredText = `TOTAL RECOVERED AMOUNT: Rs. ${data.summary.total_paid_in_range.toLocaleString()}`;
+    }
     const textWidth = doc.getTextWidth(recoveredText);
     doc.text(recoveredText, pageWidth - 60 - textWidth, 185);
 
@@ -266,7 +272,7 @@ export default function ReportsPropertyPage() {
     const isPaidOnly = filters.status === "paid";
 
     // Column Headers
-    let tableColumn = ["PROP #", "MONTH", "BUILDING", "FLOOR", "ACTUAL COST"];
+    let tableColumn = ["PROP #", "MONTH", "BUILDING", "FLOOR", "ACTUAL COST", "INSTALLMENT PRICE"];
     if (!isUnpaidOnly) tableColumn.push("PAID AMOUNT");
     tableColumn.push("REMAINING", "STATUS");
 
@@ -279,7 +285,8 @@ export default function ReportsPropertyPage() {
         record.monthYear.toUpperCase(),
         record.building_name.toUpperCase(),
         record.floor.toUpperCase(),
-        `Rs. ${record.total_price.toLocaleString()}`
+        `Rs. ${record.total_price.toLocaleString()}`,
+        `Rs. ${record.amount.toLocaleString()}`
       ];
 
       if (!isUnpaidOnly) {
@@ -318,13 +325,14 @@ export default function ReportsPropertyPage() {
       columnStyles: {
         0: { fontStyle: 'bold', textColor: [17, 17, 17] },
         4: { halign: 'right' },
+        5: { halign: 'right' },
         ...(isUnpaidOnly ? {
-          5: { halign: 'right' },
-          6: { halign: 'center' }
-        } : {
-          5: { halign: 'right', fontStyle: 'bold', textColor: [21, 128, 61] },
           6: { halign: 'right' },
           7: { halign: 'center' }
+        } : {
+          6: { halign: 'right', fontStyle: 'bold', textColor: [21, 128, 61] },
+          7: { halign: 'right' },
+          8: { halign: 'center' }
         })
       },
       margin: { left: 40, right: 40 }

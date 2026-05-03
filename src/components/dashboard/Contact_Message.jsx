@@ -413,7 +413,7 @@ export default function MessagesPage() {
                       <Pencil className="h-6 w-6" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-800">Update Description</h2>
+                      <h2 className="text-2xl font-bold text-slate-800">Add Comment</h2>
                     </div>
                   </div>
 
@@ -441,12 +441,12 @@ export default function MessagesPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Description</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Comments</label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={5}
-                        placeholder="Add Description"
+                        placeholder="Add Comment"
                         className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
                       />
                     </div>
@@ -458,7 +458,7 @@ export default function MessagesPage() {
                         className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
                       >
                         {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
-                        {isUpdating ? "Updating..." : "Update"}
+                        {isUpdating ? "Adding Comment..." : "Add Comment"}
                       </button>
                     </div>
                   </div>
