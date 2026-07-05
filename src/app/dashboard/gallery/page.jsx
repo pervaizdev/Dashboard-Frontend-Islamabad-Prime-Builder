@@ -124,7 +124,7 @@ const GalleryPage = () => {
                                 className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
                             >
                                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                                Return Dashboard
+                                Return To Dashboard
                             </Link>
                         </div>
 
