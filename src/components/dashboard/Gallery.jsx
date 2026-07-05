@@ -133,6 +133,7 @@ export default function Gallery() {
                           alt={item.title || `Gallery ${index + 1}`}
                           fill
                           sizes="(max-width: 768px) 100vw, 1200px"
+                          unoptimized={true}
                           className="object-cover"
                           priority={index === 0}
                         />
@@ -240,6 +241,7 @@ export default function Gallery() {
                       width={1600}
                       height={1200}
                       sizes="90vw"
+                      unoptimized={true}
                       className="max-h-[85vh] max-w-[90vw] object-contain"
                     />
                   )}

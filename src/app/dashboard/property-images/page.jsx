@@ -49,7 +49,13 @@ const PropertyImagesPage = () => {
       const folder = folders[activeTab];
       const response = await getPropertyImages(folder);
       if (response.success) {
-        setImages(response.data);
+        if (activeTab === "Landing Page") {
+          setImages(response.data?.landing || []);
+        } else if (activeTab === "Dashboard") {
+          setImages(response.data?.dashboard || []);
+        } else {
+          setImages([]);
+        }
       }
     } catch (error) {
       console.error("Error fetching images:", error);
@@ -223,7 +229,8 @@ const PropertyImagesPage = () => {
                     <Image 
                       src={item.url} 
                       alt={item.title || "Property image"} 
-                      fill 
+                      fill
+                      unoptimized={true}
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   )}

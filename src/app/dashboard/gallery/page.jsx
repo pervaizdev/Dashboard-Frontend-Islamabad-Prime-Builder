@@ -184,6 +184,7 @@ const GalleryPage = () => {
                                         src={item.url}
                                         alt={item.title || "Gallery Item"}
                                         fill
+                                        unoptimized={true}
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
                                 )}
