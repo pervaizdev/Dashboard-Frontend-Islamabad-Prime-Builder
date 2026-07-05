@@ -29,7 +29,9 @@ import {
   X,
   CalendarDays,
   BadgeCheck,
-  Eye
+  Eye,
+  Edit2,
+  Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { propertyAPI } from "@/api/property";
@@ -276,6 +278,26 @@ const PropertyDetailContent = () => {
   const [selectedInstIndex, setSelectedInstIndex] = useState(null);
   const [isTransferring, setIsTransferring] = useState(false);
 
+  const [isEditingPaidDP, setIsEditingPaidDP] = useState(false);
+  const [newPaidDP, setNewPaidDP] = useState("");
+  const [updatingPaidDP, setUpdatingPaidDP] = useState(false);
+
+  const handleUpdatePaidDP = async () => {
+    try {
+      setUpdatingPaidDP(true);
+      const res = await propertyAPI.updateProperty(id, { paid_downpayment: Number(newPaidDP) });
+      if (res.success) {
+        toast.success("Paid down payment updated!");
+        setIsEditingPaidDP(false);
+        fetchDetails();
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to update paid down payment");
+    } finally {
+      setUpdatingPaidDP(false);
+    }
+  };
+
   const isAdmin = user?.role === "admin" || user?.role === "super-admin";
   const isSuperAdmin = user?.role === "super-admin";
 
@@ -511,7 +533,7 @@ const PropertyDetailContent = () => {
           <div className="space-y-4">
             {[
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
-              { label: "Down Payment", value: `Rs. ${propertyData.down_payment?.toLocaleString()}` },
+              { label: "Down Payment", value: `Rs. ${propertyData.down_payment?.toLocaleString()}${propertyData.paid_downpayment ? ` / Rs. ${propertyData.paid_downpayment.toLocaleString()}` : ""}` },
               { label: "Paid Payment", value: `Rs. ${propertyData.paid_payment?.toLocaleString()}` },
               { label: "Remaining Amount", value: `Rs. ${propertyData.remaining_amount?.toLocaleString()}` },
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
@@ -521,15 +543,60 @@ const PropertyDetailContent = () => {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className={`flex items-center justify-between rounded-xl px-5 py-3.5 transition-all ${item.highlight ? 'bg-charcoal text-white shadow-xl ring-1 ring-primary/30' : 'bg-white/60 border border-primary/5 hover:bg-primary/5'
-                  }`}
+                className={`flex items-center justify-between rounded-xl px-5 py-3.5 transition-all ${item.highlight ? 'bg-charcoal text-white shadow-xl ring-1 ring-primary/30' : 'bg-white/60 border border-primary/5 hover:bg-primary/5'}`}
               >
-                <span className={`text-[10px] font-bold uppercase tracking-widest ${item.highlight ? 'text-primary/70' : 'text-charcoal/40'}`}>
+                <span className={`text-xs font-bold uppercase tracking-widest ${item.highlight ? 'text-primary' : 'text-charcoal/40'}`}>
                   {item.label}
                 </span>
-                <span className={`font-serif text-base font-bold ${item.highlight ? 'text-primary' : 'text-charcoal'}`}>
-                  {item.value}
-                </span>
+                
+                {item.label === "Down Payment" ? (
+                  <div className="flex items-center gap-3">
+                    {isEditingPaidDP ? (
+                      <div className="flex items-center gap-2">
+                        <span className="font-serif text-lg font-bold">Rs. {propertyData.down_payment?.toLocaleString()} / Rs. </span>
+                        <input
+                          type="number"
+                          value={newPaidDP}
+                          onChange={(e) => setNewPaidDP(e.target.value)}
+                          className="w-24 rounded-lg border border-primary/20 bg-white px-2 py-1 text-sm outline-none focus:border-primary"
+                          autoFocus
+                        />
+                        <button
+                          onClick={handleUpdatePaidDP}
+                          disabled={updatingPaidDP}
+                          className="rounded-lg bg-emerald-500 p-1.5 text-white hover:bg-emerald-600 disabled:opacity-50"
+                        >
+                          {updatingPaidDP ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                        </button>
+                        <button
+                          onClick={() => setIsEditingPaidDP(false)}
+                          className="rounded-lg bg-red-500 p-1.5 text-white hover:bg-red-600"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="font-serif text-lg font-bold">{item.value}</span>
+                        {isSuperAdmin && (
+                          <button
+                            onClick={() => {
+                              setNewPaidDP(propertyData.paid_downpayment || 0);
+                              setIsEditingPaidDP(true);
+                            }}
+                            className="ml-2 rounded-full p-1.5 text-charcoal/40 hover:bg-primary/10 hover:text-primary transition-colors"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <span className="font-serif text-lg font-bold">
+                    {item.value}
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -538,7 +605,9 @@ const PropertyDetailContent = () => {
 
 
       <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-        <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl">
+        {isAdmin && (
+          <>
+            <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl">
           <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
             <Users className="text-primary" size={24} />
             <h3 className="font-serif text-xl font-bold text-charcoal">Owner Profile</h3>
@@ -564,6 +633,14 @@ const PropertyDetailContent = () => {
                   <div className="flex items-center gap-3 text-xs text-charcoal/60">
                     <ShieldCheck size={14} className="text-primary/60" />
                     <span>{owner.nationality}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                    <MapPin size={14} className="text-primary/60" />
+                    <span><span className="font-semibold">Temp Address:</span> {owner.client_residential_address || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                    <MapPin size={14} className="text-primary/60" />
+                    <span><span className="font-semibold">Permanent Address:</span> {owner.client_permanent_address || 'N/A'}</span>
                   </div>
                 </div>
               </div>
@@ -606,7 +683,9 @@ const PropertyDetailContent = () => {
               </div>
             ))}
           </div>
-        </motion.div>
+          </motion.div>
+          </>
+        )}
 
         {/* Transfer History (New Owner Record) */}
         {propertyData.transferHistory && propertyData.transferHistory.length > 0 && (

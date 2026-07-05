@@ -26,9 +26,9 @@ export default function Gallery() {
     const fetchGallery = async () => {
       try {
         const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
-        if (response.success) {
-          // Show latest 6 images
-          setImages(response.data.slice(0, 6));
+        if (response.success && response.data?.dashboard) {
+          // Show latest 10 images from dashboard
+          setImages(response.data.dashboard.slice(0, 10));
         }
       } catch (error) {
         console.error("Gallery fetch error:", error);
@@ -46,6 +46,8 @@ export default function Gallery() {
       year: "numeric"
     }).toUpperCase();
   };
+
+  const isVideo = (url) => url?.match(/\.(mp4|webm|ogg|mov)$/i) || url?.includes('/video/upload/');
   const selectedImage =
     selectedImageIndex !== null ? images[selectedImageIndex] : null;
 
@@ -116,14 +118,25 @@ export default function Gallery() {
                 {images.map((item, index) => (
                   <SwiperSlide key={item._id}>
                     <div className="relative flex w-full h-[500px] items-center justify-center overflow-hidden rounded-[2.5rem]">
-                      <Image
-                        src={item.url}
-                        alt={item.title || `Gallery ${index + 1}`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 1200px"
-                        className="object-cover"
-                        priority={index === 0}
-                      />
+                      {isVideo(item.url) ? (
+                        <video
+                          src={item.url}
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Image
+                          src={item.url}
+                          alt={item.title || `Gallery ${index + 1}`}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 1200px"
+                          className="object-cover"
+                          priority={index === 0}
+                        />
+                      )}
 
                       <div className="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
 
@@ -210,14 +223,26 @@ export default function Gallery() {
                 </button>
 
                 <div className="relative max-h-[85vh] max-w-[90vw]">
-                  <Image
-                    src={selectedImage.url}
-                    alt={selectedImage.title || "Selected gallery image"}
-                    width={1600}
-                    height={1200}
-                    sizes="90vw"
-                    className="h-100vh w-100vw object-contain"
-                  />
+                  {isVideo(selectedImage.url) ? (
+                    <video
+                      src={selectedImage.url}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls
+                      className="max-h-[85vh] max-w-[90vw] object-contain"
+                    />
+                  ) : (
+                    <Image
+                      src={selectedImage.url}
+                      alt={selectedImage.title || "Selected gallery image"}
+                      width={1600}
+                      height={1200}
+                      sizes="90vw"
+                      className="max-h-[85vh] max-w-[90vw] object-contain"
+                    />
+                  )}
                 </div>
               </motion.div>
 
