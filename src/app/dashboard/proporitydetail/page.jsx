@@ -284,8 +284,13 @@ const PropertyDetailContent = () => {
 
   const handleUpdatePaidDP = async () => {
     try {
+      const val = Number(newPaidDP);
+      if (val > propertyData.down_payment) {
+        toast.error("Paid down payment cannot be greater than total down payment");
+        return;
+      }
       setUpdatingPaidDP(true);
-      const res = await propertyAPI.updateProperty(id, { paid_downpayment: Number(newPaidDP) });
+      const res = await propertyAPI.updateProperty(id, { paid_downpayment: val });
       if (res.success) {
         toast.success("Paid down payment updated!");
         setIsEditingPaidDP(false);
@@ -533,7 +538,7 @@ const PropertyDetailContent = () => {
           <div className="space-y-4">
             {[
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
-              { label: "Down Payment", value: `Rs. ${propertyData.down_payment?.toLocaleString()}${propertyData.paid_downpayment ? ` / Rs. ${propertyData.paid_downpayment.toLocaleString()}` : ""}` },
+              { label: "Down Payment", value: propertyData.paid_downpayment > 0 && propertyData.paid_downpayment !== propertyData.down_payment ? `Rs. ${propertyData.down_payment?.toLocaleString()} / Rs. ${propertyData.paid_downpayment.toLocaleString()}` : `Rs. ${propertyData.down_payment?.toLocaleString()}` },
               { label: "Paid Payment", value: `Rs. ${propertyData.paid_payment?.toLocaleString()}` },
               { label: "Remaining Amount", value: `Rs. ${propertyData.remaining_amount?.toLocaleString()}` },
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
@@ -578,7 +583,7 @@ const PropertyDetailContent = () => {
                     ) : (
                       <>
                         <span className="font-serif text-lg font-bold">{item.value}</span>
-                        {isSuperAdmin && (
+                        {isSuperAdmin && propertyData.paid_downpayment > 0 && propertyData.paid_downpayment !== propertyData.down_payment && (
                           <button
                             onClick={() => {
                               setNewPaidDP(propertyData.paid_downpayment || 0);
