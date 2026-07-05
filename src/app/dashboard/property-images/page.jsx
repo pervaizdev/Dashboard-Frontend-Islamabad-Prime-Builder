@@ -48,10 +48,13 @@ const PropertyImagesPage = () => {
     try {
       const folder = folders[activeTab];
       const response = await getPropertyImages(folder);
+      console.log("🔥 [DEBUG] API Response from getPropertyImages:", response);
       if (response.success) {
         if (activeTab === "Landing Page") {
+          console.log("🔥 [DEBUG] Setting Landing Page images:", response.data?.landing);
           setImages(response.data?.landing || []);
         } else if (activeTab === "Dashboard") {
+          console.log("🔥 [DEBUG] Setting Dashboard images:", response.data?.dashboard);
           setImages(response.data?.dashboard || []);
         } else {
           setImages([]);
