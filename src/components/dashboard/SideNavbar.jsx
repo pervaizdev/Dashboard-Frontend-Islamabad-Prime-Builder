@@ -6,15 +6,17 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  FileText,
-  Users,
-  Building2,
   Megaphone,
-  Briefcase,
-  List,
+  UserCog,
+  Home,
+  Building,
+  Users,
+  HandCoins,
+  BarChart3,
+  Images,
+  MessageSquareText,
   ChevronLeft,
   ChevronRight,
-  Image as ImageIcon,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -24,7 +26,6 @@ const navItems = [
     href: "/dashboard",
     icon: LayoutDashboard,
   },
-
   {
     title: "Announcement Management",
     href: "/dashboard/announcementform",
@@ -33,18 +34,17 @@ const navItems = [
   {
     title: "Broker Management",
     href: "/dashboard/islamabad-prime-builder-broker-manaegment",
-    icon: Briefcase,
+    icon: UserCog,
   },
-
   {
     title: "Add Property",
     href: "/dashboard/properityform",
-    icon: Building2,
+    icon: Home,
   },
   {
     title: "Property List",
     href: "/dashboard/propertylist",
-    icon: List,
+    icon: Building,
   },
   {
     title: "Client Management",
@@ -54,25 +54,24 @@ const navItems = [
   {
     title: "Reports Broker Commission",
     href: "/dashboard/reports-broker-commission",
-    icon: Building2,
+    icon: HandCoins,
   },
   {
     title: "Reports Property",
     href: "/dashboard/reports-property-commission",
-    icon: Building2,
+    icon: BarChart3,
   },
   {
     title: "Property Images",
     href: "/dashboard/property-images",
-    icon: ImageIcon,
+    icon: Images,
   },
   {
     title: "Messages",
     href: "/dashboard/message",
-    icon: FileText,
-  }
+    icon: MessageSquareText,
+  },
 ];
-
 const SideNavbar = () => {
   const pathname = usePathname();
   const { user } = useAuth();

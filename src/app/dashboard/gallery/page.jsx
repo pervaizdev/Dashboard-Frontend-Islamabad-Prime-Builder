@@ -18,22 +18,22 @@ import { Loader2 } from "lucide-react";
 
 const GalleryPage = () => {
     const [selectedIdx, setSelectedIdx] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState("Recent");
+    const [activeTab, setActiveTab] = React.useState("Gallery");
     const [allImages, setAllImages] = React.useState([]);
     const [filteredImages, setFilteredImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-    const tabs = ["Recent", "1 month ago", "3 months ago"];
+    const tabs = ["Gallery", "1 month ago", "3 months ago"];
 
     React.useEffect(() => {
         const fetchGallery = async () => {
             setLoading(true);
             try {
-                const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
-                if (response.success) {
-                    setAllImages(response.data);
-                    setFilteredImages(response.data);
+                const response = await getPropertyImages();
+                if (response.success && response.data?.landing) {
+                    setAllImages(response.data.landing);
+                    setFilteredImages(response.data.landing);
                 }
             } catch (error) {
                 console.error("Gallery page fetch error:", error);
@@ -51,10 +51,12 @@ const GalleryPage = () => {
         let filtered = [...allImages];
 
         if (activeTab === "1 month ago") {
-            const oneMonthAgo = new Date(now.setDate(now.getDate() - 30));
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
             filtered = allImages.filter(img => new Date(img.createdAt) >= oneMonthAgo);
         } else if (activeTab === "3 months ago") {
-            const threeMonthsAgo = new Date(now.setDate(now.getDate() - 90));
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
             filtered = allImages.filter(img => new Date(img.createdAt) >= threeMonthsAgo);
         }
 
@@ -82,6 +84,8 @@ const GalleryPage = () => {
             year: "numeric"
         }).toUpperCase();
     };
+
+    const isVideo = (url) => url?.match(/\.(mp4|webm|ogg|mov)$/i) || url?.includes('/video/upload/');
 
     const selectedImage =
         selectedImageIndex !== null ? filteredImages[selectedImageIndex] : null;
@@ -169,12 +173,21 @@ const GalleryPage = () => {
                                 onClick={() => setSelectedImageIndex(index)}
                                 className={`group relative rounded-[2.5rem] overflow-hidden cursor-pointer premium-border-glow shadow-xl bg-white`}
                             >
-                                <Image
-                                    src={item.url}
-                                    alt={item.title || "Gallery Item"}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
+                                {isVideo(item.url) ? (
+                                    <video
+                                        src={item.url}
+                                        preload="metadata"
+                                        className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                ) : (
+                                    <Image
+                                        src={item.url}
+                                        alt={item.title || "Gallery Item"}
+                                        fill
+                                        unoptimized={true}
+                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                )}
 
                                 {/* Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
@@ -252,14 +265,22 @@ const GalleryPage = () => {
                                 </button>
 
                                 <div className="relative max-h-[85vh] max-w-[90vw]">
-                                    <Image
-                                        src={selectedImage.url}
-                                        alt={selectedImage.title || "Selected gallery image"}
-                                        width={1600}
-                                        height={1200}
-                                        sizes="90vw"
-                                        className="h-100vh w-100vw object-contain"
-                                    />
+                                    {isVideo(selectedImage.url) ? (
+                                        <video
+                                            src={selectedImage.url}
+                                            controls
+                                            className="max-h-[85vh] max-w-[90vw] object-contain"
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={selectedImage.url}
+                                            alt={selectedImage.title || "Selected gallery image"}
+                                            width={1600}
+                                            height={1200}
+                                            sizes="90vw"
+                                            className="max-h-[85vh] max-w-[90vw] object-contain"
+                                        />
+                                    )}
                                 </div>
 
                             </motion.div>

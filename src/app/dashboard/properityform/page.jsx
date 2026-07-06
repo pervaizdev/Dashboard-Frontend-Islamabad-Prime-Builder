@@ -24,6 +24,7 @@ function PropertyFormContent() {
     size: "",
     total_price: "",
     down_payment: "",
+    paid_downpayment: "",
     payment_plan: "",
     startDate: "",
     broker_commission: "",
@@ -103,6 +104,7 @@ function PropertyFormContent() {
         ...formData,
         total_price: Number(formData.total_price),
         down_payment: Number(formData.down_payment),
+        paid_downpayment: Number(formData.paid_downpayment) || 0,
         owners: formData.owners.map(o => ({ ...o, age: Number(o.age), userId: Number(o.userId) })),
         brokers: formData.brokers.map(b => ({ 
           ...b, 

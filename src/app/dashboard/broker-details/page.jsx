@@ -424,7 +424,7 @@ const BrokerDetailsContent = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden"
+          className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 mb-10 overflow-hidden"
         >
           <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
             <div className="flex items-center gap-4">

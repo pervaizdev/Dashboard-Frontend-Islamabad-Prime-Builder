@@ -156,6 +156,21 @@ export default function PropertySection({ formData, setFormData, isEdit }) {
           />
         </div>
 
+        {/* Paid Downpayment */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Paid Down Payment
+          </label>
+          <input
+            name="paid_downpayment"
+            value={formData.paid_downpayment}
+            onChange={handleChange}
+            type="number"
+            placeholder="Enter paid downpayment"
+            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
+          />
+        </div>
+
         {/* Payment Plan */}
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
