@@ -18,13 +18,13 @@ import { Loader2 } from "lucide-react";
 
 const GalleryPage = () => {
     const [selectedIdx, setSelectedIdx] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState("Gallery");
+    const [activeTab, setActiveTab] = React.useState("Recent");
     const [allImages, setAllImages] = React.useState([]);
     const [filteredImages, setFilteredImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-    const tabs = ["Gallery", "1 month ago", "3 months ago"];
+    const tabs = ["Recent", "1 month ago", "3 months ago"];
 
     React.useEffect(() => {
         const fetchGallery = async () => {
