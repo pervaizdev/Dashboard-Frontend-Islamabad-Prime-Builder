@@ -337,15 +337,15 @@ const PropertyDetailContent = () => {
       const formData = new FormData();
       formData.append("status", "paid");
       formData.append("paidDate", paidDate || new Date().toISOString());
-      
+
       if (receiptImage) {
         formData.append("receiptImage", receiptImage);
       }
 
       // We pass "Islamabad_Prime_Builder/Installement" as the 4th argument to help the backend/cloudinary utility
       const res = await propertyAPI.updateInstallmentStatus(
-        id, 
-        selectedInstIndex, 
+        id,
+        selectedInstIndex,
         formData,
         "Islamabad_Prime_Builder/Installement"
       );
@@ -486,7 +486,7 @@ const PropertyDetailContent = () => {
             </div>
             <div>
               <h2 className="font-serif text-xl font-bold text-charcoal">
-              Property Details 
+                Property Details
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Basic Information</p>
             </div>
@@ -548,12 +548,15 @@ const PropertyDetailContent = () => {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className={`flex items-center justify-between rounded-xl px-5 py-3.5 transition-all ${item.highlight ? 'bg-charcoal text-white shadow-xl ring-1 ring-primary/30' : 'bg-white/60 border border-primary/5 hover:bg-primary/5'}`}
+                className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl px-5 py-3.5 ${item.highlight
+                  ? "bg-charcoal text-white shadow-xl ring-1 ring-primary/30"
+                  : "bg-white/60 border border-primary/5 hover:bg-primary/5"
+                  }`}
               >
                 <span className={`text-xs font-bold uppercase tracking-widest ${item.highlight ? 'text-primary' : 'text-charcoal/40'}`}>
                   {item.label}
                 </span>
-                
+
                 {item.label === "Down Payment" ? (
                   <div className="flex items-center gap-3">
                     {isEditingPaidDP ? (
@@ -613,82 +616,117 @@ const PropertyDetailContent = () => {
         {isAdmin && (
           <>
             <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl">
-          <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-            <Users className="text-primary" size={24} />
-            <h3 className="font-serif text-xl font-bold text-charcoal">Owner Profile</h3>
-          </div>
-          <div className="space-y-6">
-            {propertyData.owners?.map((owner, idx) => (
-              <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-primary/5">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
-                    {owner.name?.charAt(0)}
-                  </div>
-                  <p className="font-serif text-lg font-bold text-charcoal">{owner.name}</p>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <User size={14} className="text-primary/60" />
-                    <span>{owner.client_father_name}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <BadgeCheck size={14} className="text-primary/60" />
-                    <span>{owner.client_cnic}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <ShieldCheck size={14} className="text-primary/60" />
-                    <span>{owner.nationality}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <MapPin size={14} className="text-primary/60" />
-                    <span><span className="font-semibold">Temp Address:</span> {owner.client_residential_address || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <MapPin size={14} className="text-primary/60" />
-                    <span><span className="font-semibold">Permanent Address:</span> {owner.client_permanent_address || 'N/A'}</span>
-                  </div>
-                </div>
+              <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
+                <Users className="text-primary" size={24} />
+                <h3 className="font-serif text-xl font-bold text-charcoal">Owner Profile</h3>
               </div>
-            ))}
-          </div>
-        </motion.div>
-
-        <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl">
-          <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-            <Briefcase className="text-primary" size={24} />
-            <h3 className="font-serif text-xl font-bold text-charcoal">Broker Information</h3>
-          </div>
-          <div className="space-y-6">
-            {propertyData.brokers?.map((broker, idx) => (
-              <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-primary/5">
-                <p className="font-serif text-lg font-bold text-charcoal mb-4">{broker.broker_name}</p>
-                <div className="grid grid-cols-1 gap-3">
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <Phone size={14} className="text-primary/60" />
-                    <span>{broker.broker_details?.phone || "N/A"}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                    <User size={14} className="text-primary/60" />
-                    <span>Relationship: {broker.relationship}</span>
-                  </div>
-                  {broker.broker_commission > 0 && (
-                    <div className="mt-2 bg-emerald-50/50 rounded-2xl p-4 border border-emerald-500/10 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg shadow-emerald-500/20">
-                          <CircleDollarSign size={14} className="text-white" />
-                        </div>
-                        <span className="text-md font-bold ">Broker Commission</span>
+              <div className="space-y-6">
+                {propertyData.owners?.map((owner, idx) => (
+                  <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-primary/5">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                        {owner.name?.charAt(0)}
                       </div>
-                      <span className="font-serif font-bold">
-                        Rs. {broker.broker_commission.toLocaleString()}
-                      </span>
+                      <p className="font-serif text-lg font-bold text-charcoal">{owner.name}</p>
                     </div>
-                  )}
-                </div>
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <User size={14} className="text-primary/60" />
+                        <span>{owner.client_father_name}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <BadgeCheck size={14} className="text-primary/60" />
+                        <span>{owner.client_cnic}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <ShieldCheck size={14} className="text-primary/60" />
+                        <span>{owner.nationality}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <MapPin size={14} className="text-primary/60" />
+                        <span><span className="font-semibold">Temp Address:</span> {owner.client_residential_address || 'N/A'}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <MapPin size={14} className="text-primary/60" />
+                        <span><span className="font-semibold">Permanent Address:</span> {owner.client_permanent_address || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          </motion.div>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl"
+            >
+              <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
+                <Briefcase className="text-primary" size={24} />
+                <h3 className="font-serif text-xl font-bold text-charcoal">
+                  Broker Information
+                </h3>
+              </div>
+
+              <div className="space-y-6">
+                {propertyData.brokers?.map((broker, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-3xl border border-primary/5 bg-white/40 p-6"
+                  >
+                    <p className="mb-4 font-serif text-lg font-bold text-charcoal">
+                      {broker.broker_name}
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <Phone size={14} className="text-primary/60" />
+                        <span>{broker.broker_details?.phone || "N/A"}</span>
+                      </div>
+
+                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                        <User size={14} className="text-primary/60" />
+                        <span>Relationship: {broker.relationship}</span>
+                      </div>
+
+                      {broker.broker_commission > 0 && (
+                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 shadow-sm">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+                            {/* Left Side */}
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/20">
+                                <CircleDollarSign size={18} className="text-white" />
+                              </div>
+
+                              <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                                  Commission
+                                </p>
+                                <p className="text-sm font-bold text-charcoal">
+                                  Broker Commission
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Right Side */}
+                            <div className="text-left sm:text-right">
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/50">
+                                Amount
+                              </p>
+                              <p className="font-serif text-lg font-bold text-emerald-700">
+                                Rs. {broker.broker_commission.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </>
         )}
 
@@ -860,17 +898,17 @@ const PropertyDetailContent = () => {
                     {item.status === "paid" ? (
                       item.receiptImage ? (
                         <div className="flex items-center justify-center gap-2">
-                          <a 
-                            href={item.receiptImage} 
-                            target="_blank" 
+                          <a
+                            href={item.receiptImage}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/5 text-primary hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
                             title="View Receipt"
                           >
                             <Eye size={18} />
                           </a>
-                          <a 
-                            href={item.receiptImage.replace('/upload/', '/upload/fl_attachment/')} 
+                          <a
+                            href={item.receiptImage.replace('/upload/', '/upload/fl_attachment/')}
                             className="flex h-9 w-9 items-center justify-center rounded-xl bg-charcoal/5 text-charcoal/40 hover:bg-charcoal hover:text-white hover:shadow-lg hover:shadow-charcoal/20 transition-all duration-300"
                             title="Download Receipt"
                           >

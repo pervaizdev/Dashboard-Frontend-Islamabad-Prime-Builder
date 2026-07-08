@@ -18,13 +18,13 @@ import { Loader2 } from "lucide-react";
 
 const GalleryPage = () => {
     const [selectedIdx, setSelectedIdx] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState("Gallery");
+    const [activeTab, setActiveTab] = React.useState("Recent");
     const [allImages, setAllImages] = React.useState([]);
     const [filteredImages, setFilteredImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-    const tabs = ["Gallery", "1 month ago", "3 months ago"];
+    const tabs = ["Recent", "1 month ago", "3 months ago"];
 
     React.useEffect(() => {
         const fetchGallery = async () => {
@@ -124,7 +124,7 @@ const GalleryPage = () => {
                                 className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
                             >
                                 <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                                Return To Dashboard
+                                Return to dashboard
                             </Link>
                         </div>
 
