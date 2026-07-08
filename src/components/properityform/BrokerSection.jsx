@@ -19,7 +19,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
         ...prev.brokers,
         {
           broker_id: "",
-          userId: ownerOptions.length === 1 ? ownerOptions[0].userId : "",
+          userId: "",
           relationship: "",
         },
       ],
@@ -44,29 +44,14 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "broker_commission") {
-      const numericValue = Math.round(Math.max(0, parseFloat(value) || 0));
+      const numericValue = value === "" ? "" : Math.max(0, parseFloat(value));
       setFormData((prev) => ({ ...prev, [name]: numericValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  useEffect(() => {
-    if (ownerOptions.length === 1) {
-      const singleOwnerId = ownerOptions[0].userId;
-      setFormData((prev) => {
-        let changed = false;
-        const newBrokers = (prev.brokers || []).map(b => {
-          if (b.userId === "" || !validOwnerUserIds.includes(String(b.userId))) {
-            changed = true;
-            return { ...b, userId: singleOwnerId };
-          }
-          return b;
-        });
-        return changed ? { ...prev, brokers: newBrokers } : prev;
-      });
-    }
-  }, [ownerOptions.length]);
+
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -93,7 +78,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <h3 className="text-sm font-semibold text-slate-700">
-              Commission Configuration
+              Commission Configuration <span className="text-slate-400 font-normal">(Optional)</span>
             </h3>
             <p className="text-xs text-slate-500">
               Total commission amount shared among all brokers.
@@ -155,7 +140,6 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                   onChange={(val) => handleBrokerChange(i, "broker_id", val)}
                   secondaryKey1="cnic"
                   secondaryKey2="phone"
-                  required
                 />
               </div>
 
@@ -170,7 +154,6 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                   onChange={(val) => handleBrokerChange(i, "userId", val)}
                   secondaryKey1="phone"
                   secondaryKey2="email"
-                  required
                 />
               </div>
 
