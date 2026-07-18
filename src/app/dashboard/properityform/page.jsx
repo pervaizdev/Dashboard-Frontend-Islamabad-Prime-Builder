@@ -27,6 +27,7 @@ function PropertyFormContent() {
     paid_downpayment: "",
     payment_plan: "",
     startDate: "",
+    allocationType: "Complete Down Payment",
     broker_commission: "",
     owners: [
       {
