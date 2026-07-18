@@ -183,14 +183,10 @@ export default function MessagesPage() {
     <div className="container mx-auto mt-14 px-6 lg:px-9 lg:mt-15">
       <div className="flex flex-col gap-8">
         {/* Header Section */}
-        <div className="">
           <div className="item-center">
             <h1 className="text-3xl font-bold lg:text-6xl ">User <span className="text-primary">Messages</span></h1>
             <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto md:mx-0 mt-6">Review and manage messages sent through the contact form.</p>
-          </div>
-
-          
-        </div>
+          </div>          
 
         {/* Table Section */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">

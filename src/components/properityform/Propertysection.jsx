@@ -156,6 +156,21 @@ export default function PropertySection({ formData, setFormData, isEdit }) {
           />
         </div>
 
+        {/* Paid Downpayment */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Paid Down Payment
+          </label>
+          <input
+            name="paid_downpayment"
+            value={formData.paid_downpayment}
+            onChange={handleChange}
+            type="number"
+            placeholder="Enter paid downpayment"
+            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
+          />
+        </div>
+
         {/* Payment Plan */}
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -185,6 +200,50 @@ export default function PropertySection({ formData, setFormData, isEdit }) {
             type="date"
             className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
           />
+        </div>
+
+        {/* Allocation Type */}
+        <div >
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Allocation Type
+          </label>
+          <div className="flex flex-col gap-2.5 mt-2">
+              <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
+              <input
+                type="radio"
+                name="allocationType"
+                value="Complete Down Payment"
+                checked={formData.allocationType === "Complete Down Payment"}
+                onChange={handleChange}
+                className="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500"
+              />
+              Complete Down Payment
+            </label>
+               <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
+              <input
+                type="radio"
+                name="allocationType"
+                value="Incomplete Down Payment"
+                checked={formData.allocationType === "Incomplete Down Payment"}
+                onChange={handleChange}
+                className="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500"
+              />
+              Incomplete Down Payment
+            </label>
+            <label className="flex items-center gap-2.5 text-sm text-slate-700 cursor-pointer">
+              <input
+                type="radio"
+                name="allocationType"
+                value="Partner"
+                checked={formData.allocationType === "Partner"}
+                onChange={handleChange}
+                className="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-500"
+              />
+              Partner
+            </label>
+
+          
+          </div>
         </div>
       </div>
     </div>

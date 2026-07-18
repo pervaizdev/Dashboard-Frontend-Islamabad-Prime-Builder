@@ -24,8 +24,10 @@ function PropertyFormContent() {
     size: "",
     total_price: "",
     down_payment: "",
+    paid_downpayment: "",
     payment_plan: "",
     startDate: "",
+    allocationType: "Complete Down Payment",
     broker_commission: "",
     owners: [
       {
@@ -103,13 +105,16 @@ function PropertyFormContent() {
         ...formData,
         total_price: Number(formData.total_price),
         down_payment: Number(formData.down_payment),
+        paid_downpayment: Number(formData.paid_downpayment) || 0,
         owners: formData.owners.map(o => ({ ...o, age: Number(o.age), userId: Number(o.userId) })),
-        brokers: formData.brokers.map(b => ({ 
-          ...b, 
-          broker_id: Number(b.broker_id), 
-          userId: Number(b.userId),
-          broker_commission: Number(formData.broker_commission) > 0 ? Number(formData.broker_commission) : 0
-        }))
+        brokers: formData.brokers
+          .filter(b => b.broker_id && b.userId)
+          .map(b => ({ 
+            ...b, 
+            broker_id: Number(b.broker_id), 
+            userId: Number(b.userId),
+            broker_commission: Number(formData.broker_commission) > 0 ? Number(formData.broker_commission) : 0
+          }))
       };
 
       let response;

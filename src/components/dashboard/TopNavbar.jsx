@@ -64,7 +64,7 @@ const TopNavbar = () => {
               className="group flex items-center gap-3 cursor-pointer py-2 pl-2 pr-3 rounded-2xl hover:bg-primary/5 transition-all"
             >
               <div className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-charcoal text-primary font-serif font-bold text-lg ring-2 ring-primary/20 group-hover:ring-primary transition-all shadow-lg">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#08211e] text-primary font-serif font-bold text-lg ring-2 ring-primary/20 group-hover:ring-primary transition-all shadow-lg">
                   {getInitials(userName)}
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white" />

@@ -87,17 +87,17 @@ const AnnouncementsSection = () => {
       >
         <div className="shimmer-gold px-6 py-4 flex items-center justify-between border-b border-primary/20 bg-charcoal/5">
           <div className="flex items-center gap-3">
-            <div className="bg-charcoal p-2 rounded-lg shadow-sm">
+            <div className="bg-[#08211e] p-2 rounded-lg shadow-sm">
               <Bell className="h-4 w-4 text-primary" />
             </div>
-            <h3 className="font-serif text-base font-bold text-charcoal tracking-wide uppercase">NOTIFICATIONS</h3>
+            <h3 className="font-serif text-base font-bold text-black uppercase">NOTIFICATIONS</h3>
           </div>
           <div className="flex items-center gap-3">
             {(isSuperAdmin || isAdmin) && (
               <>
                 <Link
                   href="/dashboard/message"
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
                 >
                   <MessageSquare className="h-2.5 w-2.5" />
                 
