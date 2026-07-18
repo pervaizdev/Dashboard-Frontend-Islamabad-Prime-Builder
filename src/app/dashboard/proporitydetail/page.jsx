@@ -538,9 +538,30 @@ const PropertyDetailContent = () => {
           <div className="space-y-4">
             {[
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
-              { label: "Down Payment", value: propertyData.paid_downpayment > 0 && propertyData.paid_downpayment !== propertyData.down_payment ? `Rs. ${propertyData.down_payment?.toLocaleString()} / Rs. ${propertyData.paid_downpayment.toLocaleString()}` : `Rs. ${propertyData.down_payment?.toLocaleString()}` },
-              { label: "Paid Payment", value: `Rs. ${propertyData.paid_payment?.toLocaleString()}` },
-              { label: "Remaining Amount", value: `Rs. ${propertyData.remaining_amount?.toLocaleString()}` },
+              {
+                label: "Down Payment",
+                value:
+                  propertyData.paid_downpayment > 0 &&
+                    propertyData.paid_downpayment !== propertyData.down_payment
+                    ? `Rs. ${propertyData.down_payment?.toLocaleString()} / Rs. ${propertyData.paid_downpayment.toLocaleString()}`
+                    : `Rs. ${propertyData.down_payment?.toLocaleString()}`
+              },
+              {
+                label: "Paid Payment",
+                value: `Rs. ${propertyData.paid_downpayment === propertyData.down_payment
+                  ? propertyData.paid_payment?.toLocaleString()
+                  : propertyData.paid_downpayment?.toLocaleString()
+                  }`
+              },
+              {
+                label: "Remaining Amount",
+                value: `Rs. ${(
+                    propertyData.paid_downpayment === propertyData.down_payment
+                      ? propertyData.remaining_amount
+                      : propertyData.total_price - propertyData.paid_downpayment
+                  )?.toLocaleString()
+                  }`
+              },
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
               { label: "Total Installment Remaining", value: `${propertyData.total_installment_remaining?.toLocaleString()}` },
 
@@ -656,77 +677,78 @@ const PropertyDetailContent = () => {
               </div>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl"
-            >
-              <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-                <Briefcase className="text-primary" size={24} />
-                <h3 className="font-serif text-xl font-bold text-charcoal">
-                  Broker Information
-                </h3>
-              </div>
+            {propertyData.brokers && propertyData.brokers.length > 0 && (
+              <motion.div
+                variants={itemVariants}
+                initial="hidden"
+                animate="visible"
+                className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl"
+              >
+                <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
+                  <Briefcase className="text-primary" size={24} />
+                  <h3 className="font-serif text-xl font-bold text-charcoal">
+                    Broker Information
+                  </h3>
+                </div>
 
-              <div className="space-y-6">
-                {propertyData.brokers?.map((broker, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-3xl border border-primary/5 bg-white/40 p-6"
-                  >
-                    <p className="mb-4 font-serif text-lg font-bold text-charcoal">
-                      {broker.broker_name}
-                    </p>
+                <div className="space-y-6">
+                  {propertyData.brokers.map((broker, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-3xl border border-primary/5 bg-white/40 p-6"
+                    >
+                      <p className="mb-4 font-serif text-lg font-bold text-charcoal">
+                        {broker.broker_name}
+                      </p>
 
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <Phone size={14} className="text-primary/60" />
-                        <span>{broker.broker_details?.phone || "N/A"}</span>
-                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                          <Phone size={14} className="text-primary/60" />
+                          <span>{broker.broker_details?.phone || "N/A"}</span>
+                        </div>
 
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <User size={14} className="text-primary/60" />
-                        <span>Relationship: {broker.relationship}</span>
-                      </div>
+                        <div className="flex items-center gap-3 text-xs text-charcoal/60">
+                          <User size={14} className="text-primary/60" />
+                          <span>Relationship: {broker.relationship}</span>
+                        </div>
 
-                      {broker.broker_commission > 0 && (
-                        <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 shadow-sm">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        {broker.broker_commission > 0 && (
+                          <div className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 shadow-sm">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              {/* Left Side */}
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/20">
+                                  <CircleDollarSign size={18} className="text-white" />
+                                </div>
 
-                            {/* Left Side */}
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 shadow-lg shadow-emerald-500/20">
-                                <CircleDollarSign size={18} className="text-white" />
+                                <div>
+                                  <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
+                                    Commission
+                                  </p>
+                                  <p className="text-sm font-bold text-charcoal">
+                                    Broker Commission
+                                  </p>
+                                </div>
                               </div>
 
-                              <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-                                  Commission
+                              {/* Right Side */}
+                              <div className="text-left sm:text-right">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/50">
+                                  Amount
                                 </p>
-                                <p className="text-sm font-bold text-charcoal">
-                                  Broker Commission
+                                <p className="font-serif text-lg font-bold text-emerald-700">
+                                  Rs. {broker.broker_commission.toLocaleString()}
                                 </p>
                               </div>
-                            </div>
-
-                            {/* Right Side */}
-                            <div className="text-left sm:text-right">
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/50">
-                                Amount
-                              </p>
-                              <p className="font-serif text-lg font-bold text-emerald-700">
-                                Rs. {broker.broker_commission.toLocaleString()}
-                              </p>
                             </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
           </>
         )}
 

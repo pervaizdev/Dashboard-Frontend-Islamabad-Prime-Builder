@@ -30,10 +30,10 @@ const GalleryPage = () => {
         const fetchGallery = async () => {
             setLoading(true);
             try {
-                const response = await getPropertyImages();
-                if (response.success && response.data?.landing) {
-                    setAllImages(response.data.landing);
-                    setFilteredImages(response.data.landing);
+                const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
+                if (response.success && response.data?.dashboard) {
+                    setAllImages(response.data.dashboard);
+                    setFilteredImages(response.data.dashboard);
                 }
             } catch (error) {
                 console.error("Gallery page fetch error:", error);
@@ -177,6 +177,10 @@ const GalleryPage = () => {
                                     <video
                                         src={item.url}
                                         preload="metadata"
+                                        autoPlay
+                                        loop
+                                        muted
+                                        playsInline
                                         className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
                                     />
                                 ) : (
@@ -269,6 +273,9 @@ const GalleryPage = () => {
                                         <video
                                             src={selectedImage.url}
                                             controls
+                                            autoPlay
+                                            loop
+                                            playsInline
                                             className="max-h-[85vh] max-w-[90vw] object-contain"
                                         />
                                     ) : (
