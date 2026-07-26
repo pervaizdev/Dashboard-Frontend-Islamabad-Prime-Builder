@@ -1,64 +1,281 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Users, ArrowRightLeft, CreditCard, X, Loader2 } from "lucide-react";
-import axiosInstance from "@/utils/axiosInstance";
+import React, { useState, useEffect, useRef } from "react";
+import { Users, Loader2, User, History, Search, X, Filter, Building2, Layers } from "lucide-react";
+import ReportsPropertyModal from "@/components/modals/ReportsPropertyModal";
+import { dashboardAPI } from "@/api/dashboard";
 import toast from "react-hot-toast";
+import ExpendableInstallmentRow from "@/components/expendableinsalmentrow";
+import Pagination from "@/components/pagination";
+import PropertyCommissionStats from "@/components/property-commission-stats";
+import PropertyCommissionCharts from "@/components/property-commission-charts";
 
 const Page = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null);
+  const [expandedRowId, setExpandedRowId] = useState(null);
+
+  // Pagination & Filtering state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
+
+  // Filter states
+  const [selectedBuilding, setSelectedBuilding] = useState("");
+  const [selectedAllocation, setSelectedAllocation] = useState("Other");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  
+  const [activeFilterParams, setActiveFilterParams] = useState("allocationType=Other");
+
+  const [buildingsList, setBuildingsList] = useState([]);
+  const [allocationsList, setAllocationsList] = useState(["Partner", "Other"]);
+  const [ownerSuggestions, setOwnerSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef(null);
+
+  const toggleRow = (id) => {
+    setExpandedRowId((prev) => (prev === id ? null : id));
+  };
+
+  const buildQueryString = () => {
+    const params = new URLSearchParams();
+    if (selectedBuilding) params.append("building_name", selectedBuilding);
+    if (selectedAllocation) params.append("allocationType", selectedAllocation);
+    if (searchTerm) params.append("search", searchTerm);
+    if (startDate) params.append("startDate", startDate);
+    if (endDate) params.append("endDate", endDate);
+    return params.toString();
+  };
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    const q = buildQueryString();
+    setActiveFilterParams(q);
+    setShowSuggestions(false);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedBuilding("");
+    setSelectedAllocation("Other");
+    setSearchTerm("");
+    setStartDate("");
+    setEndDate("");
+    setCurrentPage(1);
+    setActiveFilterParams("allocationType=Other");
+    setShowSuggestions(false);
+  };
 
   useEffect(() => {
-    const fetchProperties = async () => {
+    const loadDashboardData = async () => {
       try {
         setLoading(true);
-        const res = await axiosInstance.get("/dashboard/property-commission");
-        if (res.data.success) {
-          setProperties(res.data.properties || []);
+        setStatsLoading(true);
+
+        const reportQuery = `page=${currentPage}&limit=${limit}${activeFilterParams ? `&${activeFilterParams}` : ''}`;
+        
+        const [reportsRes, statsRes] = await Promise.all([
+          dashboardAPI.getPropertyCommissionReports(reportQuery),
+          dashboardAPI.getPropertyCommissionStats(activeFilterParams)
+        ]);
+
+        if (reportsRes.success) {
+          setProperties(reportsRes.properties || []);
+          if (reportsRes.buildings && reportsRes.buildings.length > 0) {
+            setBuildingsList(reportsRes.buildings);
+          }
+          if (reportsRes.ownerSuggestions) {
+            setOwnerSuggestions(reportsRes.ownerSuggestions);
+          }
+          if (reportsRes.pagination) {
+            setTotalPages(reportsRes.pagination.totalPages);
+            setTotalRecords(reportsRes.pagination.totalRecords);
+          }
+        }
+
+        if (statsRes.success) {
+          setStats(statsRes.stats);
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch properties");
+        toast.error(error.message || "Failed to fetch dashboard data");
       } finally {
         setLoading(false);
+        setStatsLoading(false);
       }
     };
 
-    fetchProperties();
-  }, []);
+    loadDashboardData();
+  }, [currentPage, limit, activeFilterParams]);
 
-  const openModal = (property) => {
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setShowSuggestions(true);
+  };
+
+  const handleSelectSuggestion = (name) => {
+    setSearchTerm(name);
+    setShowSuggestions(false);
+  };
+
+  const openModal = (property, type = 'installments') => {
     setSelectedProperty(property);
+    setModalType(type);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProperty(null);
+    setModalType(null);
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="border-b border-slate-200 px-6 py-5 sm:px-8 flex justify-between items-center">
+    <div className=" px-4 sm:px-6 lg:px-8 py-10 lg:py-10">
+      {/* Top Header & Filter Controls Bar */}
+      <div className="rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-sm overflow-visible mb-8">
+        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 sm:text-3xl">Property Commission Reports</h1>
-            <p className="mt-2 text-sm text-slate-500">View commission and installment details for properties.</p>
+            <p className="mt-1 text-sm text-slate-500">View commission, allocation, and installment details for properties.</p>
           </div>
         </div>
+
+        {/* Filter Form Grid matching reference layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          {/* Search */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Search</label>
+            <div className="relative">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                onFocus={() => setShowSuggestions(true)}
+                placeholder="Search owner or property..."
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 outline-none focus:ring-2 focus:ring-slate-300 transition-all"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                >
+                  <X size={14} />
+                </button>
+              )}
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && ownerSuggestions.length > 0 && (
+                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-slate-200 shadow-xl rounded-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+                  {ownerSuggestions.map((name, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => handleSelectSuggestion(name)}
+                      className="px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 cursor-pointer flex items-center space-x-2"
+                    >
+                      <User size={14} className="text-slate-400" />
+                      <span>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Building */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Building</label>
+            <select
+              value={selectedBuilding}
+              onChange={(e) => setSelectedBuilding(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 cursor-pointer transition-all"
+            >
+              <option value="">All Buildings</option>
+              {buildingsList.map((b, idx) => (
+                <option key={idx} value={b}>{b}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Allocation Type */}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Allocation Type</label>
+            <select
+              value={selectedAllocation}
+              onChange={(e) => setSelectedAllocation(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 cursor-pointer transition-all"
+            >
+              <option value="">All Allocations</option>
+              {allocationsList.map((a, idx) => (
+                <option key={idx} value={a}>{a}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Date From & Date To */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Date From</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5 uppercase tracking-wider">Date To</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-slate-300 transition-all"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons Row */}
+        <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-slate-100">
+          <button
+            onClick={handleClearFilters}
+            className="px-5 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Clear All
+          </button>
+          <button
+            onClick={handleApplyFilters}
+            className="px-6 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-md transition-all uppercase tracking-wider"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+
+      <PropertyCommissionStats stats={stats} loading={statsLoading} />
+      <PropertyCommissionCharts stats={stats} loading={statsLoading} />
+      
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Owner / Broker</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Building / Floor / No</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type / Category</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Size</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Price Details</th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Installments Details</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Payment Plan</th>
                 <th className="px-6 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
               </tr>
@@ -66,190 +283,155 @@ const Page = () => {
             <tbody className="bg-white divide-y divide-slate-200">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan="10" className="px-6 py-8 text-center text-slate-500">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-400" />
                   </td>
                 </tr>
               ) : properties.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan="10" className="px-6 py-8 text-center text-slate-500">
                     No properties found.
                   </td>
                 </tr>
               ) : (
                 properties.map((property) => (
-                  <tr key={property.property_id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800">{property.property_id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                      <div className="font-medium text-slate-800">{property.building_name}</div>
-                      <div className="text-xs">Floor number: {property.floor} - Plot number: {property.property_number}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                      <div className="font-medium text-slate-800">{property.type}</div>
-                      <div className="text-xs">{property.category}</div>
-                    </td>
+                  <React.Fragment key={property.property_id}>
+                    <tr onClick={() => toggleRow(property.property_id)} className="hover:bg-slate-50 transition-colors cursor-pointer">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        <div className="font-medium text-slate-800">
+                          {property.owners && property.owners.length > 0
+                            ? property.owners.map(o => o.name).join(', ')
+                            : 'No Owner'}
+                        </div>
+                        {property.brokers && property.brokers.length > 0 && (
+                          <div className="text-xs text-slate-500 mt-0.5">
+                            Broker: {property.brokers.map(b => b.name).join(', ')}
+                          </div>
+                        )}
+                      </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{property.size}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                      <div><span className="font-medium text-slate-700">Total:</span> Rs {property.total_price?.toLocaleString() || 0}</div>
-                      <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Down Payment:</span> Rs {property.down_payment?.toLocaleString() || 0}</div>
-                      <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Paid Deposit Amount : </span> Rs {property.paid_downpayment?.toLocaleString() || 0}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                      <div className="text-xs capitalize mt-1.5"><span className="bg-slate-100 text-slate-700 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-200">{property.payment_plan}</span></div>
-                      {property.allocationType && (
-                        <div className="text-xs capitalize mt-2">
-                          <span className={`font-medium  text-[11px] px-2 py-0.5 rounded-full border ${
-                            property.allocationType.toLowerCase() === 'free'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-violet-50 text-violet-700 border-violet-200'
-                          }`}>
-                            Allocation Type : {property.allocationType}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        <div className="font-medium text-slate-800">{property.building_name}</div>
+                        <div className="text-xs">Floor number: {property.floor} </div>
+                        <div className="text-xs">Property number: {property.property_number}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        <div className="font-medium text-slate-800">{property.type}</div>
+                        <div className="text-xs">{property.category}</div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{property.size}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        <div><span className="font-medium text-slate-700">Total Worth:</span> Rs {property.total_price?.toLocaleString() || 0}</div>
+                        <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Down Payment:</span> Rs {property.down_payment?.toLocaleString() || 0}</div>
+                        <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Paid Deposit Amount : </span> Rs {property.paid_downpayment?.toLocaleString() || 0}</div>
+                        <div className="text-xs mt-0.5">
+                          <span className="font-medium text-slate-700">Total Installment:</span> Rs {(property.installments?.reduce((sum, inst) => sum + (Number(inst.amount) || 0), 0) || 0).toLocaleString()}
+                        </div>
+                        
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        {(() => {
+                          const totalInstallments = property.installments?.length || 0;
+                          const paidInstallments = property.installments?.filter(i => i.status === 'Paid').length || 0;
+                          const remainingInstallments = totalInstallments - paidInstallments;
+
+                          const totalAmount = property.installments?.reduce((sum, i) => sum + (Number(i.amount) || 0), 0) || 0;
+                          const paidAmount = property.installments?.filter(i => i.status === 'Paid').reduce((sum, i) => sum + (Number(i.amount) || 0), 0) || 0;
+                          const remainingAmount = totalAmount - paidAmount;
+
+                          return (
+                            <>
+                              <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Paid Installment :</span> Rs {paidAmount.toLocaleString()}</div>
+                              <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Remaining Installment :</span> Rs {remainingAmount.toLocaleString()}</div>
+                              <div className="text-xs mt-1.5"><span className="font-medium text-slate-700">Total Installments:</span> {totalInstallments}</div>
+                              <div className="text-xs mt-0.5"><span className="font-medium text-slate-700">Paid:</span> {paidInstallments} <span className="mx-1">|</span> <span className="font-medium text-slate-700">Remaining:</span> {remainingInstallments}</div>
+                            </>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                        <div className="text-xs capitalize mt-1.5"><span className="bg-slate-100 text-slate-700 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-200">{property.payment_plan}</span></div>
+      
+                        <div className='mt-2'>
+                          <span className={`mt-2 bg-slate-100 text-slate-700 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-200 ${property.transferHistory && property.transferHistory.length > 0
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}>
+                            {property.transferHistory && property.transferHistory.length > 0 ? 'Transferred' : 'Owner'}
                           </span>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                      <div className="flex items-center justify-center space-x-3">
-                        <button className="text-slate-400 hover:text-slate-800 transition-colors" title="Brokers">
-                          <Users size={18} />
-                        </button>
-                        <button className="text-slate-400 hover:text-slate-800 transition-colors" title="Transfers">
-                          <ArrowRightLeft size={18} />
-                        </button>
-                        <button
-                          onClick={() => openModal(property)}
-                          className="text-slate-400 hover:text-slate-800 transition-colors"
-                          title="Installments & Details"
-                        >
-                          <CreditCard size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-center space-x-3">
+                          {/* Owner */}
+                          <div className="relative group">
+                            <button
+                              onClick={() => openModal(property, 'owner')}
+                              className="text-slate-400 hover:text-blue-600 transition-colors p-1 rounded-lg hover:bg-blue-50"
+                            >
+                              <User size={18} />
+                            </button>
+                            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Owner</span>
+                          </div>
+
+                          {/* Broker */}
+                          {property.brokers && property.brokers.length > 0 && (
+                            <div className="relative group">
+                              <button
+                                onClick={() => openModal(property, 'broker')}
+                                className="text-slate-400 hover:text-emerald-600 transition-colors p-1 rounded-lg hover:bg-emerald-50"
+                              >
+                                <Users size={18} />
+                              </button>
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Broker</span>
+                            </div>
+                          )}
+
+                          {/* Transfer History */}
+                          {property.transferHistory && property.transferHistory.length > 0 && (
+                            <div className="relative group">
+                              <button
+                                onClick={() => openModal(property, 'transfer')}
+                                className="text-slate-400 hover:text-amber-600 transition-colors p-1 rounded-lg hover:bg-amber-50"
+                              >
+                                <History size={18} />
+                              </button>
+                              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-slate-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Transfer History</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {expandedRowId === property.property_id && (
+                      <ExpendableInstallmentRow property={property} />
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalRecords={totalRecords}
+          limit={limit}
+          onPageChange={setCurrentPage}
+          onLimitChange={(newLimit) => { 
+            setLimit(newLimit); 
+            setCurrentPage(1); 
+          }}
+        />
       </div>
 
       {/* Modal */}
-      {isModalOpen && selectedProperty && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            {/* Background overlay */}
-            <div
-              className="fixed inset-0 transition-opacity bg-slate-900/50 backdrop-blur-sm"
-              aria-hidden="true"
-              onClick={closeModal}
-            ></div>
-
-            {/* Modal panel */}
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full border border-slate-200">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="flex justify-between items-center mb-5 pb-4 border-b border-slate-100">
-                  <h3 className="text-xl font-bold text-slate-800" id="modal-title">
-                    Property Details - #{selectedProperty.property_id}
-                  </h3>
-                  <button
-                    onClick={closeModal}
-                    className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none bg-slate-50 hover:bg-slate-100 rounded-full p-1"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="mt-2 text-sm text-slate-600">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      <p className="font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Basic Info</p>
-                      <div className="space-y-2.5">
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Building:</span> <span className="text-slate-800">{selectedProperty.building_name}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Type:</span> <span className="text-slate-800">{selectedProperty.type}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Category:</span> <span className="text-slate-800">{selectedProperty.category}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Floor:</span> <span className="text-slate-800">{selectedProperty.floor}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Number:</span> <span className="text-slate-800">{selectedProperty.property_number}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Size:</span> <span className="text-slate-800">{selectedProperty.size}</span></p>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      <p className="font-semibold text-slate-800 border-b border-slate-200 pb-2 mb-3">Financials</p>
-                      <div className="space-y-2.5">
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Total Price:</span> <span className="text-slate-800 font-medium">Rs {selectedProperty.total_price?.toLocaleString() || 0}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Down Payment:</span> <span className="text-slate-800">Rs {selectedProperty.down_payment?.toLocaleString() || 0}</span></p>
-                        <p className="flex justify-between"><span className="font-medium text-slate-500">Paid DP:</span> <span className="text-slate-800">Rs {selectedProperty.paid_downpayment?.toLocaleString() || 0}</span></p>
-                        <p className="flex justify-between items-center"><span className="font-medium text-slate-500">Plan:</span> <span className="capitalize bg-white text-slate-700 font-medium text-xs px-2.5 py-1 rounded-md border border-slate-200 shadow-sm">{selectedProperty.payment_plan}</span></p>
-                        {selectedProperty.allocationType && (
-                          <p className="flex justify-between items-center mt-1">
-                            <span className="font-medium text-slate-500">Allocation:</span> 
-                            <span className={`capitalize font-medium text-[11px] px-2.5 py-1 rounded-md border shadow-sm ${
-                              selectedProperty.allocationType.toLowerCase() === 'free'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-violet-50 text-violet-700 border-violet-200'
-                            }`}>
-                              {selectedProperty.allocationType}
-                            </span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-2">
-                    <h4 className="font-semibold text-slate-800 pb-2 mb-3">Installments ({selectedProperty.installments?.length || 0})</h4>
-                    <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-200">
-                      <table className="min-w-full divide-y divide-slate-200">
-                        <thead className="bg-slate-50 sticky top-0">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Due Date</th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-slate-100">
-                          {selectedProperty.installments?.map((inst, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">{inst.id || idx + 1}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-800 font-medium">Rs {inst.amount?.toLocaleString() || 0}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">{inst.due_date}</td>
-                              <td className="px-4 py-3 whitespace-nowrap text-sm">
-                                <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-md border ${inst.status === 'Paid'
-                                    ? 'bg-green-50 text-green-700 border-green-200'
-                                    : 'bg-amber-50 text-amber-700 border-amber-200'
-                                  }`}>
-                                  {inst.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                          {(!selectedProperty.installments || selectedProperty.installments.length === 0) && (
-                            <tr>
-                              <td colSpan="4" className="px-4 py-6 text-center text-sm text-slate-500 bg-slate-50">No installments found</td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-slate-50 px-4 py-4 border-t border-slate-200 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-2xl">
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-lg bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 sm:ml-3 sm:w-auto transition-colors shadow-sm"
-                  onClick={closeModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ReportsPropertyModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        selectedProperty={selectedProperty}
+        modalType={modalType}
+      />
     </div>
   );
 };
