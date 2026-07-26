@@ -19,4 +19,28 @@ export const dashboardAPI = {
       throw error.response?.data || { message: "Error fetching admin dashboard summary" };
     }
   },
+
+  getPropertyCommissionStats: async (queryParams = "") => {
+    try {
+      const url = queryParams 
+        ? `${ENDPOINTS.DASHBOARD.PROPERTY_COMMISSION_STATS}?${queryParams}`
+        : ENDPOINTS.DASHBOARD.PROPERTY_COMMISSION_STATS;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching property commission stats" };
+    }
+  },
+
+  getPropertyCommissionReports: async (queryParams = "") => {
+    try {
+      const url = queryParams 
+        ? `${ENDPOINTS.DASHBOARD.PROPERTY_COMMISSION_REPORTS}?${queryParams}`
+        : ENDPOINTS.DASHBOARD.PROPERTY_COMMISSION_REPORTS;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching property commission reports" };
+    }
+  },
 };
