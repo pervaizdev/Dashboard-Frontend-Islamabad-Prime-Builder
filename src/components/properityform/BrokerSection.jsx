@@ -21,6 +21,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
           broker_id: "",
           userId: "",
           relationship: "",
+          broker_commission: "",
         },
       ],
     }));
@@ -36,7 +37,8 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
   const handleBrokerChange = (index, field, value) => {
     setFormData((prev) => {
       const newBrokers = [...prev.brokers];
-      newBrokers[index] = { ...newBrokers[index], [field]: value };
+      const val = field === "broker_commission" ? (value === "" ? "" : Math.max(0, parseFloat(value))) : value;
+      newBrokers[index] = { ...newBrokers[index], [field]: val };
       return { ...prev, brokers: newBrokers };
     });
   };
@@ -50,8 +52,6 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-
-
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
@@ -128,7 +128,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${formData.brokers.length > 1 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
               <div>
                 <SearchableSelect 
                   label="Broker Name" 
@@ -169,6 +169,22 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                   className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500"
                 />
               </div>
+
+              {formData.brokers.length > 1 && (
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Commission Amount (Rs.)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="Enter commission amount"
+                    value={broker.broker_commission ?? ""}
+                    onChange={(e) => handleBrokerChange(i, "broker_commission", e.target.value)}
+                    className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500 font-semibold"
+                  />
+                </div>
+              )}
             </div>
           </div>
         ))}
