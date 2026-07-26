@@ -12,6 +12,8 @@ export const ENDPOINTS = {
   DASHBOARD: {
     USER: "/dashboard/user",
     ADMIN: "/dashboard/admin",
+    PROPERTY_COMMISSION_STATS: "/dashboard/property-commission-stats",
+    PROPERTY_COMMISSION_REPORTS: "/dashboard/property-commission",
   },
   NOTIFICATIONS: {
     GET_INSTALLMENT_NOTIFICATIONS: "/property-details/installment-notifications",

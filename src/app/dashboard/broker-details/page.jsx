@@ -362,7 +362,8 @@ const BrokerDetailsContent = () => {
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">Balance</th>
                   <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-center">
                     {user?.role === "super-admin" ? "Action" : "Status"}
-                  </th>      </tr>
+                  </th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {data.properties?.map((prop, idx) => (
