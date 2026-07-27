@@ -9,9 +9,9 @@ import axiosInstance from '@/utils/axiosInstance';
 import toast from 'react-hot-toast';
 import PropertyCommissionTimelineChart from './property-commission-timeline-chart';
 
-const DONUT_COLORS_1 = ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444']; 
-const DONUT_COLORS_2 = ['#3b82f6', '#f43f5e', '#eab308', '#22c55e', '#a855f7']; 
-const DONUT_COLORS_3 = ['#8b5cf6', '#06b6d4', '#f97316', '#14b8a6', '#f43f5e']; 
+const DONUT_COLORS_1 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
+const DONUT_COLORS_2 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
+const DONUT_COLORS_3 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
 
 const formatFullNumber = (number) => {
   if (number === undefined || number === null) return "0.00";
@@ -167,11 +167,11 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Downpayment Rec:</span>
-              <span className="font-bold text-emerald-600">Rs {formatFullNumber(hoveredItem.downpayment_received)}</span>
+              <span className="font-bold text-[#C6A15B]">Rs {formatFullNumber(hoveredItem.downpayment_received)}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Installment Rec:</span>
-              <span className="font-bold text-blue-600">Rs {formatFullNumber(hoveredItem.installment_received)}</span>
+              <span className="font-bold text-[#1F6B4F]">Rs {formatFullNumber(hoveredItem.installment_received)}</span>
             </div>
             <div className="flex justify-between items-center border-t border-slate-100 pt-1.5 mt-1.5">
               <span className="text-slate-500">Remaining:</span>
@@ -312,21 +312,21 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           title="Value by Property Type"
           data={typeData.sort((a, b) => b.value - a.value)}
           total={totalTypeValue}
-          colors={['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444']}
+          colors={['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']}
         />
 
         <HorizontalBarChartCard 
           title="Value by Category"
           data={categoryData.sort((a, b) => b.value - a.value)}
           total={totalCategoryValue}
-          colors={['#3b82f6', '#f43f5e', '#eab308', '#22c55e', '#a855f7']}
+          colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
         />
 
         <HorizontalBarChartCard 
           title="Value by Floor"
           data={floorData.sort((a, b) => b.value - a.value)}
           total={totalFloorValue}
-          colors={['#8b5cf6', '#06b6d4', '#f97316', '#14b8a6', '#f43f5e']}
+          colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
         />
       </div>
 
