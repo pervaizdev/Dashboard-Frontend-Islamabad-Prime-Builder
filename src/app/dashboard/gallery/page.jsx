@@ -194,13 +194,23 @@ const GalleryPage = () => {
                                 )}
 
                                 {/* Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
-                                    <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
-                                        <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                            <p className=" font-bold uppercase text-white opacity-80 mb-1">{formatDate(item.createdAt)}</p>
-                                            
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
+                                    <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between gap-4">
+                                        <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 max-w-[80%]">
+                                            <p className="font-bold uppercase tracking-widest text-primary opacity-90 mb-2 text-xs">{formatDate(item.createdAt)}</p>
+                                            {item.title && (
+                                                <h3 className="mb-2 font-serif text-lg font-bold text-white drop-shadow-lg leading-tight line-clamp-2">
+                                                    {item.title}
+                                                </h3>
+                                            )}
+                                            {item.title && <hr className="w-8 border border-primary mb-2 rounded-full" />}
+                                            {item.description && (
+                                                <p className="text-xs text-white/80 drop-shadow-md line-clamp-2">
+                                                    {item.description}
+                                                </p>
+                                            )}
                                         </div>
-                                        <div className="bg-white/10 backdrop-blur-md p-3 rounded-full text-white transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 delay-100">
+                                        <div className="bg-white/10 backdrop-blur-md p-3 rounded-full text-white transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 delay-100 shrink-0">
                                             <Maximize2 size={20} />
                                         </div>
                                     </div>
@@ -288,6 +298,25 @@ const GalleryPage = () => {
                                             className="max-h-[85vh] max-w-[90vw] object-contain"
                                         />
                                     )}
+
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none rounded-b-[2rem]" />
+                                    
+                                    <div className="absolute bottom-6 left-6 right-16 md:bottom-10 md:left-10 md:right-20 pointer-events-none">
+                                        <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md">
+                                            {formatDate(selectedImage.createdAt)}
+                                        </p>
+                                        {selectedImage.title && (
+                                            <h3 className="mb-3 font-serif text-2xl md:text-4xl font-bold text-white drop-shadow-lg leading-tight">
+                                                {selectedImage.title}
+                                            </h3>
+                                        )}
+                                        {selectedImage.title && <hr className="w-12 border-[1.5px] border-primary mb-4 rounded-full" />}
+                                        {selectedImage.description && (
+                                            <p className="max-w-3xl text-sm md:text-base text-white/90 drop-shadow-md">
+                                                {selectedImage.description}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                             </motion.div>

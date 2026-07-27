@@ -142,11 +142,21 @@ export default function Gallery() {
                       <div className="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
 
                       <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 flex items-end justify-between">
-                        <div className="text-white">
-                          <p className="mb-2 text-lg font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md ">
+                        <div className="text-white max-w-[75%]">
+                          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md">
                             {formatDate(item.createdAt)}
                           </p>
-
+                          {item.title && (
+                            <h3 className="mb-3 font-serif text-2xl md:text-4xl font-bold text-white drop-shadow-lg leading-tight">
+                              {item.title}
+                            </h3>
+                          )}
+                          {item.title && <hr className="w-12 border-[1.5px] border-primary mb-4 rounded-full" />}
+                          {item.description && (
+                            <p className="text-sm md:text-base text-white/90 drop-shadow-md line-clamp-2 md:line-clamp-3">
+                              {item.description}
+                            </p>
+                          )}
                         </div>
 
                         <button
@@ -245,6 +255,25 @@ export default function Gallery() {
                       className="max-h-[85vh] max-w-[90vw] object-contain"
                     />
                   )}
+
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none rounded-b-[2rem]" />
+                  
+                  <div className="absolute bottom-6 left-6 right-16 md:bottom-10 md:left-10 md:right-20 pointer-events-none">
+                    <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md">
+                      {formatDate(selectedImage.createdAt)}
+                    </p>
+                    {selectedImage.title && (
+                      <h3 className="mb-3 font-serif text-2xl md:text-4xl font-bold text-white drop-shadow-lg leading-tight">
+                        {selectedImage.title}
+                      </h3>
+                    )}
+                    {selectedImage.title && <hr className="w-12 border-[1.5px] border-primary mb-4 rounded-full" />}
+                    {selectedImage.description && (
+                      <p className="max-w-3xl text-sm md:text-base text-white/90 drop-shadow-md">
+                        {selectedImage.description}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </motion.div>
 
