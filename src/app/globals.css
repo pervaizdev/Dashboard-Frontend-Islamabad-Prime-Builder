@@ -56,8 +56,14 @@ body {
 }
 
 /* Custom Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(194, 158, 109, 0.3) transparent;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -65,12 +71,12 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(194, 158, 109, 0.2);
+  background: rgba(194, 158, 109, 0.3);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(194, 158, 109, 0.5);
+  background: rgba(194, 158, 109, 0.6);
 }
 
 /* .glass {

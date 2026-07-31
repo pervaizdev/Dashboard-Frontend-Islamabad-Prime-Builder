@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { 
+import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Label
 } from 'recharts';
 import axiosInstance from '@/utils/axiosInstance';
 import toast from 'react-hot-toast';
 import PropertyCommissionTimelineChart from './property-commission-timeline-chart';
 
-const DONUT_COLORS_1 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
-const DONUT_COLORS_2 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
-const DONUT_COLORS_3 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']; 
+const DONUT_COLORS_1 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F'];
+const DONUT_COLORS_2 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F'];
+const DONUT_COLORS_3 = ['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F'];
 
 const formatFullNumber = (number) => {
   if (number === undefined || number === null) return "0.00";
@@ -56,12 +56,12 @@ const CustomLegendList = ({ data, total, colors }) => {
       {data.map((entry, index) => {
         const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : 0;
         return (
-          <div 
-            key={`legend-${index}`} 
+          <div
+            key={`legend-${index}`}
             className="flex items-start p-1 rounded-lg"
           >
-            <div 
-              className="w-3 h-3 rounded-full mt-1.5 mr-3 flex-shrink-0" 
+            <div
+              className="w-3 h-3 rounded-full mt-1.5 mr-3 flex-shrink-0"
               style={{ backgroundColor: colors[index % colors.length] }}
             />
             <div>
@@ -102,7 +102,7 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
           </div>
         </div>
       )}
-      
+
       {data.length > 0 ? (
         <div className="flex flex-row items-center w-full">
           {/* Chart Side */}
@@ -120,23 +120,23 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
                   stroke="none"
                 >
                   {data.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={colors[index % colors.length]} 
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colors[index % colors.length]}
                       className="cursor-pointer transition-opacity hover:opacity-80"
                       onMouseEnter={() => setHoveredItem(entry)}
                       onMouseLeave={() => setHoveredItem(null)}
                     />
                   ))}
-                  <Label 
-                    content={({ viewBox }) => <CustomCenterLabel viewBox={viewBox} total={total} title={centerTitle} />} 
-                    position="center" 
+                  <Label
+                    content={({ viewBox }) => <CustomCenterLabel viewBox={viewBox} total={total} title={centerTitle} />}
+                    position="center"
                   />
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
           </div>
-          
+
           {/* Legend Side */}
           <div className="flex-1">
             <CustomLegendList data={data} total={total} colors={colors} />
@@ -153,68 +153,144 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col h-full relative">
-      <h3 className="text-[15px] font-bold text-slate-700 mb-6">{title}</h3>
-      
+    <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm flex flex-col h-full relative">
+      <h3 className="text-[15px] font-bold text-slate-700 mb-3">
+        {title}
+      </h3>
+
       {/* Floating Tooltip Box at Card Level */}
       {hoveredItem && (
-        <div className="absolute z-50 top-14 right-6 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[250px] pointer-events-none transition-all duration-200 border border-slate-200/80">
-          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">{hoveredItem.name}</p>
+        <div className="absolute z-50 top-12 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[250px] pointer-events-none transition-all duration-200 border border-slate-200/80">
+          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
+            {hoveredItem.name}
+          </p>
+
           <div className="space-y-1.5 text-slate-600">
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Total Value:</span>
-              <span className="font-bold text-slate-800">Rs {formatFullNumber(hoveredItem.value)}</span>
+              <span className="font-bold text-slate-800">
+                Rs {formatFullNumber(hoveredItem.value)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Downpayment Rec:</span>
-              <span className="font-bold text-[#C6A15B]">Rs {formatFullNumber(hoveredItem.downpayment_received)}</span>
+              <span className="font-bold text-[#C6A15B]">
+                Rs {formatFullNumber(hoveredItem.downpayment_received)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center">
               <span className="text-slate-500">Installment Rec:</span>
-              <span className="font-bold text-[#1F6B4F]">Rs {formatFullNumber(hoveredItem.installment_received)}</span>
+              <span className="font-bold text-[#1F6B4F]">
+                Rs {formatFullNumber(hoveredItem.installment_received)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center border-t border-slate-100 pt-1.5 mt-1.5">
               <span className="text-slate-500">Remaining:</span>
-              <span className="font-bold text-rose-600">Rs {formatFullNumber(hoveredItem.remaining_amount)}</span>
+              <span className="font-bold text-rose-600">
+                Rs {formatFullNumber(hoveredItem.remaining_amount)}
+              </span>
             </div>
           </div>
         </div>
       )}
 
       {data.length > 0 ? (
-        <div className="flex flex-col space-y-5 w-full mt-2 overflow-y-auto max-h-[300px] custom-scrollbar pr-2">
+        <div className="flex flex-col gap-2.5 w-full overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
           {data.map((item, index) => {
-            const percentage = total > 0 ? (item.value / total) * 100 : 0;
+            const percentage =
+              total > 0 ? (Number(item.value || 0) / total) * 100 : 0;
+
+            const fillWidth =
+              percentage > 0
+                ? Math.min(Math.max(percentage, 1), 100)
+                : 0;
+
             return (
-              <div 
-                key={index} 
-                className="flex items-center w-full py-1 px-1 rounded-lg"
+              <div
+                key={index}
+                className="grid grid-cols-[90px_minmax(110px,1fr)_50px] items-center gap-3 w-full min-h-[28px]"
               >
-                <div className="w-[110px] text-right pr-3 text-[12px] font-bold text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis">
+                {/* Item Name */}
+                <div
+                  className="text-left text-[12px] font-bold text-slate-500 whitespace-nowrap overflow-hidden text-ellipsis"
+                  title={item.name}
+                >
                   {item.name}
                 </div>
-                <div 
-                  className="flex-1 h-3 flex items-center cursor-pointer group"
+
+                {/* Progress Track and Fill */}
+                <div
+                  className="relative w-full h-[8px] bg-slate-100 rounded-full overflow-hidden cursor-pointer group"
                   onMouseEnter={() => setHoveredItem(item)}
                   onMouseLeave={() => setHoveredItem(null)}
                 >
-                  <div 
-                    className="h-full rounded-r-md rounded-l-sm transition-all group-hover:opacity-85 group-hover:scale-y-110" 
-                    style={{ width: `${Math.max(percentage, 1)}%`, backgroundColor: colors[index % colors.length] }} 
+                  <div
+                    className="absolute left-0 top-0 h-full rounded-full transition-all duration-300 group-hover:opacity-85"
+                    style={{
+                      width: `${fillWidth}%`,
+                      backgroundColor: colors[index % colors.length],
+                    }}
                   />
                 </div>
-                <div className="w-[170px] text-right pl-3 text-[12px] font-bold text-slate-700 whitespace-nowrap">
-                  Rs {formatFullNumber(item.value)} <span className="text-slate-400 font-normal">({percentage.toFixed(1)}%)</span>
+
+                {/* Percentage */}
+                <div className="text-right text-[11px] font-semibold text-slate-500 whitespace-nowrap">
+                  {percentage.toFixed(1)}%
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center text-slate-400 min-h-[150px]">No data available</div>
+        <div className="flex flex-1 items-center justify-center text-slate-400 min-h-[120px]">
+          No data available
+        </div>
       )}
     </div>
   );
+};
+
+// Helper to determine logical floor order
+const getFloorOrder = (floorName) => {
+  if (!floorName) return 9999;
+
+  const name = String(floorName).trim().toLowerCase();
+
+  // Lower Ground first
+  if (name === "lower ground" || name === "lg") return -1;
+
+  // Ground Floor second
+  if (
+    name === "ground" ||
+    name === "ground floor" ||
+    name === "gf" ||
+    name === "g"
+  ) {
+    return 0;
+  }
+
+  // Numbered floors
+  const match = name.match(/\d+/);
+  if (match) {
+    return parseInt(match[0], 10);
+  }
+
+  // Any other values go to the end
+  return 9999;
+};
+
+const sortFloorsLogically = (floors) => {
+  return [...floors].sort((a, b) => {
+    const orderA = getFloorOrder(a.name);
+    const orderB = getFloorOrder(b.name);
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return (a.name || '').localeCompare(b.name || '', undefined, { numeric: true, sensitivity: 'base' });
+  });
 };
 
 const PropertyCommissionCharts = ({ stats, loading }) => {
@@ -265,32 +341,20 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      `}} />
+      <PropertyCommissionTimelineChart
+        monthlyData={stats.timeline_monthly || []}
+        yearlyData={stats.timeline_yearly || []}
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-6 mt-2">
-        <ChartCard 
+        <ChartCard
           title="Sales Contribution by Allocation"
           data={partnerData}
           total={totalPartnerOtherValue}
           colors={DONUT_COLORS_1}
           centerTitle="TOTAL SALES"
         />
-        
-        <ChartCard 
+
+        <ChartCard
           title="Installments Breakdown"
           data={installmentData}
           total={totalInstallmentValue}
@@ -298,7 +362,7 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           centerTitle="INSTALLMENTS"
         />
 
-        <ChartCard 
+        <ChartCard
           title="Payment Collection Breakdown"
           data={overallCollectionData}
           total={totalReceivedAmount}
@@ -308,32 +372,29 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-        <HorizontalBarChartCard 
+        <HorizontalBarChartCard
           title="Value by Property Type"
-          data={typeData.sort((a, b) => b.value - a.value)}
+          data={[...typeData].sort((a, b) => b.value - a.value)}
           total={totalTypeValue}
           colors={['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']}
         />
 
-        <HorizontalBarChartCard 
+        <HorizontalBarChartCard
           title="Value by Category"
-          data={categoryData.sort((a, b) => b.value - a.value)}
+          data={[...categoryData].sort((a, b) => b.value - a.value)}
           total={totalCategoryValue}
           colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
         />
 
-        <HorizontalBarChartCard 
+        <HorizontalBarChartCard
           title="Value by Floor"
-          data={floorData.sort((a, b) => b.value - a.value)}
+          data={sortFloorsLogically(floorData)}
           total={totalFloorValue}
           colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
         />
       </div>
 
-      <PropertyCommissionTimelineChart 
-        monthlyData={stats.timeline_monthly || []}
-        yearlyData={stats.timeline_yearly || []}
-      />
+
     </>
   );
 };

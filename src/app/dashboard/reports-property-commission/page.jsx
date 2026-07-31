@@ -143,7 +143,7 @@ const Page = () => {
       <div className="rounded-3xl border border-[#C6A15B]/20 bg-white p-6 sm:p-8 shadow-sm overflow-visible mb-8">
         <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-6 pb-6 border-b border-[#C6A15B]/20">
           <div>
-            <h1 className="text-2xl font-bold text-[#123D32] sm:text-3xl">Property Commission Reports</h1>
+            <h1 className="text-2xl font-bold text-[#123D32] sm:text-3xl">Property Financial Reports</h1>
             <p className="mt-1 text-sm text-[#123D32]/60">View commission, allocation, and installment details for properties.</p>
           </div>
         </div>
