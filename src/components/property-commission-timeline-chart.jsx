@@ -36,7 +36,7 @@ const CustomTimelineTooltip = ({ active, payload, label }) => {
           ))}
           <div className="flex justify-between items-center pt-1.5 mt-1.5 border-t border-slate-100 font-bold">
             <span className="text-slate-600">Total Collections:</span>
-            <span className="text-purple-600 ml-2">Rs {formatCompactNumber(totalVal)}</span>
+            <span className="text-[#1F6B4F] ml-2">Rs {formatCompactNumber(totalVal)}</span>
           </div>
         </div>
       </div>
@@ -115,21 +115,21 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
             <Bar 
               dataKey="downpayment" 
               name="Downpayment Received" 
-              fill="#10b981" 
+              fill="#C6A15B" 
               radius={[6, 6, 0, 0]} 
               maxBarSize={42}
             >
-              <LabelList dataKey="downpayment" content={<CustomBarLabel fill="#10b981" />} />
+              <LabelList dataKey="downpayment" content={<CustomBarLabel fill="#C6A15B" />} />
             </Bar>
 
             <Bar 
               dataKey="installment" 
               name="Installments Received" 
-              fill="#3b82f6" 
+              fill="#1F6B4F" 
               radius={[6, 6, 0, 0]} 
               maxBarSize={42}
             >
-              <LabelList dataKey="installment" content={<CustomBarLabel fill="#3b82f6" />} />
+              <LabelList dataKey="installment" content={<CustomBarLabel fill="#1F6B4F" />} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>
@@ -137,12 +137,12 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
 
       {/* Custom Bottom Legend */}
       <div className="flex flex-wrap justify-center items-center gap-6 mt-4 pt-4 border-t border-slate-100">
-        <div className="flex items-center text-xs font-semibold text-slate-600">
-          <span className="w-3 h-3 rounded-md bg-[#10b981] mr-2 inline-block" />
+        <div className="flex items-center text-xs font-semibold text-slate-700">
+          <span className="w-3 h-3 rounded-md bg-[#C6A15B] mr-2 inline-block" />
           Downpayment Received
         </div>
-        <div className="flex items-center text-xs font-semibold text-slate-600">
-          <span className="w-3 h-3 rounded-md bg-[#3b82f6] mr-2 inline-block" />
+        <div className="flex items-center text-xs font-semibold text-slate-700">
+          <span className="w-3 h-3 rounded-md bg-[#1F6B4F] mr-2 inline-block" />
           Installments Received
         </div>
       </div>

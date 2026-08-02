@@ -75,7 +75,7 @@ const navItems = [
 const SideNavbar = () => {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   if (user?.role !== "super-admin") {
     return null;
