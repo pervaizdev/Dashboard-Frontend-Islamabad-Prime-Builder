@@ -50,129 +50,122 @@ const PropertyCommissionStats = ({ stats, loading }) => {
     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
       
       {/* Card 1: Total Property Value */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between shadow-sm ">
-        <div>
-          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-3xl border border-[#C6A15B]/20 p-6 flex flex-col justify-between shadow-sm min-h-[160px]">
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-[15px] font-bold text-[#123D32] leading-tight">Total Property<br />Value</h3>
+          <div className="w-11 h-11 rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B] flex items-center justify-center shrink-0">
             <Building2 className="w-5 h-5" />
           </div>
-          <h3 className="text-[14px] font-bold text-slate-700 mb-4">Total Property Value</h3>
-          <p className="text-3xl font-bold text-blue-600 mb-1">
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-[#123D32] mb-1.5">
             Rs. {formatCompactNumber(stats.total_price)}
           </p>
-          <p className="text-[14px] font-semibold text-slate-400">
+          <p className="text-[12px] italic text-slate-400">
             {formatFullNumber(stats.total_price)}
           </p>
         </div>
       </div>
 
       {/* Card 2: Amount Received */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between shadow-sm ">
-        <div>
-          <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-3xl border border-[#C6A15B]/20 p-6 flex flex-col justify-between shadow-sm min-h-[160px]">
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-[15px] font-bold text-[#123D32] leading-tight">Received<br />Amount</h3>
+          <div className="w-11 h-11 rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B] flex items-center justify-center shrink-0">
             <Wallet className="w-5 h-5" />
           </div>
-          <h3 className="text-[14px] font-bold text-slate-700 mb-4">Amount Received</h3>
-          <p className="text-3xl font-bold text-emerald-500 mb-1">
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-[#123D32] mb-1.5">
             Rs. {formatCompactNumber(stats.total_paid_amount)}
           </p>
-          <p className="text-[14px] font-semibold text-slate-400">
+          <p className="text-[12px] italic text-slate-400">
             {formatFullNumber(stats.total_paid_amount)}
           </p>
         </div>
-        
-      
       </div>
 
       {/* Card 3: Remaining Balance */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between shadow-sm ">
-        <div>
-          <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-3xl border border-[#C6A15B]/20 p-6 flex flex-col justify-between shadow-sm min-h-[160px]">
+        <div className="flex justify-between items-start mb-6">
+          <h3 className="text-[15px] font-bold text-[#123D32] leading-tight">Remaining<br />Amount</h3>
+          <div className="w-11 h-11 rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B] flex items-center justify-center shrink-0">
             <PieChart className="w-5 h-5" />
           </div>
-          <h3 className="text-[14px] font-bold text-slate-700 mb-4">Remaining Balance</h3>
-          <p className="text-3xl font-bold text-orange-500 mb-1">
+        </div>
+        <div>
+          <p className="text-2xl font-bold text-[#123D32] mb-1.5">
             Rs. {formatCompactNumber(stats.total_remaining_amount)}
           </p>
-          <p className="text-[14px] font-semibold text-slate-400">
+          <p className="text-[12px] italic text-slate-400">
             {formatFullNumber(stats.total_remaining_amount)}
           </p>
         </div>
-        
-      
       </div>
 
       {/* Card 4: Installments Overview */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between shadow-sm ">
-        <div>
-          <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mb-4">
+      <div className="bg-white rounded-3xl border border-[#C6A15B]/20 p-6 flex flex-col justify-between shadow-sm min-h-[160px]">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-[15px] font-bold text-[#123D32] leading-tight">Installments<br />Overview</h3>
+          <div className="w-11 h-11 rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B] flex items-center justify-center shrink-0">
             <Receipt className="w-5 h-5" />
           </div>
-          <h3 className="text-[14px] font-bold text-slate-700 mb-4">Installments Overview</h3>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <span className="text-[15px] font-semibold text-slate-500">Total</span>
-              <div className="text-right">
-                <p className="text-[15px] font-bold text-slate-800">Rs. {formatCompactNumber(stats.total_installment_amount)}</p>
-                <p className="text-[12px] text-slate-400">{formatFullNumber(stats.total_installment_amount)}</p>
-              </div>
+        </div>
+        
+        <div className="space-y-2 mt-auto">
+          <div className="flex justify-between items-center border-b border-[#C6A15B]/10 pb-1.5">
+            <span className="text-[13px] font-semibold text-slate-500">Total</span>
+            <div className="text-right">
+              <p className="text-[14px] font-bold text-[#123D32]">Rs. {formatCompactNumber(stats.total_installment_amount)}</p>
             </div>
-            <div className="flex justify-between items-start">
-              <span className="text-[15px] font-semibold text-slate-500">Paid</span>
-              <div className="text-right">
-                <p className="text-[15px] font-bold text-emerald-500">Rs. {formatCompactNumber(stats.total_paid_installment_amount)}</p>
-                <p className="text-[12px] text-slate-400">{formatFullNumber(stats.total_paid_installment_amount)}</p>
-              </div>
+          </div>
+          <div className="flex justify-between items-center border-b border-[#C6A15B]/10 pb-1.5">
+            <span className="text-[13px] font-semibold text-slate-500">Paid</span>
+            <div className="text-right">
+              <p className="text-[14px] font-bold text-[#C6A15B]">Rs. {formatCompactNumber(stats.total_paid_installment_amount)}</p>
             </div>
-            <div className="flex justify-between items-start">
-              <span className="text-[15px] font-semibold text-slate-500">Remaining </span>
-              <div className="text-right">
-                <p className="text-[15px] font-bold text-purple-600">Rs. {formatCompactNumber(stats.total_remaining_installment_amount)}</p>
-                <p className="text-[12px] text-slate-400">{formatFullNumber(stats.total_remaining_installment_amount)}</p>
-              </div>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[13px] font-semibold text-slate-500">Remaining</span>
+            <div className="text-right">
+              <p className="text-[14px] font-bold text-[#123D32]">Rs. {formatCompactNumber(stats.total_remaining_installment_amount)}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Card 5: Portfolio Summary */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col shadow-sm ">
-        <div className="w-12 h-12 rounded-full bg-cyan-50 text-cyan-500 flex items-center justify-center mb-4">
-          <PieChart className="w-5 h-5" />
+      <div className="bg-white rounded-3xl border border-[#C6A15B]/20 p-6 flex flex-col justify-between shadow-sm min-h-[160px]">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-[15px] font-bold text-[#123D32] leading-tight">Portfolio<br />Summary</h3>
+          <div className="w-11 h-11 rounded-2xl bg-[#C6A15B]/10 text-[#C6A15B] flex items-center justify-center shrink-0">
+            <Layers className="w-5 h-5" />
+          </div>
         </div>
-        <h3 className="text-[14px] font-bold text-slate-700 mb-6">Summary</h3>
         
-        <div className="space-y-5 flex-1">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                <Home className="w-4 h-4" />
-              </div>
-              <span className="text-[14px] font-semibold text-slate-600">Active Properties</span>
+        <div className="space-y-3 mt-auto">
+          <div className="flex justify-between items-center border-b border-[#C6A15B]/10 pb-2">
+            <div className="flex items-center gap-2">
+              <Home className="w-4 h-4 text-[#C6A15B]" />
+              <span className="text-[13px] font-semibold text-slate-500">Active Properties</span>
             </div>
-            <span className="text-lg font-bold text-blue-600">{stats.total_active_property || 0}</span>
+            <span className="text-[15px] font-bold text-[#123D32]">{stats.total_active_property || 0}</span>
           </div>
 
-
-
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
-                <Users className="w-4 h-4" />
-              </div>
-              <span className="text-[14px] font-semibold text-slate-600">Partners</span>
+          <div className="flex justify-between items-center border-b border-[#C6A15B]/10 pb-2">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[#C6A15B]" />
+              <span className="text-[13px] font-semibold text-slate-500">Partners</span>
             </div>
-            <span className="text-lg font-bold text-purple-600">{stats.partner_allocation_count || 0}</span>
+            <span className="text-[15px] font-bold text-[#123D32]">{stats.partner_allocation_count || 0}</span>
           </div>
 
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-500">
-                <User className="w-4 h-4" />
-              </div>
-              <span className="text-[14px] font-semibold text-slate-600">Others</span>
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-[#C6A15B]" />
+              <span className="text-[13px] font-semibold text-slate-500">Others</span>
             </div>
-            <span className="text-lg font-bold text-slate-600">{stats.other_allocation_count || 0}</span>
+            <span className="text-[15px] font-bold text-[#123D32]">{stats.other_allocation_count || 0}</span>
           </div>
         </div>
       </div>
