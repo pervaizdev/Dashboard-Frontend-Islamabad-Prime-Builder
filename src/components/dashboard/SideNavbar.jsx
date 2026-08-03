@@ -17,6 +17,7 @@ import {
   MessageSquareText,
   ChevronLeft,
   ChevronRight,
+  Receipt,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
@@ -25,6 +26,11 @@ const navItems = [
     title: "Overview",
     href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Installment Plan",
+    href: "/dashboard/installment-plan",
+    icon: Receipt,
   },
   {
     title: "Announcement Management",
@@ -123,7 +129,7 @@ const SideNavbar = () => {
         </div>
       </div>
 
-      <nav className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-8 ${isCollapsed ? "px-3" : "px-4"}`}>
+      <nav className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-2 ${isCollapsed ? "px-3" : "px-4"}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
@@ -140,7 +146,7 @@ const SideNavbar = () => {
               {/* Icon + Tooltip */}
               <div className="relative flex items-center justify-center group/icon">
                 <Icon
-                  size={23}
+                  size={20}
                   className={`${active ? "text-[#08211e]" : "text-[#c29e6d]"
                     } shrink-0`}
                 />
