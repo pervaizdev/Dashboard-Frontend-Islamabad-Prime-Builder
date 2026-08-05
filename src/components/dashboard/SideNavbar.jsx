@@ -28,11 +28,6 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Installment Plan",
-    href: "/dashboard/installment-plan",
-    icon: Receipt,
-  },
-  {
     title: "Announcement Management",
     href: "/dashboard/announcementform",
     icon: Megaphone,
@@ -71,6 +66,11 @@ const navItems = [
     title: "Reports Property",
     href: "/dashboard/reports-property-commission",
     icon: BarChart3,
+  },
+  {
+    title: "Installment Plan",
+    href: "/dashboard/installment-plan",
+    icon: Receipt,
   },
   {
     title: "Reports Broker Commission",
