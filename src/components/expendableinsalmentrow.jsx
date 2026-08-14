@@ -12,9 +12,10 @@ const ExpendableInstallmentRow = ({ property }) => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-100">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Month</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Month / Quarter</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Amount</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Due Date</th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Paid Date</th>
                   <th className="px-4 py-2 text-center text-xs font-semibold text-slate-600">Receipt</th>
                 </tr>
@@ -44,6 +45,7 @@ const ExpendableInstallmentRow = ({ property }) => {
                           </span>
                         )}
                       </td>
+                      <td className="px-4 py-2 text-sm text-slate-600">{inst.dueDate ? new Date(inst.dueDate).toLocaleDateString() : '-'}</td>
                       <td className="px-4 py-2 text-sm text-slate-600">{inst.paidDate ? new Date(inst.paidDate).toLocaleDateString() : '-'}</td>
                       <td className="px-4 py-2 text-sm text-center">
                         {isPaid ? (

@@ -376,21 +376,21 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           title="Value by Property Type"
           data={[...typeData].sort((a, b) => b.value - a.value)}
           total={totalTypeValue}
-          colors={['#C6A15B', '#1F6B4F', '#123D32', '#E2CE9F', '#3A8B6F']}
+          colors={['#C6A15B', '#1F6B4F', '#123D32']}
         />
 
         <HorizontalBarChartCard
           title="Value by Category"
           data={[...categoryData].sort((a, b) => b.value - a.value)}
           total={totalCategoryValue}
-          colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
+          colors={['#C6A15B', '#1F6B4F', '#123D32']}
         />
 
         <HorizontalBarChartCard
           title="Value by Floor"
           data={sortFloorsLogically(floorData)}
           total={totalFloorValue}
-          colors={['#C6A15B', '#123D32', '#1F6B4F', '#E2CE9F', '#3A8B6F']}
+          colors={['#C6A15B', '#1F6B4F', '#123D32']}
         />
       </div>
 
