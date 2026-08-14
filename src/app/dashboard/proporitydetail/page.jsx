@@ -538,14 +538,14 @@ const PropertyDetailContent = () => {
           <div className="space-y-4">
             {[
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
-              {
-                label: "Down Payment",
-                value:
-                  propertyData.paid_downpayment > 0 &&
-                    propertyData.paid_downpayment !== propertyData.down_payment
-                    ? `Rs. ${propertyData.down_payment?.toLocaleString()} / Rs. ${propertyData.paid_downpayment.toLocaleString()}`
-                    : `Rs. ${propertyData.down_payment?.toLocaleString()}`
-              },
+          { 
+  label: "Down Payment", 
+  value: 
+    propertyData.paid_downpayment > 0 && 
+    propertyData.paid_downpayment !== propertyData.down_payment 
+      ? `Rs. ${propertyData.paid_downpayment.toLocaleString()} / Rs. ${propertyData.down_payment?.toLocaleString()}` 
+      : `Rs. ${propertyData.down_payment?.toLocaleString()}` 
+},
               {
                 label: "Paid Payment",
                 value: `Rs. ${propertyData.paid_downpayment === propertyData.down_payment

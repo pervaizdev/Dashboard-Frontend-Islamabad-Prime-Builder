@@ -50,24 +50,29 @@ const CustomCenterLabel = (props) => {
   );
 };
 
-const CustomLegendList = ({ data, total, colors }) => {
+const CustomLegendList = ({ data, total, colors, hoveredItem, setHoveredItem }) => {
   return (
-    <div className="flex flex-col justify-center space-y-3 ml-4 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
+    <div className="flex flex-col justify-center space-y-2.5 ml-4 max-h-[220px] overflow-y-auto pr-2 custom-scrollbar">
       {data.map((entry, index) => {
         const percentage = total > 0 ? ((entry.value / total) * 100).toFixed(1) : 0;
+        const isActive = hoveredItem?.name === entry.name;
         return (
           <div
             key={`legend-${index}`}
-            className="flex items-start p-1 rounded-lg"
+            onMouseEnter={() => setHoveredItem(entry)}
+            onMouseLeave={() => setHoveredItem(null)}
+            className={`flex items-start gap-2.5 cursor-pointer rounded-xl px-2.5 py-1.5 transition-all ${
+              isActive ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
+            }`}
           >
             <div
-              className="w-3 h-3 rounded-full mt-1.5 mr-3 flex-shrink-0"
+              className="w-3 h-3 rounded-full mt-1 flex-shrink-0"
               style={{ backgroundColor: colors[index % colors.length] }}
             />
-            <div>
-              <div className="text-[13px] font-bold text-slate-800 leading-tight">{entry.name}</div>
-              <div className="text-[12px] text-slate-500 mt-0.5">
-                Rs {formatFullNumber(entry.value)} ({percentage}%)
+            <div className="overflow-hidden">
+              <div className="text-[12px] font-semibold text-slate-500 leading-tight">{entry.name}</div>
+              <div className="text-[12px] font-bold text-slate-900 leading-tight mt-0.5">
+                Rs {formatFullNumber(entry.value)} <span className="text-[11px] font-semibold text-slate-500 ml-1">({percentage}%)</span>
               </div>
             </div>
           </div>
@@ -84,9 +89,9 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
     <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col relative">
       <h3 className="text-[15px] font-bold text-slate-700 mb-6">{title}</h3>
 
-      {/* Floating Tooltip Box at Card Level */}
+      {/* Floating Tooltip on Hover */}
       {hoveredItem && (
-        <div className="absolute z-50 top-14 right-6 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[230px] pointer-events-none transition-all duration-200 border border-slate-200/80">
+        <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[230px] pointer-events-none transition-all duration-200 border border-slate-200/80">
           <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">{hoveredItem.name}</p>
           <div className="space-y-1.5 text-slate-600">
             <div className="flex justify-between items-center">
@@ -106,9 +111,9 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
       {data.length > 0 ? (
         <div className="flex flex-row items-center w-full">
           {/* Chart Side */}
-          <div className="w-[140px] h-[140px] flex-shrink-0 relative -ml-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+          <div className="w-[140px] h-[140px] flex-shrink-0 relative -ml-4 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
+            <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
+              <PieChart tabIndex={-1} style={{ outline: 'none' }}>
                 <Pie
                   data={data}
                   cx="50%"
@@ -123,7 +128,8 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
                     <Cell
                       key={`cell-${index}`}
                       fill={colors[index % colors.length]}
-                      className="cursor-pointer transition-opacity hover:opacity-80"
+                      className="cursor-pointer transition-opacity duration-200"
+                      opacity={hoveredItem && hoveredItem.name !== entry.name ? 0.35 : 1}
                       onMouseEnter={() => setHoveredItem(entry)}
                       onMouseLeave={() => setHoveredItem(null)}
                     />
@@ -139,7 +145,13 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
 
           {/* Legend Side */}
           <div className="flex-1">
-            <CustomLegendList data={data} total={total} colors={colors} />
+            <CustomLegendList
+              data={data}
+              total={total}
+              colors={colors}
+              hoveredItem={hoveredItem}
+              setHoveredItem={setHoveredItem}
+            />
           </div>
         </div>
       ) : (
