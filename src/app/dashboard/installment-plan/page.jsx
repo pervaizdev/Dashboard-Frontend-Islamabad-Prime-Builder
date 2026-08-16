@@ -5,6 +5,8 @@ import {
   Search,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
+  User,
   Building2,
   Clock3,
   Loader2,
@@ -23,7 +25,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-import ExpendableInstallmentRow from "@/components/expendableinsalmentrow";
+
 import Pagination from "@/components/pagination";
 import { dashboardAPI } from "@/api/dashboard";
 import toast from "react-hot-toast";
@@ -148,6 +150,18 @@ const formatPeriodLabel = (monthYearStr, paymentPlan) => {
   return `${MONTH_SHORT[mIdx]} ${shortYear}`;
 };
 
+const checkIsOverdue = (inst, k, curKey) => {
+  if (inst.status?.toLowerCase() === "paid") return false;
+  if (inst.dueDate) {
+    const due = new Date(inst.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    return due.getTime() < today.getTime();
+  }
+  return Boolean(k && k < curKey);
+};
+
 /* -------------------------------------------------------------------------- */
 /*                            Custom Bar Chart Tooltip                        */
 /* -------------------------------------------------------------------------- */
@@ -177,27 +191,69 @@ const CustomBarTooltip = ({ active, payload, label }) => {
 };
 
 const InstallmentPlanPage = () => {
-  const [properties, setProperties]     = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [expandedRowId, setExpandedRowId] = useState(null);
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [hoveredSlice, setHoveredSlice] = useState(null);   // for donut hover
 
   // Pagination
-  const [currentPage, setCurrentPage]   = useState(1);
-  const [limit, setLimit]               = useState(10);
-  const [totalPages, setTotalPages]     = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
-  // Filters
-  const [searchTerm, setSearchTerm]         = useState("");
-  const [selectedBuilding, setSelectedBuilding] = useState("All Buildings");
-  const [selectedFloor, setSelectedFloor]   = useState("All Floors");
-  const [buildingsList, setBuildingsList]   = useState([]);
-  const [floorsList, setFloorsList]         = useState([]);
-  const [activeFilterParams, setActiveFilterParams] = useState("");
+  // Nested Table Toggles
+  const [expandedOwners, setExpandedOwners] = useState({});
+  const [expandedProperties, setExpandedProperties] = useState({});
 
-  const toggleRow = (id) =>
-    setExpandedRowId((cur) => (cur === id ? null : id));
+  const toggleOwner = (ownerName) => {
+    setExpandedOwners((prev) => ({ ...prev, [ownerName]: !prev[ownerName] }));
+  };
+
+  const toggleProperty = (propertyId) => {
+    setExpandedProperties((prev) => ({ ...prev, [propertyId]: !prev[propertyId] }));
+  };
+
+  // Filters
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchType, setSearchType] = useState("name");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedBuilding, setSelectedBuilding] = useState("All Buildings");
+  const [selectedFloor, setSelectedFloor] = useState("All Floors");
+  const [selectedType, setSelectedType] = useState("All Types");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedAllocation, setSelectedAllocation] = useState("Other");
+  const [selectedStatus, setSelectedStatus] = useState("All Status");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const [buildingsList, setBuildingsList] = useState([]);
+  const [floorsList, setFloorsList] = useState([]);
+  const [typesList, setTypesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+
+  const [activeFilterParams, setActiveFilterParams] = useState("allocationType=Other");
+  const [initialBuildingSet, setInitialBuildingSet] = useState(false);
+
+  // Debounced Suggestions Fetch
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const res = await dashboardAPI.getPropertyCommissionSuggestions(searchType, searchTerm);
+        if (res.success) {
+          setSuggestions(res.suggestions || []);
+        }
+      } catch (err) {
+        console.error("Error fetching suggestions", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, searchType]);
 
   /* ---- API fetch ---- */
   useEffect(() => {
@@ -212,7 +268,9 @@ const InstallmentPlanPage = () => {
         if (rep.success) {
           setProperties(rep.properties || []);
           if (rep.buildings) setBuildingsList(rep.buildings);
-          if (rep.floors)    setFloorsList(rep.floors);
+          if (rep.floors) setFloorsList(rep.floors);
+          if (rep.types) setTypesList(rep.types);
+          if (rep.categories) setCategoriesList(rep.categories);
           if (rep.pagination) {
             setTotalPages(rep.pagination.totalPages || 1);
             setTotalRecords(rep.pagination.totalRecords || 0);
@@ -227,19 +285,50 @@ const InstallmentPlanPage = () => {
     load();
   }, [currentPage, limit, activeFilterParams]);
 
+  useEffect(() => {
+    // Auto-select first building on initial load
+    if (buildingsList.length > 0 && !initialBuildingSet) {
+      setInitialBuildingSet(true);
+      setSelectedBuilding(buildingsList[0]);
+      const p = new URLSearchParams(activeFilterParams);
+      p.set("building_name", buildingsList[0]);
+      if (!p.has("allocationType")) p.set("allocationType", "Other");
+      setActiveFilterParams(p.toString());
+    }
+  }, [buildingsList, initialBuildingSet, activeFilterParams]);
+
   const handleApplyFilters = () => {
-    setExpandedRowId(null);
     setCurrentPage(1);
     const p = new URLSearchParams();
     if (selectedBuilding !== "All Buildings") p.append("building_name", selectedBuilding);
-    if (selectedFloor    !== "All Floors")    p.append("floor", selectedFloor);
-    if (searchTerm.trim())                    p.append("search", searchTerm.trim());
+    if (selectedFloor !== "All Floors") p.append("floor", selectedFloor);
+    if (selectedType !== "All Types") p.append("type", selectedType);
+    if (selectedCategory !== "All Categories") p.append("category", selectedCategory);
+    if (selectedAllocation !== "All Allocations" && selectedAllocation) p.append("allocationType", selectedAllocation);
+    if (startDate) p.append("startDate", startDate);
+    if (endDate) p.append("endDate", endDate);
+    if (searchTerm.trim()) p.append("search", searchTerm.trim());
     setActiveFilterParams(p.toString());
   };
 
   const handleClearFilters = () => {
-    setSearchTerm(""); setSelectedBuilding("All Buildings"); setSelectedFloor("All Floors");
-    setExpandedRowId(null); setCurrentPage(1); setActiveFilterParams("");
+    setSearchTerm(""); setSelectedFloor("All Floors");
+    setSelectedType("All Types"); setSelectedCategory("All Categories"); setSelectedAllocation("Other"); setSelectedStatus("All Status");
+    setStartDate(""); setEndDate("");
+
+    // Set building to the first one available
+    if (buildingsList.length > 0) {
+      setSelectedBuilding(buildingsList[0]);
+      const p = new URLSearchParams();
+      p.append("building_name", buildingsList[0]);
+      p.append("allocationType", "Other");
+      setActiveFilterParams(p.toString());
+    } else {
+      setSelectedBuilding("All Buildings");
+      setActiveFilterParams("allocationType=Other");
+    }
+
+    setExpandedOwners({}); setExpandedProperties({}); setCurrentPage(1);
   };
 
   /* ---- Donut data ---- */
@@ -253,15 +342,15 @@ const InstallmentPlanPage = () => {
         const amt = Number(inst.amount) || 0;
         const key = getYearMonthKey(inst.dueDate, inst.monthYear);
         if (inst.status?.toLowerCase() === "paid") paid += amt;
-        else if (key && key < curKey) overdue += amt;
+        else if (checkIsOverdue(inst, key, curKey)) overdue += amt;
         else unpaid += amt;
       });
     });
     return [
-      { name: "Down Payment",       value: dp,      color: "#c29e6d" },
-      { name: "Paid Installment",   value: paid,    color: "#10b981" },
-      { name: "Unpaid Installment", value: unpaid,  color: "#f59e0b" },
-      { name: "Overdue Installment",value: overdue, color: "#ef4444" },
+      { name: "Down Payment", value: dp, color: "#c29e6d" },
+      { name: "Paid Installment", value: paid, color: "#10b981" },
+      { name: "Unpaid Installment", value: unpaid, color: "#f59e0b" },
+      { name: "Overdue Installment", value: overdue, color: "#ef4444" },
     ];
   }, [properties]);
 
@@ -277,7 +366,7 @@ const InstallmentPlanPage = () => {
 
     // Build ordered 12-month skeleton
     const keys = [];
-    const map  = {};
+    const map = {};
     for (let i = 11; i >= 0; i--) {
       const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
       const y = d.getUTCFullYear();
@@ -296,10 +385,10 @@ const InstallmentPlanPage = () => {
 
       (prop.installments || []).forEach((inst) => {
         const amt = Number(inst.amount) || 0;
-        const k   = getYearMonthKey(inst.dueDate, inst.monthYear);
+        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
         if (!k || !map[k]) return;
         if (inst.status?.toLowerCase() === "paid") map[k].paid += amt;
-        else if (k < curKey) map[k].overdue += amt;
+        else if (checkIsOverdue(inst, k, curKey)) map[k].overdue += amt;
         else map[k].unpaid += amt;
       });
     });
@@ -308,15 +397,15 @@ const InstallmentPlanPage = () => {
     return keys.map((k) => {
       const it = map[k];
       return {
-        month:           it.month,
-        downpayment:     +(it.downpayment / 1_000_000).toFixed(2),
+        month: it.month,
+        downpayment: +(it.downpayment / 1_000_000).toFixed(2),
         downpayment_raw: it.downpayment,
-        paid:            +(it.paid / 1_000_000).toFixed(2),
-        paid_raw:        it.paid,
-        unpaid:          +(it.unpaid / 1_000_000).toFixed(2),
-        unpaid_raw:      it.unpaid,
-        overdue:         +(it.overdue / 1_000_000).toFixed(2),
-        overdue_raw:     it.overdue,
+        paid: +(it.paid / 1_000_000).toFixed(2),
+        paid_raw: it.paid,
+        unpaid: +(it.unpaid / 1_000_000).toFixed(2),
+        unpaid_raw: it.unpaid,
+        overdue: +(it.overdue / 1_000_000).toFixed(2),
+        overdue_raw: it.overdue,
       };
     });
   }, [properties]);
@@ -324,57 +413,197 @@ const InstallmentPlanPage = () => {
   /* ---- Per-row installment details ---- */
   const getPropertyMainDetails = (property) => {
     const now = new Date();
-    const curKey  = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
-    const prevD   = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
-    const prevKey = `${prevD.getUTCFullYear()}-${String(prevD.getUTCMonth() + 1).padStart(2, "0")}`;
+    const curKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
 
     const installments = property.installments || [];
 
+    // Breakdown: current-month installments (paid + unpaid) + all overdue from past months
     const breakdownInstallments = installments.filter((inst) => {
       const k = getYearMonthKey(inst.dueDate, inst.monthYear);
       if (!k) return false;
-      const isPaid  = inst.status?.toLowerCase() === "paid";
-      const isOD    = !isPaid && k < curKey;
-      const isCurPrev = k === curKey || k === prevKey;
-      return isCurPrev || isOD;
+      const isPaid = inst.status?.toLowerCase() === "paid";
+      // Current month: include both paid and unpaid
+      if (k === curKey) return true;
+      // Past months: only overdue (unpaid)
+      if (k < curKey && !isPaid) return true;
+      return false;
     });
 
-    let hasOverdue = false, hasUnpaid = false;
-    let overdueAmt = 0, unpaidAmt = 0, paidAmt = 0;
+    let overdueAmt = 0, currentMonthAmt = 0;
+    let hasOverdue = false, hasCurrentUnpaid = false, hasCurrentPaid = false;
     let latestMonthYear = "-";
-
-    // Determine the period label (use the current/previous installment due info)
-    let periodLabel = "-";
-    const relevantInst = installments.find((inst) => {
-      const k = getYearMonthKey(inst.dueDate, inst.monthYear);
-      return k === curKey || k === prevKey;
-    }) || installments[installments.length - 1];
-
-    if (relevantInst?.monthYear) {
-      periodLabel = formatPeriodLabel(relevantInst.monthYear, property.payment_plan);
-      latestMonthYear = relevantInst.monthYear;
-    }
 
     installments.forEach((inst) => {
       const isPaid = inst.status?.toLowerCase() === "paid";
       const k = getYearMonthKey(inst.dueDate, inst.monthYear);
       const amt = Number(inst.amount) || 0;
-      if (inst.monthYear) latestMonthYear = inst.monthYear;
-      if (isPaid) paidAmt += amt;
-      else if (k && k < curKey) { hasOverdue = true; overdueAmt += amt; }
-      else { hasUnpaid = true; unpaidAmt += amt; }
+
+      let isOverdueInst = false;
+      if (inst.dueDate) {
+        const due = new Date(inst.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        due.setHours(0, 0, 0, 0);
+        isOverdueInst = !isPaid && due.getTime() < today.getTime();
+      } else {
+        isOverdueInst = !isPaid && k && k < curKey;
+      }
+
+      if (isOverdueInst) {
+        hasOverdue = true;
+        overdueAmt += amt;
+      } else if (k === curKey) {
+        currentMonthAmt += amt;
+        if (isPaid) hasCurrentPaid = true;
+        else hasCurrentUnpaid = true;
+      }
     });
 
-    let displayStatus = "Paid";
-    let displayAmount = paidAmt;
-    if (hasOverdue) { displayStatus = "Overdue"; displayAmount = overdueAmt; }
-    else if (hasUnpaid) { displayStatus = "Unpaid"; displayAmount = unpaidAmt; }
+    // Priority: Overdue > current-month Unpaid > current-month Paid
+    let displayStatus, displayAmount, periodLabel;
 
-    // Per installment amount (use first installment for monthly display)
+    if (hasOverdue) {
+      displayStatus = "Overdue";
+      displayAmount = overdueAmt;
+      // Find the earliest overdue installment for the period label
+      const overdueInst = installments.find((inst) => {
+        const isPaid = inst.status?.toLowerCase() === "paid";
+        if (isPaid) return false;
+        if (inst.dueDate) {
+          const due = new Date(inst.dueDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          due.setHours(0, 0, 0, 0);
+          return due.getTime() < today.getTime();
+        }
+        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
+        return k && k < curKey;
+      });
+      periodLabel = overdueInst?.monthYear
+        ? formatPeriodLabel(overdueInst.monthYear, property.payment_plan)
+        : "-";
+    } else if (hasCurrentUnpaid) {
+      displayStatus = "Unpaid";
+      displayAmount = currentMonthAmt;
+      const curInst = installments.find((inst) => {
+        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
+        return k === curKey;
+      });
+      periodLabel = curInst?.monthYear
+        ? formatPeriodLabel(curInst.monthYear, property.payment_plan)
+        : "-";
+    } else {
+      displayStatus = "Paid";
+      displayAmount = currentMonthAmt;
+      const curInst = installments.find((inst) => {
+        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
+        return k === curKey;
+      });
+      periodLabel = curInst?.monthYear
+        ? formatPeriodLabel(curInst.monthYear, property.payment_plan)
+        : "-";
+    }
+
     const perInstallmentAmount = installments[0]?.amount || 0;
 
     return { displayStatus, displayAmount, perInstallmentAmount, periodLabel, latestMonthYear, breakdownInstallments };
   };
+
+  /* ---- Filter, Flatten, and Group table ---- */
+  const groupedTableData = useMemo(() => {
+    const now = new Date();
+    const curKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+    const groups = {};
+
+    properties.forEach((prop) => {
+      const ownerNames =
+        prop.owners?.length > 0
+          ? prop.owners.map((o) => o.name).join(", ")
+          : "No Owner";
+
+      const installments = prop.installments || [];
+      if (installments.length === 0) return;
+
+      installments.forEach((inst) => {
+        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
+        if (!k) return;
+        const isPaid = inst.status?.toLowerCase() === "paid";
+
+        let isOverdueInst = checkIsOverdue(inst, k, curKey);
+
+        // Show if it's Overdue, OR if it's in the current month
+        if (isOverdueInst || k === curKey) {
+          let displayStatus = "";
+          if (isPaid) displayStatus = "Paid";
+          else if (isOverdueInst) displayStatus = "Overdue";
+          else displayStatus = "Unpaid";
+
+          // Apply selectedStatus filter
+          if (selectedStatus !== "All Status" && displayStatus.toLowerCase() !== selectedStatus.toLowerCase()) {
+            return;
+          }
+
+          if (!groups[ownerNames]) {
+            groups[ownerNames] = {
+              ownerNames,
+              totalAmount: 0,
+              overdueAmount: 0,
+              unpaidAmount: 0,
+              paidAmount: 0,
+              propertyCount: 0,
+              installmentCount: 0,
+              properties: {}
+            };
+          }
+
+          if (!groups[ownerNames].properties[prop.property_id]) {
+            groups[ownerNames].properties[prop.property_id] = {
+              property: prop,
+              totalAmount: 0,
+              overdueAmount: 0,
+              unpaidAmount: 0,
+              paidAmount: 0,
+              installmentCount: 0,
+              statusSet: new Set(),
+              installments: []
+            };
+            groups[ownerNames].propertyCount += 1;
+          }
+
+          const amt = Number(inst.amount) || 0;
+
+          groups[ownerNames].totalAmount += amt;
+          groups[ownerNames].installmentCount += 1;
+
+          const pGroup = groups[ownerNames].properties[prop.property_id];
+          pGroup.totalAmount += amt;
+          pGroup.installmentCount += 1;
+          pGroup.statusSet.add(displayStatus);
+
+          if (displayStatus === "Overdue") {
+            groups[ownerNames].overdueAmount += amt;
+            pGroup.overdueAmount += amt;
+          } else if (displayStatus === "Unpaid") {
+            groups[ownerNames].unpaidAmount += amt;
+            pGroup.unpaidAmount += amt;
+          } else if (displayStatus === "Paid") {
+            groups[ownerNames].paidAmount += amt;
+            pGroup.paidAmount += amt;
+          }
+
+          pGroup.installments.push({
+            installment: inst,
+            displayStatus,
+            displayAmount: amt,
+            periodLabel: inst.monthYear ? formatPeriodLabel(inst.monthYear, prop.payment_plan) : "-",
+            rowKey: `${prop.property_id}-${inst._id || Math.random()}`
+          });
+        }
+      });
+    });
+
+    return Object.values(groups);
+  }, [properties, selectedStatus]);
 
   /* ========== RENDER ========== */
   return (
@@ -391,23 +620,52 @@ const InstallmentPlanPage = () => {
           {/* Search */}
           <div>
             <label htmlFor="installment-search" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Search</label>
-            <div className="relative">
-              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#95aaa4]" />
-              <input
-                id="installment-search"
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
-                placeholder="Search owner or property..."
-                className="h-11 w-full rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] pl-9 pr-3 text-sm font-medium text-[#244f45] outline-none transition placeholder:text-[#9bada8] focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
-              />
+            <div className="relative flex items-center shadow-sm rounded-xl">
+              <select
+                value={searchType}
+                onChange={(e) => { setSearchType(e.target.value); setSearchTerm(""); setSuggestions([]); }}
+                className="h-11 rounded-l-xl border border-r-0 border-[#e8d4b2] bg-[#fcfbf9] px-2 text-xs font-medium text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+                <option value="name">Name</option>
+                <option value="propertyNumber">Prop. No.</option>
+              </select>
+              <div className="relative w-full">
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#95aaa4]" />
+                <input
+                  id="installment-search"
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
+                  placeholder={searchType === 'name' ? 'Search owner name...' : 'Search property no...'}
+                  className="h-11 w-full rounded-r-xl border border-[#e8d4b2] bg-[#fcfbf9] pl-9 pr-3 text-sm font-medium text-[#244f45] outline-none transition placeholder:text-[#9bada8] focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
+                />
+              </div>
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="absolute left-0 top-[105%] z-10 w-full max-h-48 overflow-y-auto rounded-xl border border-[#e8d4b2] bg-white py-1 shadow-lg">
+                  {suggestions.map((sug, idx) => (
+                    <li
+                      key={idx}
+                      onMouseDown={() => {
+                        setSearchTerm(sug);
+                        setShowSuggestions(false);
+                        // Trigger fetch automatically on selection
+                        setTimeout(() => handleApplyFilters(), 0);
+                      }}
+                      className="cursor-pointer px-4 py-2 text-sm font-medium text-[#244f45] hover:bg-[#f7f3ec]">
+                      {sug}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
           {/* Building */}
           <div>
             <label htmlFor="building-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Building</label>
-            <select id="building-filter" value={selectedBuilding} onChange={(e) => setSelectedBuilding(e.target.value)}
+            <select id="building-filter" value={selectedBuilding} onChange={(e) => { setSelectedBuilding(e.target.value); setSelectedFloor("All Floors"); }}
               className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
               <option value="All Buildings">All Buildings</option>
               {buildingsList.map((b) => <option key={b} value={b}>{b}</option>)}
@@ -416,11 +674,72 @@ const InstallmentPlanPage = () => {
           {/* Floor */}
           <div>
             <label htmlFor="floor-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Floor Type</label>
-            <select id="floor-filter" value={selectedFloor} onChange={(e) => setSelectedFloor(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+            <select id="floor-filter" value={selectedFloor} onChange={(e) => setSelectedFloor(e.target.value)} disabled={selectedBuilding === "All Buildings"}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15 disabled:opacity-50 disabled:cursor-not-allowed">
               <option value="All Floors">All Floors</option>
               {floorsList.map((f) => <option key={f} value={f}>{f}</option>)}
             </select>
+          </div>
+          {/* Type */}
+          <div>
+            <label htmlFor="type-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Type</label>
+            <select id="type-filter" value={selectedType} onChange={(e) => setSelectedType(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+              <option value="All Types">All Types</option>
+              {typesList.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          {/* Category */}
+          <div>
+            <label htmlFor="category-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Category</label>
+            <select id="category-filter" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+              <option value="All Categories">All Categories</option>
+              {categoriesList.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          {/* Allocation Type */}
+          <div>
+            <label htmlFor="allocation-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Allocation Type</label>
+            <select id="allocation-filter" value={selectedAllocation} onChange={(e) => setSelectedAllocation(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+              <option value="All Allocations">All Allocations</option>
+              <option value="Partner">Partner</option>
+              <option value="Other">Client</option>
+            </select>
+          </div>
+          {/* Status */}
+          <div>
+            <label htmlFor="status-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Status</label>
+            <select id="status-filter" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+              <option value="All Status">All Status</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </div>
+          {/* Start Date */}
+          <div>
+            <label htmlFor="start-date" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Start Date</label>
+            <input
+              type="date"
+              id="start-date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
+            />
+          </div>
+          {/* End Date */}
+          <div>
+            <label htmlFor="end-date" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">End Date</label>
+            <input
+              type="date"
+              id="end-date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
+            />
           </div>
         </div>
         <div className="mt-5 flex flex-col justify-end gap-2 sm:flex-row">
@@ -439,20 +758,39 @@ const InstallmentPlanPage = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
 
         {/* ── Donut chart ── */}
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-4">
+        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-4 relative">
           <h2 className="mb-3 text-base font-bold text-slate-800">Installment Plans by Status</h2>
 
-          {/* Row: [donut] [legend] — no phantom hover card */}
-          <div className="flex items-center gap-4">
+          {/* Floating Tooltip on Hover */}
+          {hoveredSlice && (
+            <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[230px] pointer-events-none transition-all duration-200 border border-slate-200/80">
+              <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">{hoveredSlice.name}</p>
+              <div className="space-y-1.5 text-slate-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Amount:</span>
+                  <span className="font-bold text-slate-800">Rs. {formatCurrency(hoveredSlice.value)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Percentage:</span>
+                  <span className="font-bold text-blue-600">
+                    {totalPieAmount > 0 ? ((hoveredSlice.value / totalPieAmount) * 100).toFixed(1) : 0}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
-            {/* Donut — fixed small size */}
-            <div className="relative shrink-0" style={{ width: 120, height: 120 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+          {/* Row: [donut] [legend] — enlarged donut & balanced spacing */}
+          <div className="flex items-center gap-5 sm:gap-6 py-1">
+
+            {/* Donut — enlarged size */}
+            <div className="relative shrink-0 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none" style={{ width: 170, height: 170 }}>
+              <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
+                <PieChart tabIndex={-1} style={{ outline: 'none' }}>
                   <Pie
                     data={donutData}
                     cx="50%" cy="50%"
-                    innerRadius={34} outerRadius={50}
+                    innerRadius={52} outerRadius={74}
                     paddingAngle={3}
                     dataKey="value"
                     stroke="none"
@@ -463,6 +801,7 @@ const InstallmentPlanPage = () => {
                       <Cell
                         key={e.name}
                         fill={e.color}
+                        className="cursor-pointer transition-opacity duration-200"
                         opacity={hoveredSlice && hoveredSlice.name !== e.name ? 0.4 : 1}
                       />
                     ))}
@@ -472,40 +811,47 @@ const InstallmentPlanPage = () => {
 
               {/* Center total — always visible */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-                <span className="text-[10px] font-extrabold leading-snug text-slate-800">
+                <span className="text-[13px] font-extrabold leading-snug text-slate-800">
                   Rs. {(totalPieAmount / 1_000_000).toFixed(2)}M
                 </span>
-                <span className="text-[8px] font-semibold text-slate-400">Total</span>
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
               </div>
             </div>
 
-            {/* Legend — name on one row, amount on next row, no wrapping */}
-            <div className="flex-1 space-y-1.5">
+            {/* Legend — shifted right with balanced vertical spacing */}
+            <div className="flex-1 space-y-2">
               {donutData.map((item) => {
                 const isActive = hoveredSlice?.name === item.name;
+                const compactVal = item.value >= 1_000_000_000
+                  ? `${(item.value / 1_000_000_000).toFixed(2)}B`
+                  : item.value >= 1_000_000
+                  ? `${(item.value / 1_000_000).toFixed(2)}M`
+                  : item.value >= 1_000
+                  ? `${(item.value / 1_000).toFixed(2)}K`
+                  : item.value.toFixed(2);
+
                 return (
                   <div
                     key={item.name}
-                    onMouseEnter={() => setHoveredSlice(item)}
-                    onMouseLeave={() => setHoveredSlice(null)}
-                    className={`flex items-center gap-2 cursor-default rounded-lg px-1.5 py-1 transition-colors ${
-                      isActive ? "bg-slate-50 ring-1 ring-slate-100" : ""
+                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${
+                      isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
                     }`}
                   >
                     <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      className="h-3 w-3 shrink-0 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <div>
-                      {/* Category name — single line */}
+                    <div className="overflow-hidden">
+                      {/* Category name */}
                       <div className="whitespace-nowrap text-[11px] font-semibold leading-tight text-slate-500">
                         {item.name}
                       </div>
-                      {/* Amount — millions at rest, full Rs. on hover */}
-                      <div className="whitespace-nowrap text-[11px] font-bold leading-tight text-slate-900">
-                        {isActive
-                          ? `Rs. ${formatCurrency(item.value)}`
-                          : `Rs. ${(item.value / 1_000_000).toFixed(2)}M`}
+                      {/* Amount: Compact (M/B) + Full Digits */}
+                      <div className="whitespace-nowrap text-[12px] font-bold leading-tight text-slate-900 mt-0.5">
+                        Rs. {compactVal}{" "}
+                        <span className="text-[10px] font-medium text-slate-400">
+                          ({formatCurrency(item.value)})
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -523,9 +869,11 @@ const InstallmentPlanPage = () => {
           </div>
 
           {/* Compact height so card stays proportional */}
-          <div className="h-52 w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-52 w-full focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
+            <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
               <BarChart
+                tabIndex={-1}
+                style={{ outline: 'none' }}
                 data={barData}
                 barGap={1}
                 barCategoryGap="20%"
@@ -555,10 +903,10 @@ const InstallmentPlanPage = () => {
 
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
 
-                <Bar dataKey="downpayment" name="Down Payment" fill="#c29e6d" radius={[3,3,0,0]} barSize={6} />
-                <Bar dataKey="paid"        name="Paid"         fill="#10b981" radius={[3,3,0,0]} barSize={6} />
-                <Bar dataKey="unpaid"      name="Unpaid"       fill="#f59e0b" radius={[3,3,0,0]} barSize={6} />
-                <Bar dataKey="overdue"     name="Overdue"      fill="#ef4444" radius={[3,3,0,0]} barSize={6} />
+                <Bar dataKey="downpayment" name="Down Payment" fill="#c29e6d" radius={[3, 3, 0, 0]} barSize={6} />
+                <Bar dataKey="paid" name="Paid" fill="#10b981" radius={[3, 3, 0, 0]} barSize={6} />
+                <Bar dataKey="unpaid" name="Unpaid" fill="#f59e0b" radius={[3, 3, 0, 0]} barSize={6} />
+                <Bar dataKey="overdue" name="Overdue" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={6} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -566,9 +914,9 @@ const InstallmentPlanPage = () => {
           <div className="mt-2 flex flex-wrap items-center justify-center gap-5">
             {[
               { label: "Down Payment", color: "#c29e6d" },
-              { label: "Paid",         color: "#10b981" },
-              { label: "Unpaid",       color: "#f59e0b" },
-              { label: "Overdue",      color: "#ef4444" },
+              { label: "Paid", color: "#10b981" },
+              { label: "Unpaid", color: "#f59e0b" },
+              { label: "Overdue", color: "#ef4444" },
             ].map(({ label, color }) => (
               <div key={label} className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
@@ -590,110 +938,169 @@ const InstallmentPlanPage = () => {
                 <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Period</th>
                 <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Amount</th>
                 <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Status</th>
-                <th className="px-6 py-4 text-center text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Action</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-[#eeeae4] bg-white">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center">
+                  <td colSpan={5} className="px-6 py-14 text-center">
                     <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#c29e6d]" />
                     <p className="mt-2 text-sm font-semibold text-slate-600">Loading installment plans...</p>
                   </td>
                 </tr>
-              ) : properties.length === 0 ? (
+              ) : groupedTableData.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-14 text-center">
+                  <td colSpan={5} className="px-6 py-14 text-center">
                     <div className="text-sm font-semibold text-slate-600">No installment plans found</div>
                     <p className="mt-1 text-xs text-slate-400">Try clearing or adjusting your search or filter options.</p>
                   </td>
                 </tr>
               ) : (
-                properties.map((property, index) => {
-                  const ownerNames =
-                    property.owners?.length > 0
-                      ? property.owners.map((o) => o.name).join(", ")
-                      : "No Owner";
-
-                  const { displayStatus, displayAmount, periodLabel, breakdownInstallments } =
-                    getPropertyMainDetails(property);
-
-                  const rowKey     = `${property.property_id || index}`;
-                  const isOverdue  = displayStatus === "Overdue";
-                  const isUnpaid   = displayStatus === "Unpaid";
-                  const isExpanded = expandedRowId === property.property_id;
-
+                groupedTableData.map((ownerGroup, oIdx) => {
+                  const isOwnerExpanded = expandedOwners[ownerGroup.ownerNames];
                   return (
-                    <React.Fragment key={rowKey}>
-                      <tr className="transition-colors hover:bg-[#fcfaf7]">
-
-                        {/* 1. Owner Name */}
+                    <React.Fragment key={ownerGroup.ownerNames + oIdx}>
+                      {/* LEVEL 1: Owner Name Row */}
+                      <tr
+                        className="cursor-pointer transition-colors hover:bg-slate-50 border-b border-slate-100"
+                        onClick={() => toggleOwner(ownerGroup.ownerNames)}
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
+                            {isOwnerExpanded ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7f1e8] text-[#c29e6d]">
-                              <Building2 size={17} />
+                              <User size={17} />
                             </div>
-                            <span className="text-sm font-semibold text-slate-800">{ownerNames}</span>
+                            <span className="text-sm font-bold text-slate-800">{ownerGroup.ownerNames}</span>
                           </div>
                         </td>
-
-                        {/* 2. Property Info */}
                         <td className="px-6 py-4">
-                          <div className="text-sm font-bold text-slate-900">
-                            #{property.property_number} — {property.building_name}
-                          </div>
-                          <div className="mt-0.5 text-xs font-medium text-slate-500">
-                            {property.floor || "N/A"} / {property.type}
-                          </div>
+                          <span className="text-xs font-semibold text-slate-500">{ownerGroup.propertyCount} Properties</span>
                         </td>
-
-                        {/* 3. Period */}
                         <td className="px-6 py-4">
-                          <span className="text-sm font-semibold text-slate-700">{periodLabel}</span>
+                          <span className="text-xs font-semibold text-slate-500">{ownerGroup.installmentCount} Installments</span>
                         </td>
-
-                        {/* 4. Amount */}
                         <td className="px-6 py-4">
-                          <span className="text-sm font-bold text-slate-900">
-                            Rs. {formatCurrency(displayAmount)}
-                          </span>
+                          <div className="text-sm font-bold text-slate-900">Rs. {formatCurrency(ownerGroup.totalAmount)}</div>
+                          {(ownerGroup.overdueAmount > 0 || ownerGroup.unpaidAmount > 0) && (
+                            <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
+                              {ownerGroup.overdueAmount > 0 && (
+                                <span className="font-medium text-slate-500">
+                                  Overdue: Rs. {formatCurrency(ownerGroup.overdueAmount)}{" "}
+                                  ({((ownerGroup.overdueAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
+                                </span>
+                              )}
+                              {ownerGroup.unpaidAmount > 0 && (
+                                <span className="font-medium text-slate-500">
+                                  Unpaid: Rs. {formatCurrency(ownerGroup.unpaidAmount)}{" "}
+                                  ({((ownerGroup.unpaidAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </td>
-
-                        {/* 5. Status */}
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase ${
-                            isOverdue  ? "bg-rose-50 text-rose-600"
-                            : isUnpaid ? "bg-orange-50 text-orange-500"
-                            :            "bg-emerald-50 text-emerald-600"
-                          }`}>
-                            <Clock3 size={13} />
-                            {displayStatus}
-                          </span>
-                        </td>
-
-                        {/* 6. Action */}
-                        <td className="px-6 py-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => toggleRow(property.property_id)}
-                            className={`inline-flex items-center justify-center rounded-lg p-2 transition-all ${
-                              isExpanded
-                                ? "bg-[#c29e6d] text-white"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
-                            aria-label="Toggle installment details"
-                          >
-                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                          </button>
+                          <span className="text-xs font-semibold text-slate-400">—</span>
                         </td>
                       </tr>
 
-                      {isExpanded && (
-                        <ExpendableInstallmentRow
-                          property={{ ...property, installments: breakdownInstallments }}
-                        />
-                      )}
+                      {/* LEVEL 2 & 3 */}
+                      {isOwnerExpanded && Object.values(ownerGroup.properties).map((propGroup, pIdx) => {
+                        const property = propGroup.property;
+                        const isPropertyExpanded = expandedProperties[property.property_id];
+
+                        // Compute period range for property group
+                        const firstPeriod = propGroup.installments[0]?.periodLabel;
+                        const lastPeriod = propGroup.installments[propGroup.installments.length - 1]?.periodLabel;
+                        const periodRange = !firstPeriod || firstPeriod === "-"
+                          ? "-"
+                          : (firstPeriod === lastPeriod || !lastPeriod ? firstPeriod : `${firstPeriod} - ${lastPeriod}`);
+
+                        return (
+                          <React.Fragment key={property.property_id + pIdx}>
+                            {/* LEVEL 2: Property Info Row */}
+                            <tr
+                              className="cursor-pointer transition-all hover:bg-slate-100 border-b border-slate-200 bg-slate-50/80"
+                              onClick={() => toggleProperty(property.property_id)}
+                            >
+                              <td colSpan={2} className="py-3.5 pl-[3.5rem] border-l-4 border-l-[#c29e6d]/40">
+                                <div className="flex items-center gap-3">
+                                  <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors shadow-sm ${isPropertyExpanded ? 'bg-[#c29e6d] text-white' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
+                                    {isPropertyExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                  </div>
+                                  <div>
+                                    <div className="text-sm font-bold text-slate-800">
+                                      <span className="text-[#c29e6d]">#{property.property_number}</span> — {property.building_name}
+                                    </div>
+                                    <div className="mt-0.5 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                                      {property.floor || "N/A"} • {property.type}
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-3.5">
+                                <div className="text-xs font-bold text-slate-800">{periodRange}</div>
+                                <div className="text-[11px] font-semibold text-slate-400">{propGroup.installmentCount} Installment{propGroup.installmentCount > 1 ? "s" : ""}</div>
+                              </td>
+                              <td className="px-6 py-3.5">
+                                <div className="text-sm font-bold text-slate-800">Rs. {formatCurrency(propGroup.totalAmount)}</div>
+                                {(propGroup.overdueAmount > 0 || propGroup.unpaidAmount > 0) && (
+                                  <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
+                                    {propGroup.overdueAmount > 0 && (
+                                      <span className="font-medium text-slate-500">
+                                        Overdue: Rs. {formatCurrency(propGroup.overdueAmount)}{" "}
+                                        ({((propGroup.overdueAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                    {propGroup.unpaidAmount > 0 && (
+                                      <span className="font-medium text-slate-500">
+                                        Unpaid: Rs. {formatCurrency(propGroup.unpaidAmount)}{" "}
+                                        ({((propGroup.unpaidAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-6 py-3.5">
+                                <span className="text-xs font-semibold text-slate-400">—</span>
+                              </td>
+                            </tr>
+
+                            {/* LEVEL 3: Installment Rows */}
+                            {isPropertyExpanded && propGroup.installments.map((instRow, iIdx) => (
+                              <tr key={instRow.rowKey} className="transition-all hover:bg-slate-50 border-b border-slate-100 bg-white relative group">
+                                <td colSpan={2} className="py-3 pl-[5.5rem] border-l-4 border-l-transparent relative">
+                                  {/* Tree Connector Lines */}
+                                  <div className="absolute left-[4.25rem] top-0 bottom-0 w-[2px] bg-slate-200 group-last:bottom-1/2"></div>
+                                  <div className="absolute left-[4.25rem] top-1/2 h-[2px] w-3 bg-slate-200"></div>
+
+                                  <span className="text-sm font-bold text-slate-600">{instRow.periodLabel}</span>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <span className="text-xs font-semibold text-slate-600">
+                                    {instRow.installment?.dueDate
+                                      ? new Date(instRow.installment.dueDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                                      : instRow.periodLabel || "—"}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <span className="text-sm font-bold text-slate-700">Rs. {formatCurrency(instRow.displayAmount)}</span>
+                                </td>
+                                <td className="px-6 py-3">
+                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${instRow.displayStatus === "Overdue" ? "bg-rose-50 text-rose-600"
+                                      : instRow.displayStatus === "Unpaid" ? "bg-orange-50 text-orange-500"
+                                        : "bg-emerald-50 text-emerald-600"
+                                    }`}>
+                                    <Clock3 size={11} />
+                                    {instRow.displayStatus}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
+                        );
+                      })}
                     </React.Fragment>
                   );
                 })

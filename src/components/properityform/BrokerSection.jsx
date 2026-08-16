@@ -12,6 +12,23 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
     .filter(u => validOwnerUserIds.includes(String(u.userId)))
     .map(u => ({ userId: u.userId, name: u.name, phone: u.phone, email: u.email }));
 
+  // Auto-fill 5% commission for Broker 1 when property total_price is entered/updated
+  useEffect(() => {
+    const totalPrice = Number(formData.total_price);
+    if (!totalPrice || isNaN(totalPrice) || totalPrice <= 0) {
+      return;
+    }
+
+    const defaultComm = parseFloat((totalPrice * 0.05).toFixed(2));
+
+    setFormData((prev) => {
+      if (!prev.brokers || prev.brokers.length === 0) return prev;
+      const updatedBrokers = [...prev.brokers];
+      updatedBrokers[0] = { ...updatedBrokers[0], broker_commission: defaultComm };
+      return { ...prev, brokers: updatedBrokers };
+    });
+  }, [formData.total_price, setFormData]);
+
   const addBroker = () => {
     setFormData((prev) => ({
       ...prev,
@@ -43,16 +60,6 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
     });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === "broker_commission") {
-      const numericValue = value === "" ? "" : Math.max(0, parseFloat(value));
-      setFormData((prev) => ({ ...prev, [name]: numericValue }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
   return (
     <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -72,38 +79,6 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
         >
           Add Broker
         </button>
-      </div>
-
-      <div className="mb-8 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h3 className="text-sm font-semibold text-slate-700">
-              Commission Configuration <span className="text-slate-400 font-normal">(Optional)</span>
-            </h3>
-            <p className="text-xs text-slate-500">
-              Total commission amount shared among all brokers.
-            </p>
-          </div>
-          <div className="relative min-w-[240px]">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-              <span className="text-sm font-bold ">Rs.</span>
-            </div>
-            <input
-              name="broker_commission"
-              value={formData.broker_commission}
-              onChange={handleChange}
-              type="number"
-              min="0"
-              placeholder="0.00"
-              className="w-full rounded-lg border border-slate-200  pl-11 pr-16 py-2.5 text-base font-bold  outline-none transition-all "
-            />
-            <div className="absolute inset-y-0 right-3 flex items-center">
-              <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-tight text-emerald-700">
-                5%
-              </span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="space-y-4">
@@ -128,7 +103,7 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
               )}
             </div>
 
-            <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${formData.brokers.length > 1 ? 'xl:grid-cols-4' : 'xl:grid-cols-3'}`}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div>
                 <SearchableSelect 
                   label="Broker Name" 
@@ -170,21 +145,19 @@ export default function BrokerSection({ formData, setFormData, brokersList, user
                 />
               </div>
 
-              {formData.brokers.length > 1 && (
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Commission Amount (Rs.)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="Enter commission amount"
-                    value={broker.broker_commission ?? ""}
-                    onChange={(e) => handleBrokerChange(i, "broker_commission", e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500 font-semibold"
-                  />
-                </div>
-              )}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Commission Amount (Rs.)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="Enter commission amount"
+                  value={broker.broker_commission ?? ""}
+                  onChange={(e) => handleBrokerChange(i, "broker_commission", e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400 focus:border-slate-500 font-semibold"
+                />
+              </div>
             </div>
           </div>
         ))}
