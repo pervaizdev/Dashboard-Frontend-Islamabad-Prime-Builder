@@ -123,15 +123,17 @@ const PropertyTable = () => {
                   </div>
                 </div>
 
-                <div className="mt-2 pt-4 border-t border-primary/5">
-                  <Link
-                    href={`/dashboard/proporitydetail?id=${item.property_id}`}
-                    className="w-full flex justify-center items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal shadow-lg hover:shadow-primary/20"
-                  >
-                    Explore Property
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </div>
+                {item.property_owned_status !== "Transferred" && (
+                  <div className="mt-2 pt-4 border-t border-primary/5">
+                    <Link
+                      href={`/dashboard/proporitydetail?id=${item.property_id}`}
+                      className="w-full flex justify-center items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal shadow-lg hover:shadow-primary/20"
+                    >
+                      Explore Property
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                )}
               </motion.div>
             ))
           ) : (
@@ -231,13 +233,15 @@ const PropertyTable = () => {
                     </td>
 
                     <td className="px-8 py-6 text-right whitespace-nowrap">
-                      <Link
-                        href={`/dashboard/proporitydetail?id=${item.property_id}`}
-                        className="inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-lg hover:shadow-primary/20"
-                      >
-                        Explore
-                        <ArrowUpRight className="h-4 w-4" />
-                      </Link>
+                      {item.property_owned_status !== "Transferred" && (
+                        <Link
+                          href={`/dashboard/proporitydetail?id=${item.property_id}`}
+                          className="inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-lg hover:shadow-primary/20"
+                        >
+                          Explore
+                          <ArrowUpRight className="h-4 w-4" />
+                        </Link>
+                      )}
                     </td>
                   </motion.tr>
                 ))}

@@ -32,6 +32,11 @@ const navItems = [
     href: "/dashboard/announcementform",
     icon: Megaphone,
   },
+    {
+    title: "Dashboard",
+    href: "/dashboard/reports-property-commission",
+    icon: BarChart3,
+  },
   {
     title: "Client Management",
     href: "/dashboard/Islamabad-prime-builder-client-user",
@@ -61,16 +66,6 @@ const navItems = [
     title: "Add Property",
     href: "/dashboard/properityform",
     icon: Home,
-  },
-  {
-    title: "Reports Property",
-    href: "/dashboard/reports-property-commission",
-    icon: BarChart3,
-  },
-  {
-    title: "Installment Plan",
-    href: "/dashboard/installment-plan",
-    icon: Receipt,
   },
   {
     title: "Reports Broker Commission",

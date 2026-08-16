@@ -89,9 +89,11 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
       </div>
 
       {/* Chart */}
-      <div className="w-full h-[320px] mt-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="w-full h-[320px] mt-2 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
+        <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
           <BarChart
+            tabIndex={-1}
+            style={{ outline: 'none' }}
             data={currentData}
             margin={{ top: 25, right: 10, left: 10, bottom: 20 }}
             barGap={12}

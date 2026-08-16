@@ -25,10 +25,9 @@ export default function Gallery() {
     setMounted(true);
     const fetchGallery = async () => {
       try {
-        const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
+        const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard", 5);
         if (response.success && response.data?.dashboard) {
-          // Show latest 10 images from dashboard
-          setImages(response.data.dashboard.slice(0, 10));
+          setImages(response.data.dashboard);
         }
       } catch (error) {
         console.error("Gallery fetch error:", error);

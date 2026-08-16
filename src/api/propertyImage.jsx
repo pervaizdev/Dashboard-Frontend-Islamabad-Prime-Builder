@@ -1,7 +1,10 @@
 import axiosInstance from "../utils/axiosInstance";
 
-export const getPropertyImages = async (folder) => {
-  const response = await axiosInstance.get(`/property-image?folder=${encodeURIComponent(folder)}`);
+export const getPropertyImages = async (folder, limit) => {
+  const url = limit 
+    ? `/property-image?folder=${encodeURIComponent(folder)}&limit=${limit}`
+    : `/property-image?folder=${encodeURIComponent(folder)}`;
+  const response = await axiosInstance.get(url);
   return response.data;
 };
 

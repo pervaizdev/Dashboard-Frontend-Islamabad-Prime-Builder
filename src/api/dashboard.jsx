@@ -43,4 +43,14 @@ export const dashboardAPI = {
       throw error.response?.data || { message: "Error fetching property commission reports" };
     }
   },
+
+  getPropertyCommissionSuggestions: async (type, query) => {
+    try {
+      const url = `/dashboard/property-commission-suggestions?type=${type}&query=${query}`;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching property commission suggestions" };
+    }
+  },
 };
