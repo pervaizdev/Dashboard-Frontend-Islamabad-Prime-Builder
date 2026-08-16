@@ -163,7 +163,7 @@ const PropertyCommissionStats = ({ stats, loading }) => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-[#C6A15B]" />
-              <span className="text-[13px] font-semibold text-slate-500">Others</span>
+              <span className="text-[13px] font-semibold text-slate-500">Client</span>
             </div>
             <span className="text-[15px] font-bold text-[#123D32]">{stats.other_allocation_count || 0}</span>
           </div>

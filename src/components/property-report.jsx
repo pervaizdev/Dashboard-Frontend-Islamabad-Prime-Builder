@@ -215,7 +215,7 @@ export default function PropertyReportComponent() {
             >
               <option value="">All Allocations</option>
               {allocationsList.map((a, idx) => (
-                <option key={idx} value={a}>{a}</option>
+                <option key={idx} value={a}>{a === "Other" ? "Client" : a}</option>
               ))}
             </select>
           </div>

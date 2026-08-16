@@ -319,7 +319,7 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
   // Chart 1: Partner vs Other value
   const partnerData = [
     { name: 'Partner', value: stats.partner_value || 0 },
-    { name: 'Other', value: stats.other_value || 0 }
+    { name: 'Client', value: stats.other_value || 0 }
   ];
   const totalPartnerOtherValue = (stats.partner_value || 0) + (stats.other_value || 0);
 

@@ -150,6 +150,18 @@ const formatPeriodLabel = (monthYearStr, paymentPlan) => {
   return `${MONTH_SHORT[mIdx]} ${shortYear}`;
 };
 
+const checkIsOverdue = (inst, k, curKey) => {
+  if (inst.status?.toLowerCase() === "paid") return false;
+  if (inst.dueDate) {
+    const due = new Date(inst.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    due.setHours(0, 0, 0, 0);
+    return due.getTime() < today.getTime();
+  }
+  return Boolean(k && k < curKey);
+};
+
 /* -------------------------------------------------------------------------- */
 /*                            Custom Bar Chart Tooltip                        */
 /* -------------------------------------------------------------------------- */
@@ -210,6 +222,7 @@ const InstallmentPlanPage = () => {
   const [selectedFloor, setSelectedFloor] = useState("All Floors");
   const [selectedType, setSelectedType] = useState("All Types");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedAllocation, setSelectedAllocation] = useState("Other");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -219,7 +232,7 @@ const InstallmentPlanPage = () => {
   const [typesList, setTypesList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
 
-  const [activeFilterParams, setActiveFilterParams] = useState("");
+  const [activeFilterParams, setActiveFilterParams] = useState("allocationType=Other");
   const [initialBuildingSet, setInitialBuildingSet] = useState(false);
 
   // Debounced Suggestions Fetch
@@ -279,6 +292,7 @@ const InstallmentPlanPage = () => {
       setSelectedBuilding(buildingsList[0]);
       const p = new URLSearchParams(activeFilterParams);
       p.set("building_name", buildingsList[0]);
+      if (!p.has("allocationType")) p.set("allocationType", "Other");
       setActiveFilterParams(p.toString());
     }
   }, [buildingsList, initialBuildingSet, activeFilterParams]);
@@ -290,6 +304,7 @@ const InstallmentPlanPage = () => {
     if (selectedFloor !== "All Floors") p.append("floor", selectedFloor);
     if (selectedType !== "All Types") p.append("type", selectedType);
     if (selectedCategory !== "All Categories") p.append("category", selectedCategory);
+    if (selectedAllocation !== "All Allocations" && selectedAllocation) p.append("allocationType", selectedAllocation);
     if (startDate) p.append("startDate", startDate);
     if (endDate) p.append("endDate", endDate);
     if (searchTerm.trim()) p.append("search", searchTerm.trim());
@@ -298,7 +313,7 @@ const InstallmentPlanPage = () => {
 
   const handleClearFilters = () => {
     setSearchTerm(""); setSelectedFloor("All Floors");
-    setSelectedType("All Types"); setSelectedCategory("All Categories"); setSelectedStatus("All Status");
+    setSelectedType("All Types"); setSelectedCategory("All Categories"); setSelectedAllocation("Other"); setSelectedStatus("All Status");
     setStartDate(""); setEndDate("");
 
     // Set building to the first one available
@@ -306,13 +321,14 @@ const InstallmentPlanPage = () => {
       setSelectedBuilding(buildingsList[0]);
       const p = new URLSearchParams();
       p.append("building_name", buildingsList[0]);
+      p.append("allocationType", "Other");
       setActiveFilterParams(p.toString());
     } else {
       setSelectedBuilding("All Buildings");
-      setActiveFilterParams("");
+      setActiveFilterParams("allocationType=Other");
     }
 
-    setExpandedRowId(null); setCurrentPage(1);
+    setExpandedOwners({}); setExpandedProperties({}); setCurrentPage(1);
   };
 
   /* ---- Donut data ---- */
@@ -326,7 +342,7 @@ const InstallmentPlanPage = () => {
         const amt = Number(inst.amount) || 0;
         const key = getYearMonthKey(inst.dueDate, inst.monthYear);
         if (inst.status?.toLowerCase() === "paid") paid += amt;
-        else if (key && key < curKey) overdue += amt;
+        else if (checkIsOverdue(inst, key, curKey)) overdue += amt;
         else unpaid += amt;
       });
     });
@@ -372,7 +388,7 @@ const InstallmentPlanPage = () => {
         const k = getYearMonthKey(inst.dueDate, inst.monthYear);
         if (!k || !map[k]) return;
         if (inst.status?.toLowerCase() === "paid") map[k].paid += amt;
-        else if (k < curKey) map[k].overdue += amt;
+        else if (checkIsOverdue(inst, k, curKey)) map[k].overdue += amt;
         else map[k].unpaid += amt;
       });
     });
@@ -513,16 +529,7 @@ const InstallmentPlanPage = () => {
         if (!k) return;
         const isPaid = inst.status?.toLowerCase() === "paid";
 
-        let isOverdueInst = false;
-        if (inst.dueDate) {
-          const due = new Date(inst.dueDate);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          due.setHours(0, 0, 0, 0);
-          isOverdueInst = !isPaid && due.getTime() < today.getTime();
-        } else {
-          isOverdueInst = !isPaid && k && k < curKey;
-        }
+        let isOverdueInst = checkIsOverdue(inst, k, curKey);
 
         // Show if it's Overdue, OR if it's in the current month
         if (isOverdueInst || k === curKey) {
@@ -540,6 +547,9 @@ const InstallmentPlanPage = () => {
             groups[ownerNames] = {
               ownerNames,
               totalAmount: 0,
+              overdueAmount: 0,
+              unpaidAmount: 0,
+              paidAmount: 0,
               propertyCount: 0,
               installmentCount: 0,
               properties: {}
@@ -550,6 +560,9 @@ const InstallmentPlanPage = () => {
             groups[ownerNames].properties[prop.property_id] = {
               property: prop,
               totalAmount: 0,
+              overdueAmount: 0,
+              unpaidAmount: 0,
+              paidAmount: 0,
               installmentCount: 0,
               statusSet: new Set(),
               installments: []
@@ -566,6 +579,17 @@ const InstallmentPlanPage = () => {
           pGroup.totalAmount += amt;
           pGroup.installmentCount += 1;
           pGroup.statusSet.add(displayStatus);
+
+          if (displayStatus === "Overdue") {
+            groups[ownerNames].overdueAmount += amt;
+            pGroup.overdueAmount += amt;
+          } else if (displayStatus === "Unpaid") {
+            groups[ownerNames].unpaidAmount += amt;
+            pGroup.unpaidAmount += amt;
+          } else if (displayStatus === "Paid") {
+            groups[ownerNames].paidAmount += amt;
+            pGroup.paidAmount += amt;
+          }
 
           pGroup.installments.push({
             installment: inst,
@@ -674,13 +698,22 @@ const InstallmentPlanPage = () => {
               {categoriesList.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+          {/* Allocation Type */}
+          <div>
+            <label htmlFor="allocation-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Allocation Type</label>
+            <select id="allocation-filter" value={selectedAllocation} onChange={(e) => setSelectedAllocation(e.target.value)}
+              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
+              <option value="All Allocations">All Allocations</option>
+              <option value="Partner">Partner</option>
+              <option value="Other">Client</option>
+            </select>
+          </div>
           {/* Status */}
           <div>
             <label htmlFor="status-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Status</label>
             <select id="status-filter" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}
               className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
               <option value="All Status">All Status</option>
-              <option value="Paid">Paid</option>
               <option value="Unpaid">Unpaid</option>
               <option value="Overdue">Overdue</option>
             </select>
@@ -768,6 +801,7 @@ const InstallmentPlanPage = () => {
                       <Cell
                         key={e.name}
                         fill={e.color}
+                        className="cursor-pointer transition-opacity duration-200"
                         opacity={hoveredSlice && hoveredSlice.name !== e.name ? 0.4 : 1}
                       />
                     ))}
@@ -788,13 +822,20 @@ const InstallmentPlanPage = () => {
             <div className="flex-1 space-y-2">
               {donutData.map((item) => {
                 const isActive = hoveredSlice?.name === item.name;
+                const compactVal = item.value >= 1_000_000_000
+                  ? `${(item.value / 1_000_000_000).toFixed(2)}B`
+                  : item.value >= 1_000_000
+                  ? `${(item.value / 1_000_000).toFixed(2)}M`
+                  : item.value >= 1_000
+                  ? `${(item.value / 1_000).toFixed(2)}K`
+                  : item.value.toFixed(2);
+
                 return (
                   <div
                     key={item.name}
-                    onMouseEnter={() => setHoveredSlice(item)}
-                    onMouseLeave={() => setHoveredSlice(null)}
-                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
-                      }`}
+                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${
+                      isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
+                    }`}
                   >
                     <span
                       className="h-3 w-3 shrink-0 rounded-full"
@@ -805,11 +846,12 @@ const InstallmentPlanPage = () => {
                       <div className="whitespace-nowrap text-[11px] font-semibold leading-tight text-slate-500">
                         {item.name}
                       </div>
-                      {/* Amount */}
+                      {/* Amount: Compact (M/B) + Full Digits */}
                       <div className="whitespace-nowrap text-[12px] font-bold leading-tight text-slate-900 mt-0.5">
-                        {isActive
-                          ? `Rs. ${formatCurrency(item.value)}`
-                          : `Rs. ${(item.value / 1_000_000).toFixed(2)}M`}
+                        Rs. {compactVal}{" "}
+                        <span className="text-[10px] font-medium text-slate-400">
+                          ({formatCurrency(item.value)})
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -940,7 +982,23 @@ const InstallmentPlanPage = () => {
                           <span className="text-xs font-semibold text-slate-500">{ownerGroup.installmentCount} Installments</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm font-bold text-slate-900">Rs. {formatCurrency(ownerGroup.totalAmount)}</span>
+                          <div className="text-sm font-bold text-slate-900">Rs. {formatCurrency(ownerGroup.totalAmount)}</div>
+                          {(ownerGroup.overdueAmount > 0 || ownerGroup.unpaidAmount > 0) && (
+                            <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
+                              {ownerGroup.overdueAmount > 0 && (
+                                <span className="font-medium text-slate-500">
+                                  Overdue: Rs. {formatCurrency(ownerGroup.overdueAmount)}{" "}
+                                  ({((ownerGroup.overdueAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
+                                </span>
+                              )}
+                              {ownerGroup.unpaidAmount > 0 && (
+                                <span className="font-medium text-slate-500">
+                                  Unpaid: Rs. {formatCurrency(ownerGroup.unpaidAmount)}{" "}
+                                  ({((ownerGroup.unpaidAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-xs font-semibold text-slate-400">—</span>
@@ -952,10 +1010,12 @@ const InstallmentPlanPage = () => {
                         const property = propGroup.property;
                         const isPropertyExpanded = expandedProperties[property.property_id];
 
-                        // Compute aggregate status for property group
-                        let aggStatus = "Paid";
-                        if (propGroup.statusSet.has("Overdue")) aggStatus = "Overdue";
-                        else if (propGroup.statusSet.has("Unpaid")) aggStatus = "Unpaid";
+                        // Compute period range for property group
+                        const firstPeriod = propGroup.installments[0]?.periodLabel;
+                        const lastPeriod = propGroup.installments[propGroup.installments.length - 1]?.periodLabel;
+                        const periodRange = !firstPeriod || firstPeriod === "-"
+                          ? "-"
+                          : (firstPeriod === lastPeriod || !lastPeriod ? firstPeriod : `${firstPeriod} - ${lastPeriod}`);
 
                         return (
                           <React.Fragment key={property.property_id + pIdx}>
@@ -980,18 +1040,30 @@ const InstallmentPlanPage = () => {
                                 </div>
                               </td>
                               <td className="px-6 py-3.5">
-                                <span className="text-xs font-semibold text-slate-500">{propGroup.installmentCount} Installments</span>
+                                <div className="text-xs font-bold text-slate-800">{periodRange}</div>
+                                <div className="text-[11px] font-semibold text-slate-400">{propGroup.installmentCount} Installment{propGroup.installmentCount > 1 ? "s" : ""}</div>
                               </td>
                               <td className="px-6 py-3.5">
-                                <span className="text-sm font-bold text-slate-800">Rs. {formatCurrency(propGroup.totalAmount)}</span>
+                                <div className="text-sm font-bold text-slate-800">Rs. {formatCurrency(propGroup.totalAmount)}</div>
+                                {(propGroup.overdueAmount > 0 || propGroup.unpaidAmount > 0) && (
+                                  <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
+                                    {propGroup.overdueAmount > 0 && (
+                                      <span className="font-medium text-slate-500">
+                                        Overdue: Rs. {formatCurrency(propGroup.overdueAmount)}{" "}
+                                        ({((propGroup.overdueAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                    {propGroup.unpaidAmount > 0 && (
+                                      <span className="font-medium text-slate-500">
+                                        Unpaid: Rs. {formatCurrency(propGroup.unpaidAmount)}{" "}
+                                        ({((propGroup.unpaidAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </td>
                               <td className="px-6 py-3.5">
-                                <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] tracking-wider font-bold uppercase ${aggStatus === "Overdue" ? "bg-rose-100 text-rose-700"
-                                    : aggStatus === "Unpaid" ? "bg-orange-100 text-orange-700"
-                                      : "bg-emerald-100 text-emerald-700"
-                                  }`}>
-                                  {aggStatus}
-                                </span>
+                                <span className="text-xs font-semibold text-slate-400">—</span>
                               </td>
                             </tr>
 
@@ -1006,7 +1078,11 @@ const InstallmentPlanPage = () => {
                                   <span className="text-sm font-bold text-slate-600">{instRow.periodLabel}</span>
                                 </td>
                                 <td className="px-6 py-3">
-                                  <span className="text-xs font-semibold text-slate-300">—</span>
+                                  <span className="text-xs font-semibold text-slate-600">
+                                    {instRow.installment?.dueDate
+                                      ? new Date(instRow.installment.dueDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                                      : instRow.periodLabel || "—"}
+                                  </span>
                                 </td>
                                 <td className="px-6 py-3">
                                   <span className="text-sm font-bold text-slate-700">Rs. {formatCurrency(instRow.displayAmount)}</span>
