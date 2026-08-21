@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Users, Loader2, User, History, X } from "lucide-react";
+import { Users, Loader2, User, History, X, ChevronDown } from "lucide-react";
 import ReportsPropertyModal from "@/components/modals/ReportsPropertyModal";
 import { dashboardAPI } from "@/api/dashboard";
 import toast from "react-hot-toast";
@@ -40,7 +40,33 @@ export default function PropertyReportComponent() {
   const [allocationsList] = useState(["Partner", "Other"]);
   const [ownerSuggestions, setOwnerSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Custom dropdown open states & refs
+  const [isBuildingOpen, setIsBuildingOpen] = useState(false);
+  const [isAllocationOpen, setIsAllocationOpen] = useState(false);
+
   const searchInputRef = useRef(null);
+  const searchRef = useRef(null);
+  const buildingRef = useRef(null);
+  const allocationRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (buildingRef.current && !buildingRef.current.contains(event.target)) {
+        setIsBuildingOpen(false);
+      }
+      if (allocationRef.current && !allocationRef.current.contains(event.target)) {
+        setIsAllocationOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const toggleRow = (id) => {
     setExpandedRowId((prev) => (prev === id ? null : id));
@@ -61,6 +87,8 @@ export default function PropertyReportComponent() {
     const q = buildQueryString();
     setActiveFilterParams(q);
     setShowSuggestions(false);
+    setIsBuildingOpen(false);
+    setIsAllocationOpen(false);
   };
 
   const handleClearFilters = () => {
@@ -72,6 +100,8 @@ export default function PropertyReportComponent() {
     setCurrentPage(1);
     setActiveFilterParams("allocationType=Other");
     setShowSuggestions(false);
+    setIsBuildingOpen(false);
+    setIsAllocationOpen(false);
   };
 
   useEffect(() => {
@@ -139,127 +169,247 @@ export default function PropertyReportComponent() {
 
   return (
     <div className="space-y-8">
-      {/* Top Header & Filter Controls Bar */}
-      <div className="rounded-3xl border border-[#C6A15B]/20 bg-white p-6 sm:p-8 shadow-sm overflow-visible">
-        <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-6 pb-6 border-b border-[#C6A15B]/20">
-          <div>
-            <h1 className="text-2xl font-bold text-[#123D32] sm:text-3xl">Property Financial Reports</h1>
-            <p className="mt-1 text-sm text-[#123D32]/60">View commission, allocation, and installment details for properties.</p>
-          </div>
+      <div className="overflow-visible rounded-[26px] border border-[#123D32]/10 bg-white shadow-[0_12px_35px_rgba(18,61,50,0.08)] mt-8">
+
+        {/* ================= HEADER ================= */}
+        <div className="relative overflow-hidden rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
+
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[30px]">
+            Property Financial Reports
+          </h1>
+
         </div>
 
-        {/* Filter Form Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-          {/* Search */}
-          <div>
-            <label className="block text-xs font-bold text-[#123D32]/60 mb-1.5 uppercase tracking-wider">Search</label>
-            <div className="relative">
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onFocus={() => setShowSuggestions(true)}
-                placeholder="Search owner or property..."
-                className="w-full px-3.5 py-2.5 bg-[#C6A15B]/5 border border-[#C6A15B]/30 rounded-xl text-xs font-semibold text-[#123D32]/90 placeholder-[#123D32]/40 outline-none focus:ring-2 focus:ring-[#C6A15B]/50 transition-all"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#C6A15B] hover:text-[#123D32]/80"
-                >
-                  <X size={14} />
-                </button>
-              )}
+        {/* ================= FILTER BODY ================= */}
+        <div className="px-5 py-6 sm:px-8">
 
-              {/* Suggestions Dropdown */}
-              {showSuggestions && ownerSuggestions.length > 0 && (
-                <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-[#C6A15B]/30 shadow-xl rounded-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
-                  {ownerSuggestions.map((name, idx) => (
+          {/* ================= FILTER GRID ================= */}
+          <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-12">
+
+            {/* ================= SEARCH ================= */}
+            <div className="relative xl:col-span-3" ref={searchRef}>
+              <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
+                Search
+              </label>
+
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onFocus={() => setShowSuggestions(true)}
+                  placeholder="Search owner or property..."
+                  className="h-[47px] w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 pr-9 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 placeholder:font-medium placeholder:text-[#123D32]/35 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+                />
+
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm("")}
+                    className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-xs font-bold text-[#C6A15B] transition-colors hover:text-[#123D32]"
+                  >
+                    ×
+                  </button>
+                )}
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && ownerSuggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-52 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
+                    {ownerSuggestions.map((name, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => handleSelectSuggestion(name)}
+                        className="cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold text-[#123D32] transition-colors hover:bg-[#C6A15B]/10"
+                      >
+                        <span className="truncate">{name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ================= BUILDING ================= */}
+            <div className="relative xl:col-span-3" ref={buildingRef}>
+              <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
+                Building
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setIsBuildingOpen((prev) => !prev)}
+                className="flex h-[47px] w-full cursor-pointer items-center justify-between rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+              >
+                <span className="truncate">
+                  {selectedBuilding || "All Buildings"}
+                </span>
+
+                <ChevronDown
+                  size={18}
+                  className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isBuildingOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                />
+              </button>
+
+              {isBuildingOpen && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
+                  <div
+                    onClick={() => {
+                      setSelectedBuilding("");
+                      setIsBuildingOpen(false);
+                    }}
+                    className={`cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold transition-colors ${selectedBuilding === ""
+                      ? "bg-[#123D32] text-[#E1BE73]"
+                      : "text-[#123D32]/75 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                      }`}
+                  >
+                    All Buildings
+                  </div>
+
+                  {buildingsList.map((b, idx) => (
                     <div
                       key={idx}
-                      onClick={() => handleSelectSuggestion(name)}
-                      className="px-4 py-2 text-xs font-medium text-[#123D32]/90 hover:bg-[#C6A15B]/10 cursor-pointer flex items-center space-x-2"
+                      onClick={() => {
+                        setSelectedBuilding(b);
+                        setIsBuildingOpen(false);
+                      }}
+                      className={`cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold transition-colors ${selectedBuilding === b
+                        ? "bg-[#123D32] text-[#E1BE73]"
+                        : "text-[#123D32]/75 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                        }`}
                     >
-                      <User size={14} className="text-[#C6A15B]" />
-                      <span>{name}</span>
+                      {b}
                     </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Building */}
-          <div>
-            <label className="block text-xs font-bold text-[#123D32]/60 mb-1.5 uppercase tracking-wider">Building</label>
-            <select
-              value={selectedBuilding}
-              onChange={(e) => setSelectedBuilding(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#C6A15B]/5 border border-[#C6A15B]/30 rounded-xl text-xs font-bold text-[#123D32]/90 outline-none focus:ring-2 focus:ring-[#C6A15B]/50 cursor-pointer transition-all"
-            >
-              <option value="">All Buildings</option>
-              {buildingsList.map((b, idx) => (
-                <option key={idx} value={b}>{b}</option>
-              ))}
-            </select>
-          </div>
+            {/* ================= ALLOCATION TYPE ================= */}
+            <div className="relative xl:col-span-3" ref={allocationRef}>
+              <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
+                Allocation Type
+              </label>
 
-          {/* Allocation Type */}
-          <div>
-            <label className="block text-xs font-bold text-[#123D32]/60 mb-1.5 uppercase tracking-wider">Allocation Type</label>
-            <select
-              value={selectedAllocation}
-              onChange={(e) => setSelectedAllocation(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-[#C6A15B]/5 border border-[#C6A15B]/30 rounded-xl text-xs font-bold text-[#123D32]/90 outline-none focus:ring-2 focus:ring-[#C6A15B]/50 cursor-pointer transition-all"
-            >
-              <option value="">All Allocations</option>
-              {allocationsList.map((a, idx) => (
-                <option key={idx} value={a}>{a === "Other" ? "Client" : a}</option>
-              ))}
-            </select>
-          </div>
+              <button
+                type="button"
+                onClick={() => setIsAllocationOpen((prev) => !prev)}
+                className="flex h-[47px] w-full cursor-pointer items-center justify-between rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+              >
+                <span className="truncate">
+                  {selectedAllocation === ""
+                    ? "All Allocations"
+                    : selectedAllocation === "Other"
+                      ? "Client"
+                      : selectedAllocation}
+                </span>
 
-          {/* Date From & Date To */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs font-bold text-[#123D32]/60 mb-1.5 uppercase tracking-wider">Date From</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-2.5 py-2 bg-[#C6A15B]/5 border border-[#C6A15B]/30 rounded-xl text-xs font-semibold text-[#123D32]/90 outline-none focus:ring-2 focus:ring-[#C6A15B]/50 transition-all"
-              />
+                <ChevronDown
+                  size={18}
+                  className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isBuildingOpen ? "rotate-180" : "rotate-0"
+                    }`}
+                />
+              </button>
+
+              {isAllocationOpen && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
+                  <div
+                    onClick={() => {
+                      setSelectedAllocation("");
+                      setIsAllocationOpen(false);
+                    }}
+                    className={`cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold transition-colors ${selectedAllocation === ""
+                      ? "bg-[#123D32] text-[#E1BE73]"
+                      : "text-[#123D32]/75 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                      }`}
+                  >
+                    All Allocations
+                  </div>
+
+                  {allocationsList.map((a, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        setSelectedAllocation(a);
+                        setIsAllocationOpen(false);
+                      }}
+                      className={`cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold transition-colors ${selectedAllocation === a
+                        ? "bg-[#123D32] text-[#E1BE73]"
+                        : "text-[#123D32]/75 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                        }`}
+                    >
+                      {a === "Other" ? "Client" : a}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div>
-              <label className="block text-xs font-bold text-[#123D32]/60 mb-1.5 uppercase tracking-wider">Date To</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-2.5 py-2 bg-[#C6A15B]/5 border border-[#C6A15B]/30 rounded-xl text-xs font-semibold text-[#123D32]/90 outline-none focus:ring-2 focus:ring-[#C6A15B]/50 transition-all"
-              />
+
+            {/* ================= DATE RANGE ================= */}
+            <div className="xl:col-span-3">
+              <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
+                Date Range
+              </label>
+
+              <div className="grid grid-cols-2 gap-2">
+
+                {/* From */}
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
+                    From
+                  </span>
+
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-2.5 py-2.5 pt-5 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+                  />
+                </div>
+
+                {/* To */}
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
+                    To
+                  </span>
+
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-2.5 py-2.5 pt-5 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Action Buttons Row */}
-        <div className="flex justify-end items-center gap-3 mt-6 pt-4 border-t border-[#C6A15B]/20">
-          <button
-            onClick={handleClearFilters}
-            className="px-5 py-2.5 text-xs font-bold text-[#123D32]/80 hover:text-[#123D32] bg-[#C6A15B]/10 hover:bg-[#C6A15B]/20 rounded-xl transition-all"
-          >
-            Clear All
-          </button>
-          <button
-            onClick={handleApplyFilters}
-            className="px-6 py-2.5 text-xs font-bold text-white bg-[#C6A15B] hover:bg-[#123D32] rounded-xl shadow-md transition-all uppercase tracking-wider"
-          >
-            Apply Filters
-          </button>
+          {/* ================= ACTION ROW ================= */}
+          <div className="mt-6 flex justify-end border-t border-[#123D32]/10 pt-5">
+            <div className="flex items-center gap-2.5">
+
+              {/* Clear Button */}
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className="h-[42px] cursor-pointer rounded-xl border border-[#123D32]/12 bg-white px-5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#123D32]/75 transition-all duration-200 hover:border-[#C6A15B]/45 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+              >
+                Clear All
+              </button>
+
+              {/* Apply Button */}
+              <button
+                type="button"
+                onClick={handleApplyFilters}
+                className="h-[42px] cursor-pointer rounded-xl bg-[#123D32] px-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
       <PropertyCommissionStats stats={stats} loading={statsLoading} />
       <PropertyCommissionCharts stats={stats} loading={statsLoading} />
 
