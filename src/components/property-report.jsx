@@ -170,28 +170,17 @@ export default function PropertyReportComponent() {
   return (
     <div className="space-y-8">
       <div className="overflow-visible rounded-[26px] border border-[#123D32]/10 bg-white shadow-[0_12px_35px_rgba(18,61,50,0.08)] mt-8">
-
-        {/* ================= HEADER ================= */}
         <div className="relative overflow-hidden rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
-
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[30px]">
+          <h1 className="text-2xl font-bold tracking-tight text-[#E5C476] sm:text-[30px]">
             Property Financial Reports
           </h1>
-
         </div>
-
-        {/* ================= FILTER BODY ================= */}
         <div className="px-5 py-6 sm:px-8">
-
-          {/* ================= FILTER GRID ================= */}
           <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-12">
-
-            {/* ================= SEARCH ================= */}
             <div className="relative xl:col-span-3" ref={searchRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Search
               </label>
-
               <div className="relative">
                 <input
                   ref={searchInputRef}
@@ -212,8 +201,6 @@ export default function PropertyReportComponent() {
                     ×
                   </button>
                 )}
-
-                {/* Suggestions Dropdown */}
                 {showSuggestions && ownerSuggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-52 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
                     {ownerSuggestions.map((name, idx) => (
@@ -229,8 +216,6 @@ export default function PropertyReportComponent() {
                 )}
               </div>
             </div>
-
-            {/* ================= BUILDING ================= */}
             <div className="relative xl:col-span-3" ref={buildingRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Building
@@ -244,14 +229,12 @@ export default function PropertyReportComponent() {
                 <span className="truncate">
                   {selectedBuilding || "All Buildings"}
                 </span>
-
                 <ChevronDown
                   size={18}
                   className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isBuildingOpen ? "rotate-180" : "rotate-0"
                     }`}
                 />
               </button>
-
               {isBuildingOpen && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
                   <div
@@ -285,13 +268,10 @@ export default function PropertyReportComponent() {
                 </div>
               )}
             </div>
-
-            {/* ================= ALLOCATION TYPE ================= */}
             <div className="relative xl:col-span-3" ref={allocationRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Allocation Type
               </label>
-
               <button
                 type="button"
                 onClick={() => setIsAllocationOpen((prev) => !prev)}
@@ -304,14 +284,12 @@ export default function PropertyReportComponent() {
                       ? "Client"
                       : selectedAllocation}
                 </span>
-
                 <ChevronDown
                   size={18}
                   className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isBuildingOpen ? "rotate-180" : "rotate-0"
                     }`}
                 />
               </button>
-
               {isAllocationOpen && (
                 <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-60 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
                   <div
@@ -326,7 +304,6 @@ export default function PropertyReportComponent() {
                   >
                     All Allocations
                   </div>
-
                   {allocationsList.map((a, idx) => (
                     <div
                       key={idx}
@@ -345,21 +322,15 @@ export default function PropertyReportComponent() {
                 </div>
               )}
             </div>
-
-            {/* ================= DATE RANGE ================= */}
             <div className="xl:col-span-3">
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Date Range
               </label>
-
               <div className="grid grid-cols-2 gap-2">
-
-                {/* From */}
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
                     From
                   </span>
-
                   <input
                     type="date"
                     value={startDate}
@@ -367,13 +338,10 @@ export default function PropertyReportComponent() {
                     className="w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-2.5 py-2.5 pt-5 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
                   />
                 </div>
-
-                {/* To */}
                 <div className="relative">
                   <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
                     To
                   </span>
-
                   <input
                     type="date"
                     value={endDate}
@@ -384,21 +352,14 @@ export default function PropertyReportComponent() {
               </div>
             </div>
           </div>
-
-          {/* ================= ACTION ROW ================= */}
-          <div className="mt-6 flex justify-end border-t border-[#123D32]/10 pt-5">
-            <div className="flex items-center gap-2.5">
-
-              {/* Clear Button */}
+          <div className="mt-6 flex lg:justify-end justify-center gap-7 border-t border-[#123D32]/10 pt-5 ">
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="h-[42px] cursor-pointer rounded-xl border border-[#123D32]/12 bg-white px-5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#123D32]/75 transition-all duration-200 hover:border-[#C6A15B]/45 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                className="h-[42px] cursor-pointer rounded-xl border border-[#123D32]/25 bg-white px-5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#123D32]/75 transition-all duration-200 hover:border-[#C6A15B]/45 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
               >
                 Clear All
               </button>
-
-              {/* Apply Button */}
               <button
                 type="button"
                 onClick={handleApplyFilters}
@@ -406,7 +367,6 @@ export default function PropertyReportComponent() {
               >
                 Apply Filters
               </button>
-            </div>
           </div>
         </div>
       </div>
