@@ -374,19 +374,18 @@ export default function PropertyReportComponent() {
       <PropertyCommissionCharts stats={stats} loading={statsLoading} />
 
       <div className="rounded-2xl border border-[#C6A15B]/30 bg-white shadow-sm overflow-hidden">
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-[#1F6B4F]/20">
             <thead className="bg-[#123D32]">
               <tr>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Owner / Broker</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Building / Floor / No</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Type / Category</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Size</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Price Details</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Installments Details</th>
-                <th className="px-6 py-3.5 text-left text-xs font-semibold text-white/90 uppercase tracking-wider">Payment Plan</th>
-                <th className="px-6 py-3.5 text-center text-xs font-semibold text-white/90 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Owner / Broker</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Building / Floor / No</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Type / Category</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Size</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Price Details</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Installments Details</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Payment Plan</th>
+                <th className="px-6 py-3.5 text-center text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-[#1F6B4F]/10">
@@ -418,7 +417,6 @@ export default function PropertyReportComponent() {
                           </div>
                         )}
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#123D32]/60">
                         <div className="font-medium text-[#123D32]">{property.building_name}</div>
                         <div className="text-xs">Floor number: {property.floor} </div>
@@ -428,7 +426,6 @@ export default function PropertyReportComponent() {
                         <div className="font-medium text-[#123D32]">{property.type}</div>
                         <div className="text-xs">{property.category}</div>
                       </td>
-
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#123D32]/60">{property.size}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#123D32]/60">
                         <div><span className="font-medium text-[#123D32]/90">Total Worth:</span> Rs {property.total_price?.toLocaleString() || 0}</div>
@@ -447,7 +444,6 @@ export default function PropertyReportComponent() {
                           const totalAmount = property.installments?.reduce((sum, i) => sum + (Number(i.amount) || 0), 0) || 0;
                           const paidAmount = property.installments?.filter(i => i.status === 'Paid').reduce((sum, i) => sum + (Number(i.amount) || 0), 0) || 0;
                           const remainingAmount = totalAmount - paidAmount;
-
                           return (
                             <>
                               <div className="text-xs mt-0.5"><span className="font-medium text-[#123D32]/90">Paid Installment :</span> Rs {paidAmount.toLocaleString()}</div>
@@ -472,7 +468,6 @@ export default function PropertyReportComponent() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center space-x-3">
-                          {/* Owner */}
                           <div className="relative group">
                             <button
                               onClick={() => openModal(property, 'owner')}
@@ -482,8 +477,6 @@ export default function PropertyReportComponent() {
                             </button>
                             <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-[#123D32] rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Owner</span>
                           </div>
-
-                          {/* Broker */}
                           {property.brokers && property.brokers.length > 0 && (
                             <div className="relative group">
                               <button
@@ -495,8 +488,6 @@ export default function PropertyReportComponent() {
                               <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-white bg-[#123D32] rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">Broker</span>
                             </div>
                           )}
-
-                          {/* Transfer History */}
                           {property.transferHistory && property.transferHistory.length > 0 && (
                             <div className="relative group">
                               <button
@@ -532,8 +523,6 @@ export default function PropertyReportComponent() {
           }}
         />
       </div>
-
-      {/* Modal */}
       <ReportsPropertyModal
         isOpen={isModalOpen}
         onClose={closeModal}
