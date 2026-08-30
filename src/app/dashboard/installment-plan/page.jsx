@@ -605,152 +605,411 @@ const InstallmentPlanPage = () => {
     return Object.values(groups);
   }, [properties, selectedStatus]);
 
+  const CustomDropdown = ({
+    label,
+    value,
+    displayValue,
+    options = [],
+    onChange,
+    disabled = false,
+    placeholder = "Select",
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+      <div className="relative">
+        {label && (
+          <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
+            {label}
+          </label>
+        )}
+
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => {
+            if (!disabled) {
+              setIsOpen((prev) => !prev);
+            }
+          }}
+          className={`
+          flex
+          h-[47px]
+          w-full
+          items-center
+          justify-between
+          rounded-xl
+          border
+          px-4
+          text-left
+          text-xs
+          font-bold
+          outline-none
+          transition-all
+          duration-200
+
+          ${isOpen
+              ? "border-[#C6A15B] bg-white ring-4 ring-[#C6A15B]/10"
+              : "border-[#123D32]/10 bg-[#F8FAF9] hover:border-[#C6A15B]/50 hover:bg-white"
+            }
+
+          ${disabled
+              ? "cursor-not-allowed opacity-50"
+              : "cursor-pointer"
+            }
+        `}
+        >
+          <span className="truncate text-[#123D32]">
+            {displayValue || value || placeholder}
+          </span>
+
+          <ChevronDown
+            size={18}
+            className={`
+            shrink-0
+            text-[#123D32]/40
+            transition-transform
+            duration-200
+            ${isOpen ? "rotate-180" : "rotate-0"}
+          `}
+          />
+        </button>
+
+        {isOpen && !disabled && (
+          <div
+            className="
+            absolute
+            left-0
+            right-0
+            top-full
+            z-[100]
+            mt-2
+            max-h-[260px]
+            overflow-y-auto
+            rounded-[18px]
+            border
+            border-[#C6A15B]/20
+            bg-white
+            p-2
+            shadow-[0_15px_35px_rgba(18,61,50,0.15)]
+          "
+          >
+            {options.map((option) => {
+              const isSelected =
+                option.value === value;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(option.value);
+                    setIsOpen(false);
+                  }}
+                  className={`
+                  flex
+                  w-full
+                  items-center
+                  rounded-xl
+                  px-4
+                  py-3
+                  text-left
+                  text-xs
+                  font-semibold
+                  transition-all
+                  duration-150
+
+                  ${isSelected
+                      ? "bg-[#123D32] text-[#E5C476]"
+                      : "text-[#123D32]/70 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+                    }
+                `}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   /* ========== RENDER ========== */
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50/50 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-8">
 
       {/* ── Filters ── */}
-      <div className="rounded-2xl border border-[#ead8b9] bg-white p-5 shadow-sm sm:p-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#123f35]">Installment Module</h1>
-          <p className="mt-1 text-sm font-medium text-[#78938c]">Manage and track all installment plans in one place.</p>
+      <div className="overflow-visible rounded-[26px] border border-[#123D32]/10 bg-white shadow-[0_12px_35px_rgba(18,61,50,0.08)] mt-8">
+        {/* Header */}
+        <div className="relative overflow-hidden rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
+          <h1 className="text-2xl font-bold tracking-tight text-[#E5C476] sm:text-[30px]">
+            Installment Module
+          </h1>
         </div>
-        <div className="my-5 h-px bg-[#efe3cf]" />
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {/* Search */}
-          <div>
-            <label htmlFor="installment-search" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Search</label>
-            <div className="relative flex items-center shadow-sm rounded-xl">
-              <select
-                value={searchType}
-                onChange={(e) => { setSearchType(e.target.value); setSearchTerm(""); setSuggestions([]); }}
-                className="h-11 rounded-l-xl border border-r-0 border-[#e8d4b2] bg-[#fcfbf9] px-2 text-xs font-medium text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-                <option value="name">Name</option>
-                <option value="propertyNumber">Prop. No.</option>
-              </select>
-              <div className="relative w-full">
-                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#95aaa4]" />
-                <input
-                  id="installment-search"
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  onKeyDown={(e) => e.key === "Enter" && handleApplyFilters()}
-                  placeholder={searchType === 'name' ? 'Search owner name...' : 'Search property no...'}
-                  className="h-11 w-full rounded-r-xl border border-[#e8d4b2] bg-[#fcfbf9] pl-9 pr-3 text-sm font-medium text-[#244f45] outline-none transition placeholder:text-[#9bada8] focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
-                />
+
+        {/* Body */}
+        <div className="px-5 py-6 sm:px-8">
+
+          <div className="grid grid-cols-1 gap-x-5 gap-y-5 md:grid-cols-3">
+
+            {/* Search */}
+            <div>
+              <label
+                htmlFor="installment-search"
+                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
+              >
+                Search
+              </label>
+
+              <div className="relative flex h-[47px] items-center rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] transition-all duration-200 hover:border-[#C6A15B]/50 focus-within:border-[#C6A15B] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#C6A15B]/10">
+
+                <select
+                  value={searchType}
+                  onChange={(e) => {
+                    setSearchType(e.target.value);
+                    setSearchTerm("");
+                    setSuggestions([]);
+                  }}
+                  className="h-full w-[105px] shrink-0 cursor-pointer rounded-l-xl border-0 border-r border-[#123D32]/10 bg-transparent px-3 text-xs font-bold text-[#123D32] outline-none"
+                >
+                  <option value="name">Name</option>
+                  <option value="propertyNumber">Prop. No.</option>
+                </select>
+
+                <div className="relative h-full flex-1">
+                  <Search
+                    size={17}
+                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#123D32]/35"
+                  />
+
+                  <input
+                    id="installment-search"
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() =>
+                      setTimeout(() => setShowSuggestions(false), 200)
+                    }
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handleApplyFilters()
+                    }
+                    placeholder={
+                      searchType === "name"
+                        ? "Search owner name..."
+                        : "Search property no..."
+                    }
+                    className="h-full w-full rounded-r-xl bg-transparent pl-9 pr-3 text-xs font-semibold text-[#123D32] outline-none placeholder:font-medium placeholder:text-[#123D32]/35"
+                  />
+                </div>
+
+                {/* Suggestions */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul className="absolute left-0 top-full z-50 mt-2 max-h-52 w-full overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
+                    {suggestions.map((sug, idx) => (
+                      <li
+                        key={idx}
+                        onMouseDown={() => {
+                          setSearchTerm(sug);
+                          setShowSuggestions(false);
+                          setTimeout(() => handleApplyFilters(), 0);
+                        }}
+                        className="cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold text-[#123D32] transition-colors hover:bg-[#C6A15B]/10"
+                      >
+                        {sug}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <ul className="absolute left-0 top-[105%] z-10 w-full max-h-48 overflow-y-auto rounded-xl border border-[#e8d4b2] bg-white py-1 shadow-lg">
-                  {suggestions.map((sug, idx) => (
-                    <li
-                      key={idx}
-                      onMouseDown={() => {
-                        setSearchTerm(sug);
-                        setShowSuggestions(false);
-                        // Trigger fetch automatically on selection
-                        setTimeout(() => handleApplyFilters(), 0);
-                      }}
-                      className="cursor-pointer px-4 py-2 text-sm font-medium text-[#244f45] hover:bg-[#f7f3ec]">
-                      {sug}
-                    </li>
-                  ))}
-                </ul>
-              )}
+            </div>
+
+            {/* Building */}
+            <CustomDropdown
+              label="Building"
+              value={selectedBuilding}
+              options={[
+                {
+                  value: "All Buildings",
+                  label: "All Buildings",
+                },
+                ...buildingsList.map((b) => ({
+                  value: b,
+                  label: b,
+                })),
+              ]}
+              onChange={(value) => {
+                setSelectedBuilding(value);
+                setSelectedFloor("All Floors");
+              }}
+            />
+
+            {/* Floor */}
+            <CustomDropdown
+              label="Floor Type"
+              value={selectedFloor}
+              disabled={selectedBuilding === "All Buildings"}
+              options={[
+                {
+                  value: "All Floors",
+                  label: "All Floors",
+                },
+                ...floorsList.map((f) => ({
+                  value: f,
+                  label: f,
+                })),
+              ]}
+              onChange={(value) => {
+                setSelectedFloor(value);
+              }}
+            />
+
+            {/* Type */}
+            <CustomDropdown
+              label="Type"
+              value={selectedType}
+              options={[
+                {
+                  value: "All Types",
+                  label: "All Types",
+                },
+                ...typesList.map((t) => ({
+                  value: t,
+                  label: t,
+                })),
+              ]}
+              onChange={(value) => {
+                setSelectedType(value);
+              }}
+            />
+
+            {/* Category */}
+            <CustomDropdown
+              label="Category"
+              value={selectedCategory}
+              options={[
+                {
+                  value: "All Categories",
+                  label: "All Categories",
+                },
+                ...categoriesList.map((c) => ({
+                  value: c,
+                  label: c,
+                })),
+              ]}
+              onChange={(value) => {
+                setSelectedCategory(value);
+              }}
+            />
+
+            {/* Allocation Type */}
+            <CustomDropdown
+              label="Allocation Type"
+              value={selectedAllocation}
+              displayValue={
+                selectedAllocation === "Other"
+                  ? "Client"
+                  : selectedAllocation
+              }
+              options={[
+                {
+                  value: "All Allocations",
+                  label: "All Allocations",
+                },
+                {
+                  value: "Partner",
+                  label: "Partner",
+                },
+                {
+                  value: "Other",
+                  label: "Client",
+                },
+              ]}
+              onChange={(value) => {
+                setSelectedAllocation(value);
+              }}
+            />
+
+            {/* Status */}
+            <CustomDropdown
+              label="Status"
+              value={selectedStatus}
+              options={[
+                {
+                  value: "All Status",
+                  label: "All Status",
+                },
+                {
+                  value: "Unpaid",
+                  label: "Unpaid",
+                },
+                {
+                  value: "Overdue",
+                  label: "Overdue",
+                },
+              ]}
+              onChange={(value) => {
+                setSelectedStatus(value);
+              }}
+            />
+
+            {/* Start Date */}
+            <div>
+              <label
+                htmlFor="start-date"
+                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
+              >
+                Start Date
+              </label>
+
+              <input
+                type="date"
+                id="start-date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="h-[47px] w-full cursor-pointer rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+              />
+            </div>
+
+            {/* End Date */}
+            <div>
+              <label
+                htmlFor="end-date"
+                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
+              >
+                End Date
+              </label>
+
+              <input
+                type="date"
+                id="end-date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                min={startDate}
+                className="h-[47px] w-full cursor-pointer rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+              />
             </div>
           </div>
-          {/* Building */}
-          <div>
-            <label htmlFor="building-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Building</label>
-            <select id="building-filter" value={selectedBuilding} onChange={(e) => { setSelectedBuilding(e.target.value); setSelectedFloor("All Floors"); }}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-              <option value="All Buildings">All Buildings</option>
-              {buildingsList.map((b) => <option key={b} value={b}>{b}</option>)}
-            </select>
+
+          {/* Buttons */}
+          <div className="mt-6 flex justify-center gap-4 border-t border-[#123D32]/10 pt-5 sm:justify-end">
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="h-[42px] cursor-pointer rounded-xl border border-[#123D32]/25 bg-white px-6 text-[10px] font-bold uppercase tracking-[0.1em] text-[#123D32]/75 transition-all duration-200 hover:border-[#C6A15B]/45 hover:bg-[#C6A15B]/10 hover:text-[#123D32]"
+            >
+              Clear All
+            </button>
+
+            <button
+              type="button"
+              onClick={handleApplyFilters}
+              className="h-[42px] cursor-pointer rounded-xl bg-[#123D32] px-7 text-[10px] font-bold uppercase tracking-[0.1em] text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
+            >
+              Apply Filters
+            </button>
           </div>
-          {/* Floor */}
-          <div>
-            <label htmlFor="floor-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Floor Type</label>
-            <select id="floor-filter" value={selectedFloor} onChange={(e) => setSelectedFloor(e.target.value)} disabled={selectedBuilding === "All Buildings"}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15 disabled:opacity-50 disabled:cursor-not-allowed">
-              <option value="All Floors">All Floors</option>
-              {floorsList.map((f) => <option key={f} value={f}>{f}</option>)}
-            </select>
-          </div>
-          {/* Type */}
-          <div>
-            <label htmlFor="type-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Type</label>
-            <select id="type-filter" value={selectedType} onChange={(e) => setSelectedType(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-              <option value="All Types">All Types</option>
-              {typesList.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          {/* Category */}
-          <div>
-            <label htmlFor="category-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Category</label>
-            <select id="category-filter" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-              <option value="All Categories">All Categories</option>
-              {categoriesList.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          {/* Allocation Type */}
-          <div>
-            <label htmlFor="allocation-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Allocation Type</label>
-            <select id="allocation-filter" value={selectedAllocation} onChange={(e) => setSelectedAllocation(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-              <option value="All Allocations">All Allocations</option>
-              <option value="Partner">Partner</option>
-              <option value="Other">Client</option>
-            </select>
-          </div>
-          {/* Status */}
-          <div>
-            <label htmlFor="status-filter" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Status</label>
-            <select id="status-filter" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15">
-              <option value="All Status">All Status</option>
-              <option value="Unpaid">Unpaid</option>
-              <option value="Overdue">Overdue</option>
-            </select>
-          </div>
-          {/* Start Date */}
-          <div>
-            <label htmlFor="start-date" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">Start Date</label>
-            <input
-              type="date"
-              id="start-date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
-            />
-          </div>
-          {/* End Date */}
-          <div>
-            <label htmlFor="end-date" className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-[#6f8d85]">End Date</label>
-            <input
-              type="date"
-              id="end-date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              min={startDate}
-              className="h-11 w-full cursor-pointer rounded-xl border border-[#e8d4b2] bg-[#fcfbf9] px-3 text-sm font-semibold text-[#244f45] outline-none transition focus:border-[#cda65d] focus:ring-2 focus:ring-[#cda65d]/15"
-            />
-          </div>
-        </div>
-        <div className="mt-5 flex flex-col justify-end gap-2 sm:flex-row">
-          <button type="button" onClick={handleClearFilters}
-            className="h-10 rounded-xl bg-[#f7f3ec] px-5 text-sm font-semibold text-[#365f55] transition-colors hover:bg-[#efe8dc]">
-            Clear All
-          </button>
-          <button type="button" onClick={handleApplyFilters}
-            className="h-10 rounded-xl bg-[#cda65d] px-6 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#b99148]">
-            Apply Filters
-          </button>
         </div>
       </div>
 
@@ -825,17 +1084,16 @@ const InstallmentPlanPage = () => {
                 const compactVal = item.value >= 1_000_000_000
                   ? `${(item.value / 1_000_000_000).toFixed(2)}B`
                   : item.value >= 1_000_000
-                  ? `${(item.value / 1_000_000).toFixed(2)}M`
-                  : item.value >= 1_000
-                  ? `${(item.value / 1_000).toFixed(2)}K`
-                  : item.value.toFixed(2);
+                    ? `${(item.value / 1_000_000).toFixed(2)}M`
+                    : item.value >= 1_000
+                      ? `${(item.value / 1_000).toFixed(2)}K`
+                      : item.value.toFixed(2);
 
                 return (
                   <div
                     key={item.name}
-                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${
-                      isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
-                    }`}
+                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
+                      }`}
                   >
                     <span
                       className="h-3 w-3 shrink-0 rounded-full"
@@ -1089,8 +1347,8 @@ const InstallmentPlanPage = () => {
                                 </td>
                                 <td className="px-6 py-3">
                                   <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${instRow.displayStatus === "Overdue" ? "bg-rose-50 text-rose-600"
-                                      : instRow.displayStatus === "Unpaid" ? "bg-orange-50 text-orange-500"
-                                        : "bg-emerald-50 text-emerald-600"
+                                    : instRow.displayStatus === "Unpaid" ? "bg-orange-50 text-orange-500"
+                                      : "bg-emerald-50 text-emerald-600"
                                     }`}>
                                     <Clock3 size={11} />
                                     {instRow.displayStatus}
