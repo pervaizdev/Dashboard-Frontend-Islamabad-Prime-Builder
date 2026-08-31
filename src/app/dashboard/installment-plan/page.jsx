@@ -24,6 +24,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import Image from "next/image";
 
 
 import Pagination from "@/components/pagination";
@@ -224,8 +225,6 @@ const InstallmentPlanPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedAllocation, setSelectedAllocation] = useState("Other");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
 
   const [buildingsList, setBuildingsList] = useState([]);
   const [floorsList, setFloorsList] = useState([]);
@@ -305,8 +304,7 @@ const InstallmentPlanPage = () => {
     if (selectedType !== "All Types") p.append("type", selectedType);
     if (selectedCategory !== "All Categories") p.append("category", selectedCategory);
     if (selectedAllocation !== "All Allocations" && selectedAllocation) p.append("allocationType", selectedAllocation);
-    if (startDate) p.append("startDate", startDate);
-    if (endDate) p.append("endDate", endDate);
+
     if (searchTerm.trim()) p.append("search", searchTerm.trim());
     setActiveFilterParams(p.toString());
   };
@@ -314,7 +312,7 @@ const InstallmentPlanPage = () => {
   const handleClearFilters = () => {
     setSearchTerm(""); setSelectedFloor("All Floors");
     setSelectedType("All Types"); setSelectedCategory("All Categories"); setSelectedAllocation("Other"); setSelectedStatus("All Status");
-    setStartDate(""); setEndDate("");
+
 
     // Set building to the first one available
     if (buildingsList.length > 0) {
@@ -742,7 +740,7 @@ const InstallmentPlanPage = () => {
       {/* ── Filters ── */}
       <div className="overflow-visible rounded-[26px] border border-[#123D32]/10 bg-white shadow-[0_12px_35px_rgba(18,61,50,0.08)] mt-8">
         {/* Header */}
-        <div className="relative overflow-hidden rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
+        <div className="relative overflow-visible rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
           <h1 className="text-2xl font-bold tracking-tight text-[#E5C476] sm:text-[30px]">
             Installment Module
           </h1>
@@ -954,42 +952,7 @@ const InstallmentPlanPage = () => {
               }}
             />
 
-            {/* Start Date */}
-            <div>
-              <label
-                htmlFor="start-date"
-                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
-              >
-                Start Date
-              </label>
 
-              <input
-                type="date"
-                id="start-date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="h-[47px] w-full cursor-pointer rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
-              />
-            </div>
-
-            {/* End Date */}
-            <div>
-              <label
-                htmlFor="end-date"
-                className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
-              >
-                End Date
-              </label>
-
-              <input
-                type="date"
-                id="end-date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate}
-                className="h-[47px] w-full cursor-pointer rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-xs font-bold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
-              />
-            </div>
           </div>
 
           {/* Buttons */}

@@ -15,6 +15,7 @@ import {
   BarChart3,
   Images,
   MessageSquareText,
+  Key,
   ChevronLeft,
   ChevronRight,
   Receipt,
@@ -56,6 +57,11 @@ const navItems = [
     title: "Messages",
     href: "/dashboard/message",
     icon: MessageSquareText,
+  },
+  {
+    title: "Agent Key",
+    href: "/dashboard/agent-key",
+    icon: Key,
   },
   {
     title: "Property List",
