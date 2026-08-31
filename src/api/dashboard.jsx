@@ -46,11 +46,19 @@ export const dashboardAPI = {
 
   getPropertyCommissionSuggestions: async (type, query) => {
     try {
-      const url = `/dashboard/property-commission-suggestions?type=${type}&query=${query}`;
-      const response = await axiosInstance.get(url);
+      const response = await axiosInstance.get(`/dashboard/property-commission-suggestions?type=${type}&query=${query}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: "Error fetching property commission suggestions" };
+      throw error.response?.data || { message: "Error fetching suggestions" };
     }
   },
+  
+  getAllProperties: async () => {
+    try {
+      const response = await axiosInstance.get(`/dashboard/all-properties`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching all properties" };
+    }
+  }
 };

@@ -9,6 +9,7 @@ import ExpendableInstallmentRow from "@/components/expendableinsalmentrow";
 import Pagination from "@/components/pagination";
 import PropertyCommissionStats from "@/components/property-commission-stats";
 import PropertyCommissionCharts from "@/components/property-commission-charts";
+import Image from "next/image";
 
 export default function PropertyReportComponent() {
   const [properties, setProperties] = useState([]);
@@ -31,8 +32,7 @@ export default function PropertyReportComponent() {
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedAllocation, setSelectedAllocation] = useState("Other");
   const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+
 
   const [activeFilterParams, setActiveFilterParams] = useState("allocationType=Other");
 
@@ -77,8 +77,7 @@ export default function PropertyReportComponent() {
     if (selectedBuilding) params.append("building_name", selectedBuilding);
     if (selectedAllocation) params.append("allocationType", selectedAllocation);
     if (searchTerm) params.append("search", searchTerm);
-    if (startDate) params.append("startDate", startDate);
-    if (endDate) params.append("endDate", endDate);
+
     return params.toString();
   };
 
@@ -95,8 +94,7 @@ export default function PropertyReportComponent() {
     setSelectedBuilding("");
     setSelectedAllocation("Other");
     setSearchTerm("");
-    setStartDate("");
-    setEndDate("");
+
     setCurrentPage(1);
     setActiveFilterParams("allocationType=Other");
     setShowSuggestions(false);
@@ -170,7 +168,7 @@ export default function PropertyReportComponent() {
   return (
     <div className="space-y-8">
       <div className="overflow-visible rounded-[26px] border border-[#123D32]/10 bg-white shadow-[0_12px_35px_rgba(18,61,50,0.08)] mt-8">
-        <div className="relative overflow-hidden rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
+        <div className="relative overflow-visible rounded-t-[26px] bg-[#123D32] px-6 py-6 sm:px-8">
           <h1 className="text-2xl font-bold tracking-tight text-[#E5C476] sm:text-[30px]">
             Property Financial Reports
           </h1>
@@ -322,35 +320,7 @@ export default function PropertyReportComponent() {
                 </div>
               )}
             </div>
-            <div className="xl:col-span-3">
-              <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
-                Date Range
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
-                    From
-                  </span>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-2.5 py-2.5 pt-5 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
-                  />
-                </div>
-                <div className="relative">
-                  <span className="pointer-events-none absolute left-3 top-[5px] z-10 text-[8px] font-bold uppercase tracking-wider text-[#123D32]/35">
-                    To
-                  </span>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-2.5 py-2.5 pt-5 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
-                  />
-                </div>
-              </div>
-            </div>
+
           </div>
           <div className="mt-6 flex lg:justify-end justify-center gap-7 border-t border-[#123D32]/10 pt-5 ">
               <button

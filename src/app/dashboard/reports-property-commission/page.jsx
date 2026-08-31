@@ -1,12 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import PropertyReportComponent from "@/components/property-report";
 import InstallmentPlanPage from "@/app/dashboard/installment-plan/page";
+import { dashboardAPI } from "@/api/dashboard";
+import IPBChatBot from "@/components/IPBChatBot";
 
 const Page = () => {
   const [activeTab, setActiveTab] = useState("property");
+
+  useEffect(() => {
+    // Clear on mount to handle the "remove if refresh" requirement
+    sessionStorage.removeItem("allPropertyDetails");
+    sessionStorage.removeItem("ipbChatHistory");
+
+    const fetchAllProperties = async () => {
+      try {
+        const res = await dashboardAPI.getAllProperties();
+        if (res.success && res.properties) {
+          sessionStorage.setItem("allPropertyDetails", JSON.stringify(res.properties));
+        }
+      } catch (error) {
+        console.error("Failed to fetch all properties for caching:", error);
+      }
+    };
+    fetchAllProperties();
+
+    return () => {
+      // Clear the session storage when the user navigates away from these two tabs
+      sessionStorage.removeItem("allPropertyDetails");
+      sessionStorage.removeItem("ipbChatHistory");
+    };
+  }, []);
+
   const tabs = [
     {
       id: "property",
@@ -75,6 +102,9 @@ const Page = () => {
           <InstallmentPlanPage />
         )}
       </div>
+
+      {/* AI Chatbot */}
+      <IPBChatBot />
     </div>
   );
 };
