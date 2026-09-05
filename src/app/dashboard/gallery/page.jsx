@@ -157,7 +157,7 @@ const GalleryPage = () => {
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-neutral-200">
             <div>
-              <h1 className="font-serif text-3xl font-bold tracking-tight text-neutral-900 md:text-5xl">
+              <h1 className="font-serif text-3xl font-bold tracking-tight text-[#123D32] md:text-5xl">
                 Architectural <span className="text-primary">Gallery</span>
               </h1>
               <p className="mt-2 text-sm text-neutral-500 max-w-xl">
@@ -166,7 +166,7 @@ const GalleryPage = () => {
             </div>
             <Link
               href="/dashboard"
-              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-neutral-900 px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-primary hover:text-neutral-900 hover:shadow-lg"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
               aria-label="Return to dashboard"
             >
               <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
@@ -184,8 +184,8 @@ const GalleryPage = () => {
                   onClick={() => setActiveTab(tab)}
                   className={`relative px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all shrink-0 ${
                     isActive
-                      ? "bg-primary text-neutral-900 shadow-sm"
-                      : "bg-white text-neutral-600 border border-neutral-200 hover:border-neutral-300 hover:text-neutral-900"
+                      ? "bg-[#123D32] text-[#E5C476] shadow-sm"
+                      : "bg-white text-neutral-600 border border-[#123D32]/[0.07] py-2"
                   }`}
                   aria-label={`Filter by ${tab}`}
                 >
@@ -272,8 +272,8 @@ const GalleryPage = () => {
                     {/* Gradient Overlay & Metadata */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
 
-                    <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3 text-white">
-                      <div className="max-w-[85%]">
+                    <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
+                      <div className="max-w-[95%]">
                         {item.createdAt && (
                           <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 drop-shadow-sm">
                             {formatDate(item.createdAt)}
@@ -284,10 +284,6 @@ const GalleryPage = () => {
                             {item.title}
                           </h3>
                         )}
-                      </div>
-
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all duration-300 group-hover:bg-primary group-hover:text-neutral-900">
-                        <Maximize2 className="h-4 w-4" />
                       </div>
                     </div>
                   </div>
@@ -312,130 +308,107 @@ const GalleryPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 md:p-8 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
             onClick={() => setSelectedImageIndex(null)}
           >
-            <div className="relative flex w-full max-w-6xl items-center justify-center">
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setSelectedImageIndex(null)}
-                className="absolute -top-12 right-0 md:top-4 md:right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-neutral-900"
-                aria-label="Close preview"
-              >
-                <X className="h-6 w-6" />
-              </button>
-
-              {/* Prev Button (Desktop) */}
-              {filteredImages.length > 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showPrevImage();
-                  }}
-                  className="absolute -left-14 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-neutral-900 lg:flex"
-                  aria-label="Previous item"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-              )}
-
+            <div className="relative flex w-full justify-center items-center">
               {/* Main Content Box */}
               <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
+                initial={{ scale: 0.92, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-neutral-950 shadow-2xl max-h-[85vh] max-w-[90vw] flex flex-col items-center justify-center"
+                exit={{ scale: 0.92, opacity: 0 }}
+                className="relative overflow-hidden rounded-[2.5rem] bg-black border border-white/10 shadow-2xl flex flex-col max-h-[90vh] w-full max-w-[480px] sm:max-w-[520px]"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="relative max-h-[85vh] max-w-[90vw] flex items-center justify-center">
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedImageIndex(null)}
+                  className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                  aria-label="Close preview"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                {/* Media Container */}
+                <div className="relative flex-1 flex items-center justify-center overflow-hidden bg-black min-h-0">
                   {isVideo(selectedItem.url) ? (
                     <video
                       ref={lightboxVideoRef}
                       src={selectedItem.url}
-                      controls
+                      autoPlay
+                      loop
+                      muted
                       playsInline
-                      preload="metadata"
-                      className="max-h-[75vh] max-w-[90vw] object-contain"
+                      controls
+                      className="w-full max-h-[58vh] object-contain block mx-auto z-10"
                     />
                   ) : (
-                    <Image
-                      src={selectedItem.url}
-                      alt={selectedItem.title || "Selected gallery image"}
-                      width={1600}
-                      height={1200}
-                      unoptimized={true}
-                      priority
-                      className="max-h-[75vh] max-w-[90vw] object-contain"
-                    />
+                    <div className="relative w-full h-full min-h-[260px] max-h-[60vh] flex items-center justify-center">
+                      <Image
+                        src={selectedItem.url}
+                        alt={selectedItem.title || "Selected gallery image"}
+                        width={1200}
+                        height={1200}
+                        unoptimized={true}
+                        priority
+                        className="max-h-[60vh] w-full object-contain"
+                      />
+                    </div>
+                  )}
+
+                  {/* Prev Button Overlay */}
+                  {filteredImages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showPrevImage();
+                      }}
+                      className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Previous item"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                  )}
+
+                  {/* Next Button Overlay */}
+                  {filteredImages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showNextImage();
+                      }}
+                      className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Next item"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
                   )}
                 </div>
 
                 {/* Caption / Footer inside modal */}
                 {(selectedItem.title || selectedItem.description || selectedItem.createdAt) && (
-                  <div className="w-full bg-gradient-to-t from-black via-black/80 to-transparent p-6 text-white space-y-1.5">
+                  <div className="w-full bg-[#080808] border-t border-white/10 p-5 sm:p-6 text-white shrink-0">
                     {selectedItem.createdAt && (
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5C476] mb-1.5">
                         {formatDate(selectedItem.createdAt)}
                       </p>
                     )}
                     {selectedItem.title && (
-                      <h3 className="font-serif text-lg md:text-2xl font-semibold leading-snug">
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-white leading-tight mb-2">
                         {selectedItem.title}
                       </h3>
                     )}
                     {selectedItem.description && (
-                      <p className="text-xs md:text-sm text-neutral-300 max-w-3xl line-clamp-2">
+                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-3">
                         {selectedItem.description}
                       </p>
                     )}
                   </div>
                 )}
               </motion.div>
-
-              {/* Next Button (Desktop) */}
-              {filteredImages.length > 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showNextImage();
-                  }}
-                  className="absolute -right-14 top-1/2 z-30 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-neutral-900 lg:flex"
-                  aria-label="Next item"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-              )}
-
-              {/* Mobile Prev / Next controls */}
-              {filteredImages.length > 1 && (
-                <div className="absolute -bottom-16 left-1/2 flex -translate-x-1/2 gap-4 lg:hidden">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      showPrevImage();
-                    }}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-neutral-900"
-                    aria-label="Previous item"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      showNextImage();
-                    }}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-neutral-900"
-                    aria-label="Next item"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
-                </div>
-              )}
             </div>
           </motion.div>
         )}
