@@ -1,392 +1,420 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, X, MoveLeft, MoveRight, ArrowLeft, Camera, Maximize2 } from "lucide-react";
-import { Swiper as SwiperComp, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay, EffectFade } from "swiper/modules";
+import {
+  ArrowLeft,
+  Camera,
+  Loader2,
+  Maximize2,
+  Play,
+  Video,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-
 import { getPropertyImages } from "@/api/propertyImage";
-import { Loader2 } from "lucide-react";
 
 const GalleryPage = () => {
-    const [selectedIdx, setSelectedIdx] = React.useState(null);
-    const [activeTab, setActiveTab] = React.useState("Gallery");
-    const [allImages, setAllImages] = React.useState([]);
-    const [filteredImages, setFilteredImages] = React.useState([]);
-    const [loading, setLoading] = React.useState(true);
-    const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [activeTab, setActiveTab] = useState("All");
+  const [allImages, setAllImages] = useState([]);
+  const [filteredImages, setFilteredImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    const tabs = ["Gallery", "1 month ago", "3 months ago"];
+  const lightboxVideoRef = useRef(null);
+  const tabs = ["All", "Recent", "1 month ago", "3 months ago"];
 
-    React.useEffect(() => {
-        const fetchGallery = async () => {
-            setLoading(true);
-            try {
-                const response = await getPropertyImages();
-                if (response.success && response.data?.landing) {
-                    setAllImages(response.data.landing);
-                    setFilteredImages(response.data.landing);
-                }
-            } catch (error) {
-                console.error("Gallery page fetch error:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchGallery();
-    }, []);
-
-    React.useEffect(() => {
-        if (!allImages.length) return;
-
-        const now = new Date();
-        let filtered = [...allImages];
-
-        if (activeTab === "1 month ago") {
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
-            filtered = allImages.filter(img => new Date(img.createdAt) >= oneMonthAgo);
-        } else if (activeTab === "3 months ago") {
-            const threeMonthsAgo = new Date();
-            threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
-            filtered = allImages.filter(img => new Date(img.createdAt) >= threeMonthsAgo);
+  // Fetch full gallery data
+  useEffect(() => {
+    const fetchGallery = async () => {
+      setLoading(true);
+      try {
+        const response = await getPropertyImages("Islamabad_Prime_Builder/Dashboard");
+        if (response.success && response.data?.dashboard) {
+          const sorted = [...response.data.dashboard].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+          );
+          setAllImages(sorted);
+          setFilteredImages(sorted);
         }
+      } catch (error) {
+        console.error("Gallery page fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGallery();
+  }, []);
 
-        setFilteredImages(filtered);
-    }, [activeTab, allImages]);
+  // Filter gallery items by selected date tab and sort latest first
+  useEffect(() => {
+    if (!allImages.length) return;
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: { staggerChildren: 0.1 }
-        }
+    let filtered = [...allImages];
+
+    if (activeTab === "Recent") {
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const recentItems = allImages.filter((img) => new Date(img.createdAt) >= sevenDaysAgo);
+      filtered = recentItems.length > 0 ? recentItems : allImages.slice(0, 5);
+    } else if (activeTab === "1 month ago") {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+      filtered = allImages.filter((img) => new Date(img.createdAt) >= oneMonthAgo);
+    } else if (activeTab === "3 months ago") {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setDate(threeMonthsAgo.getDate() - 90);
+      filtered = allImages.filter((img) => new Date(img.createdAt) >= threeMonthsAgo);
+    } else if (activeTab === "All") {
+      filtered = [...allImages];
+    }
+
+    filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    setFilteredImages(filtered);
+  }, [activeTab, allImages]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (selectedImageIndex === null) return;
+      if (e.key === "Escape") {
+        setSelectedImageIndex(null);
+      } else if (e.key === "ArrowLeft") {
+        showPrevImage();
+      } else if (e.key === "ArrowRight") {
+        showNextImage();
+      }
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, scale: 0.9 },
-        visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
-    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedImageIndex, filteredImages]);
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric"
-        }).toUpperCase();
-    };
+  // Pause video when modal selection changes or closes
+  useEffect(() => {
+    if (lightboxVideoRef.current) {
+      lightboxVideoRef.current.pause();
+      lightboxVideoRef.current.currentTime = 0;
+    }
+  }, [selectedImageIndex]);
 
-    const isVideo = (url) => url?.match(/\.(mp4|webm|ogg|mov)$/i) || url?.includes('/video/upload/');
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+      .toUpperCase();
+  };
 
-    const selectedImage =
-        selectedImageIndex !== null ? filteredImages[selectedImageIndex] : null;
+  const isVideo = (url) =>
+    Boolean(url?.match(/\.(mp4|webm|ogg|mov)$/i) || url?.includes("/video/upload/"));
 
-    const showPrevImage = () => {
-        if (!filteredImages.length || selectedImageIndex === null) return;
-        setSelectedImageIndex(
-            selectedImageIndex === 0 ? filteredImages.length - 1 : selectedImageIndex - 1
-        );
-    };
+  // Assign varied aspect ratios for an organic Pinterest/Unsplash Masonry effect
+  const getAspectRatioClass = (index) => {
+    const ratios = [
+      "aspect-[4/3]",
+      "aspect-[3/4]",
+      "aspect-square",
+      "aspect-[16/10]",
+      "aspect-[4/5]",
+    ];
+    return ratios[index % ratios.length];
+  };
 
-    const showNextImage = () => {
-        if (!filteredImages.length || selectedImageIndex === null) return;
-        setSelectedImageIndex(
-            selectedImageIndex === filteredImages.length - 1 ? 0 : selectedImageIndex + 1
-        );
-    };
+  const selectedItem =
+    selectedImageIndex !== null ? filteredImages[selectedImageIndex] : null;
 
-    return (
-        <div className="min-h-screen px-4 py-8 lg:px-16 space-y-12 bg-white">
-            <div className="max-w-[1600px] mx-auto">
-
-                {/* Header & Navigation */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-16"
-                >
-                    <div className="space-y-6 w-full">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                            <h1 className="font-serif text-4xl font-bold tracking-tight text-charcoal md:text-6xl text-[#0d2d29]">
-                                Architectural <span className="text-primary">Gallery</span>
-                            </h1>
-                            <Link
-                                href="/dashboard"
-                                className="group inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
-                            >
-                                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                                Return To Dashboard
-                            </Link>
-                        </div>
-
-                        <div className="flex items-center gap-10 pt-4 border-t border-primary/10">
-                            {tabs.map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`relative text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === tab ? "text-primary" : "text-[#0d2d29]/40 hover:text-[#0d2d29]"
-                                        }`}
-                                >
-                                    {tab}
-                                    {activeTab === tab && (
-                                        <motion.div
-                                            layoutId="activeTabLine"
-                                            className="absolute -bottom-2 left-0 right-0 h-[2px] bg-primary rounded-full shadow-[0_0_10px_rgba(194,158,109,0.5)]"
-                                        />
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-
-
-
-                </motion.div>
-
-                {/* Gallery Grid */}
-                {loading ? (
-                    <div className="h-96 flex flex-col items-center justify-center text-primary">
-                        <Loader2 className="animate-spin mb-4" size={64} />
-                        <p className="uppercase tracking-widest font-bold">Curating Collection...</p>
-                    </div>
-                ) : filteredImages.length > 0 ? (
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[300px]"
-                    >
-                        {filteredImages.map((item, index) => (
-                            <motion.div
-                                key={item._id}
-                                variants={itemVariants}
-                                onClick={() => setSelectedImageIndex(index)}
-                                className={`group relative rounded-[2.5rem] overflow-hidden cursor-pointer premium-border-glow shadow-xl bg-white`}
-                            >
-                                {isVideo(item.url) ? (
-                                    <video
-                                        src={item.url}
-                                        preload="metadata"
-                                        className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                ) : (
-                                    <Image
-                                        src={item.url}
-                                        alt={item.title || "Gallery Item"}
-                                        fill
-                                        unoptimized={true}
-                                        className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                )}
-
-                                {/* Overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
-                                    <div className="absolute bottom-8 left-8 right-8 flex items-center justify-between">
-                                        <div className="text-white transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                            <p className=" font-bold uppercase text-white opacity-80 mb-1">{formatDate(item.createdAt)}</p>
-                                            
-                                        </div>
-                                        <div className="bg-white/10 backdrop-blur-md p-3 rounded-full text-white transform scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 delay-100">
-                                            <Maximize2 size={20} />
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </motion.div>
-                ) : (
-                    <div className="h-96 flex flex-col items-center justify-center text-[#0d2d29]/20 border-2 border-dashed border-[#c29e6d]/10 rounded-3xl">
-                        <Camera size={64} className="mb-4 opacity-10" />
-                        <p className="uppercase tracking-widest font-bold">No items found for this period</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Premium Lightbox */}
-            <AnimatePresence>
-                {selectedImage && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xl"
-                        onClick={() => setSelectedImageIndex(null)}
-                    >
-                        <div className="relative flex items-center justify-center">
-                            {/* Prev Button - outside modal box */}
-                            {filteredImages.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        showPrevImage();
-                                    }}
-                                    className="absolute -left-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="m15 18-6-6 6-6" />
-                                    </svg>
-                                </button>
-                            )}
-
-                            <motion.div
-                                initial={{ scale: 0.9, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0.9, opacity: 0 }}
-                                className="relative overflow-hidden rounded-[2rem] premium-border-glow shadow-2xl bg-black"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedImageIndex(null)}
-                                    className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
-                                >
-                                    <X className="h-6 w-6" />
-                                </button>
-
-                                <div className="relative max-h-[85vh] max-w-[90vw]">
-                                    {isVideo(selectedImage.url) ? (
-                                        <video
-                                            src={selectedImage.url}
-                                            controls
-                                            className="max-h-[85vh] max-w-[90vw] object-contain"
-                                        />
-                                    ) : (
-                                        <Image
-                                            src={selectedImage.url}
-                                            alt={selectedImage.title || "Selected gallery image"}
-                                            width={1600}
-                                            height={1200}
-                                            sizes="90vw"
-                                            className="max-h-[85vh] max-w-[90vw] object-contain"
-                                        />
-                                    )}
-                                </div>
-
-                            </motion.div>
-
-                            {/* Next Button - outside modal box */}
-                            {filteredImages.length > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        showNextImage();
-                                    }}
-                                    className="absolute -right-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
-                                >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    >
-                                        <path d="m9 18 6-6-6-6" />
-                                    </svg>
-                                </button>
-                            )}
-
-                            {/* Mobile buttons */}
-                            {filteredImages.length > 1 && (
-                                <div className="absolute -bottom-16 left-1/2 flex -translate-x-1/2 gap-4 md:hidden">
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            showPrevImage();
-                                        }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <path d="m15 18-6-6 6-6" />
-                                        </svg>
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            showNextImage();
-                                        }}
-                                        className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <path d="m9 18 6-6-6-6" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            )}
-
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <style jsx global>{`
-                .gallery-viewer-swiper .swiper-pagination {
-                    bottom: 0 !important;
-                }
-                .gallery-viewer-swiper .swiper-pagination-bullet {
-                    width: 6px;
-                    height: 6px;
-                    background: #c29e6d;
-                    opacity: 0.2;
-                    transition: all 0.3s ease;
-                    margin: 0 6px !important;
-                }
-                .gallery-viewer-swiper .swiper-pagination-bullet-active {
-                    width: 30px;
-                    border-radius: 4px;
-                    opacity: 1;
-                }
-            `}</style>
-        </div>
+  const showPrevImage = () => {
+    if (!filteredImages.length || selectedImageIndex === null) return;
+    setSelectedImageIndex(
+      selectedImageIndex === 0 ? filteredImages.length - 1 : selectedImageIndex - 1
     );
+  };
+
+  const showNextImage = () => {
+    if (!filteredImages.length || selectedImageIndex === null) return;
+    setSelectedImageIndex(
+      selectedImageIndex === filteredImages.length - 1 ? 0 : selectedImageIndex + 1
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 md:px-8 lg:px-12 space-y-10 text-neutral-800">
+      <div className="max-w-[1600px] mx-auto space-y-8">
+        {/* Header & Navigation */}
+        <motion.div
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-neutral-200">
+            <div>
+              <h1 className="font-serif text-3xl font-bold tracking-tight text-[#123D32] md:text-5xl">
+                Architectural <span className="text-primary">Gallery</span>
+              </h1>
+              <p className="mt-2 text-sm text-neutral-500 max-w-xl">
+                Explore our collection of recent developments, construction progress, and architectural visualisations.
+              </p>
+            </div>
+            <Link
+              href="/dashboard"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
+              aria-label="Return to dashboard"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Return to dashboard
+            </Link>
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`relative px-5 py-2.5 rounded-full text-xs font-semibold tracking-wider uppercase transition-all shrink-0 ${
+                    isActive
+                      ? "bg-[#123D32] text-[#E5C476] shadow-sm"
+                      : "bg-white text-neutral-600 border border-[#123D32]/[0.07] py-2"
+                  }`}
+                  aria-label={`Filter by ${tab}`}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+
+        {/* Dynamic Masonry Random Grid Gallery */}
+        {loading ? (
+          <div className="h-96 flex flex-col items-center justify-center text-primary space-y-3">
+            <Loader2 className="animate-spin text-primary" size={48} />
+            <p className="text-xs uppercase tracking-widest font-semibold text-neutral-400">
+              Loading collection...
+            </p>
+          </div>
+        ) : filteredImages.length > 0 ? (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.05 },
+              },
+            }}
+            className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6"
+          >
+            {filteredImages.map((item, index) => {
+              const itemIsVideo = isVideo(item.url);
+              const aspectClass = getAspectRatioClass(index);
+
+              return (
+                <motion.div
+                  key={item._id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  onClick={() => setSelectedImageIndex(index)}
+                  className="break-inside-avoid group relative w-full mb-6 rounded-2xl md:rounded-3xl overflow-hidden cursor-pointer bg-neutral-900 shadow-sm hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1.5"
+                >
+                  <div className={`relative w-full ${aspectClass}`}>
+                    {/* Media Content */}
+                    {itemIsVideo ? (
+                      <video
+                        src={item.url}
+                        preload="metadata"
+                        muted
+                        playsInline
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <Image
+                        src={item.url}
+                        alt={item.title || `Gallery item ${index + 1}`}
+                        fill
+                        unoptimized={true}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    )}
+
+                    {/* Video Badge */}
+                    {itemIsVideo && (
+                      <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white border border-white/10">
+                        <Video className="h-3 w-3 text-primary" />
+                        <span>Video</span>
+                      </div>
+                    )}
+
+                    {/* Centered Play Button Overlay for Videos */}
+                    {itemIsVideo && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-neutral-900 group-hover:border-primary">
+                          <Play className="h-6 w-6 fill-current ml-0.5" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gradient Overlay & Metadata */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
+
+                    <div className="absolute bottom-4 left-4 right-4 z-10 text-white">
+                      <div className="max-w-[95%]">
+                        {item.createdAt && (
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1 drop-shadow-sm">
+                            {formatDate(item.createdAt)}
+                          </p>
+                        )}
+                        {item.title && (
+                          <h3 className="font-serif text-base md:text-lg font-semibold text-white line-clamp-1 leading-snug drop-shadow-md">
+                            {item.title}
+                          </h3>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <div className="h-96 flex flex-col items-center justify-center border-2 border-dashed border-neutral-200 rounded-3xl bg-white p-8 text-center text-neutral-400">
+            <Camera size={48} className="mb-3 opacity-30 text-neutral-400" />
+            <p className="text-sm font-semibold uppercase tracking-wider text-neutral-500">
+              No gallery items found for this period
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {selectedItem && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
+            onClick={() => setSelectedImageIndex(null)}
+          >
+            <div className="relative flex w-full justify-center items-center">
+              {/* Main Content Box */}
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                className="relative overflow-hidden rounded-[2.5rem] bg-black border border-white/10 shadow-2xl flex flex-col max-h-[90vh] w-full max-w-[480px] sm:max-w-[520px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedImageIndex(null)}
+                  className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                  aria-label="Close preview"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                {/* Media Container */}
+                <div className="relative flex-1 flex items-center justify-center overflow-hidden bg-black min-h-0">
+                  {isVideo(selectedItem.url) ? (
+                    <video
+                      ref={lightboxVideoRef}
+                      src={selectedItem.url}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls
+                      className="w-full max-h-[58vh] object-contain block mx-auto z-10"
+                    />
+                  ) : (
+                    <div className="relative w-full h-full min-h-[260px] max-h-[60vh] flex items-center justify-center">
+                      <Image
+                        src={selectedItem.url}
+                        alt={selectedItem.title || "Selected gallery image"}
+                        width={1200}
+                        height={1200}
+                        unoptimized={true}
+                        priority
+                        className="max-h-[60vh] w-full object-contain"
+                      />
+                    </div>
+                  )}
+
+                  {/* Prev Button Overlay */}
+                  {filteredImages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showPrevImage();
+                      }}
+                      className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Previous item"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                  )}
+
+                  {/* Next Button Overlay */}
+                  {filteredImages.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showNextImage();
+                      }}
+                      className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Next item"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Caption / Footer inside modal */}
+                {(selectedItem.title || selectedItem.description || selectedItem.createdAt) && (
+                  <div className="w-full bg-[#080808] border-t border-white/10 p-5 sm:p-6 text-white shrink-0">
+                    {selectedItem.createdAt && (
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5C476] mb-1.5">
+                        {formatDate(selectedItem.createdAt)}
+                      </p>
+                    )}
+                    {selectedItem.title && (
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-white leading-tight mb-2">
+                        {selectedItem.title}
+                      </h3>
+                    )}
+                    {selectedItem.description && (
+                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-3">
+                        {selectedItem.description}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export default GalleryPage;

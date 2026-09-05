@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { brokersAPI } from "@/api/brokers";
 import toast from "react-hot-toast";
 import {
@@ -14,7 +15,8 @@ import {
   BadgeDollarSign,
   CreditCard,
   ChevronRight,
-  CircleDollarSign
+  CircleDollarSign,
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -167,21 +169,49 @@ export default function BrokerManagementPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-col gap-8">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-800">Broker Management</h1>
-            <p className="mt-2 text-slate-500">View and manage registered brokers in Islamabad Prime Builder.</p>
+        <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4 pb-6 border-b border-[#123D32]/10">
+          <div className="flex flex-col items-center md:items-start">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#123D32]">
+              Broker <span className="text-[#C6A15B]">Management</span>
+            </h1>
+            <p className="mt-3 text-sm text-[#71829D] font-medium max-w-xl text-center md:text-left">
+              View and manage registered brokers in Islamabad Prime Builder.
+            </p>
           </div>
 
-          {user?.role === "super-admin" && (
-            <button
-              onClick={handleAddClick}
-              className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all transform hover:scale-105 active:scale-95 shrink-0"
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 shrink-0 self-center md:self-auto mt-2 md:mt-0">
+            <Link
+              href="/dashboard"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
+              aria-label="Return to dashboard"
             >
-              <Plus className="h-5 w-5" />
-              Add Broker
-            </button>
-          )}
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              Return to dashboard
+            </Link>
+
+            {user?.role === "super-admin" && (
+              <button
+                onClick={handleAddClick}
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0 cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                Add Broker
+              </button>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex justify-end w-full">
+          <div className="relative group max-w-md w-full ">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
+            <input
+              type="text"
+              placeholder="Search by name, CNIC, or phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
         {/* Overall Stats Cards */}
@@ -279,20 +309,6 @@ export default function BrokerManagementPage() {
           </motion.div>
         </div>
 
-        {/* Search */}
-        <div className="flex justify-end w-full">
-          <div className="relative group max-w-md w-full ">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
-            <input
-              type="text"
-              placeholder="Search by name, CNIC, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
-            />
-          </div>
-        </div>
-
         {/* Brokers Table Card */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
           <div className="overflow-x-auto">
@@ -347,7 +363,7 @@ export default function BrokerManagementPage() {
                             onClick={() => router.push(`/dashboard/broker-details?id=${broker.broker_id}`)}
                             className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-yellow-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                           >
-                           <ChevronRight className="h-5 w-5" />
+                            <ChevronRight className="h-5 w-5" />
                           </button>
 
                           {user?.role === "super-admin" && (
@@ -359,12 +375,12 @@ export default function BrokerManagementPage() {
                             </button>
                           )}
                           {user?.role === "super-admin" && (
-                            <button 
+                            <button
                               onClick={() => handleDeleteClick(broker)}
                               className="p-2 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white hover:shadow-lg transition-all border border-slate-100"
                             >
                               <Trash2 className="h-4 w-4" />
-                          </button>
+                            </button>
                           )}
                         </div>
 

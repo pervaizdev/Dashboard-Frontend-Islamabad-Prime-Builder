@@ -62,8 +62,6 @@ export default function OwnerSection({ formData, setFormData, usersList }) {
           toast.success("Previous records found! Owner details auto-populated.");
         }
       } catch (error) {
-        // Silently fail if no records exist
-        console.log("No previous property records found for this user to auto-populate.");
       }
     }
   };

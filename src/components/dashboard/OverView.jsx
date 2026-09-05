@@ -27,7 +27,7 @@ const OverView = () => {
       
       {isAdmin ? (
         <>
-        <Admin_due_payment />
+        {/* <Admin_due_payment /> */}
         <Propority />
         </>
       ) : (

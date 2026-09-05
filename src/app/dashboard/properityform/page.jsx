@@ -27,6 +27,7 @@ function PropertyFormContent() {
     paid_downpayment: "",
     payment_plan: "",
     startDate: "",
+    allocationType: "Complete Down Payment",
     broker_commission: "",
     owners: [
       {
@@ -82,7 +83,9 @@ function PropertyFormContent() {
             setFormData({
               ...p,
               startDate: p.startDate ? new Date(p.startDate).toISOString().split('T')[0] : "",
-              broker_commission: p.brokers?.[0]?.broker_commission || ""
+              brokers: (p.brokers && p.brokers.length > 0)
+                ? p.brokers.map(b => ({ ...b, broker_commission: b.broker_commission ?? "" }))
+                : [{ broker_id: "", userId: "", relationship: "", broker_commission: "" }]
             });
           }
         } catch (error) {
@@ -112,7 +115,7 @@ function PropertyFormContent() {
             ...b, 
             broker_id: Number(b.broker_id), 
             userId: Number(b.userId),
-            broker_commission: Number(formData.broker_commission) > 0 ? Number(formData.broker_commission) : 0
+            broker_commission: (b.broker_commission !== "" && b.broker_commission !== undefined && !isNaN(Number(b.broker_commission))) ? Number(b.broker_commission) : 0
           }))
       };
 

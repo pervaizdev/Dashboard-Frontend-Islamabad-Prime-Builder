@@ -263,12 +263,7 @@ export default function ReportsBrokerCommissionPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen bg-slate-50/50">
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-      `}</style>
+
       <div className="flex flex-col gap-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
