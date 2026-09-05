@@ -61,9 +61,8 @@ const CustomLegendList = ({ data, total, colors, hoveredItem, setHoveredItem }) 
             key={`legend-${index}`}
             onMouseEnter={() => setHoveredItem(entry)}
             onMouseLeave={() => setHoveredItem(null)}
-            className={`flex items-start gap-2.5 cursor-pointer rounded-xl px-2.5 py-1.5 transition-all ${
-              isActive ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
-            }`}
+            className={`flex items-start gap-2.5 cursor-pointer rounded-xl px-2.5 py-1.5 transition-all ${isActive ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
+              }`}
           >
             <div
               className="w-3 h-3 rounded-full mt-1 flex-shrink-0"
@@ -91,19 +90,43 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
 
       {/* Floating Tooltip on Hover */}
       {hoveredItem && (
-        <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[230px] pointer-events-none transition-all duration-200 border border-slate-200/80">
-          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">{hoveredItem.name}</p>
-          <div className="space-y-1.5 text-slate-600">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Amount:</span>
-              <span className="font-bold text-slate-800">Rs {formatFullNumber(hoveredItem.value)}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">Percentage:</span>
-              <span className="font-bold text-blue-600">
-                {total > 0 ? ((hoveredItem.value / total) * 100).toFixed(1) : 0}%
-              </span>
-            </div>
+        <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[245px] pointer-events-none transition-all duration-200 border border-slate-200/80">
+          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
+            {title}
+          </p>
+          <div className="space-y-2">
+            {data.map((item, index) => {
+              const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
+              const isCurrent = hoveredItem?.name === item.name;
+              return (
+                <div
+                  key={index}
+                  className={`p-2 rounded-xl border transition-all ${isCurrent
+                      ? "bg-slate-50 border-slate-300/80 shadow-sm"
+                      : "bg-white border-transparent opacity-75"
+                    }`}
+                >
+                  <div className="flex justify-between items-center mb-0.5">
+                    <span className="flex items-center gap-1.5 font-bold text-slate-700">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: colors[index % colors.length] }}
+                      />
+                      {item.name}
+                    </span>
+                    <span className="text-[11px] font-bold text-blue-600">
+                      {percentage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600 text-[11px] pl-4">
+                    <span>Amount:</span>
+                    <span className="font-bold text-slate-800">
+                      Rs {formatFullNumber(item.value)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -118,9 +141,9 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
                   data={data}
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={65}
-                  paddingAngle={5}
+                  innerRadius={48}
+                  outerRadius={70}
+                  paddingAngle={3}
                   dataKey="value"
                   stroke="none"
                 >

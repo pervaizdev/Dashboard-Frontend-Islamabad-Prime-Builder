@@ -174,8 +174,8 @@ export default function PropertyReportComponent() {
           </h1>
         </div>
         <div className="px-5 py-6 sm:px-8">
-          <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 xl:grid-cols-12">
-            <div className="relative xl:col-span-3" ref={searchRef}>
+          <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-3">
+            <div className="relative" ref={searchRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Search
               </label>
@@ -193,7 +193,11 @@ export default function PropertyReportComponent() {
                 {searchTerm && (
                   <button
                     type="button"
-                    onClick={() => setSearchTerm("")}
+                    onClick={() => {
+                      setSearchTerm("");
+                      setOwnerSuggestions([]);
+                      setShowSuggestions(false);
+                    }}
                     className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-xs font-bold text-[#C6A15B] transition-colors hover:text-[#123D32]"
                   >
                     ×
@@ -214,7 +218,7 @@ export default function PropertyReportComponent() {
                 )}
               </div>
             </div>
-            <div className="relative xl:col-span-3" ref={buildingRef}>
+            <div className="relative" ref={buildingRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Building
               </label>
@@ -266,7 +270,7 @@ export default function PropertyReportComponent() {
                 </div>
               )}
             </div>
-            <div className="relative xl:col-span-3" ref={allocationRef}>
+            <div className="relative" ref={allocationRef}>
               <label className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65">
                 Allocation Type
               </label>
@@ -284,7 +288,7 @@ export default function PropertyReportComponent() {
                 </span>
                 <ChevronDown
                   size={18}
-                  className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isBuildingOpen ? "rotate-180" : "rotate-0"
+                  className={`shrink-0 text-[#A7B2AE] transition-transform duration-200 ${isAllocationOpen ? "rotate-180" : "rotate-0"
                     }`}
                 />
               </button>

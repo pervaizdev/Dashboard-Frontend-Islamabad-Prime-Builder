@@ -261,68 +261,93 @@ ${perProp.join("\n")}`;
 
   return (
     <>
+      <style>{`
+        @keyframes botPeriodicBounce {
+          0%, 75%, 100% {
+            transform: translateY(0);
+            box-shadow: 0 10px 25px rgba(18, 61, 50, 0.35);
+          }
+          82% {
+            transform: translateY(-24px);
+            box-shadow: 0 25px 40px rgba(18, 61, 50, 0.45);
+          }
+          88% {
+            transform: translateY(0);
+            box-shadow: 0 10px 25px rgba(18, 61, 50, 0.35);
+          }
+          93% {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 30px rgba(18, 61, 50, 0.4);
+          }
+          97% {
+            transform: translateY(-2px);
+          }
+        }
+        .animate-periodic-bounce {
+          animation: botPeriodicBounce 5s cubic-bezier(0.28, 0.84, 0.42, 1) infinite;
+        }
+      `}</style>
+
       {/* Floating Logo Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-8 right-8 flex h-[75px] w-[75px] items-center justify-center rounded-full border-[6px] border-[#e8f3ef] bg-green-900 shadow-lg z-[999] cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-xl ${isOpen ? "scale-90 ring-4 ring-[#C6A15B]/40" : ""}`}
+        className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 md:bottom-8 md:right-8 flex h-14 w-14 sm:h-[70px] sm:w-[70px] items-center justify-center rounded-full bg-[#123D32] shadow-[0_10px_30px_rgba(18,61,50,0.35)] z-[999] cursor-pointer transition-transform duration-300 ${
+          !isOpen ? "animate-periodic-bounce" : ""
+        }`}
         aria-label="Open IPB Assistant"
       >
         <Image
           src="/images/logo.png"
           alt="Company Logo"
-          width={40}
-          height={40}
-          className="object-contain"
+          width={36}
+          height={36}
+          className="object-contain w-8 h-8 sm:w-10 sm:h-10"
         />
       </button>
 
       {/* Chat Modal */}
       {isOpen && (
         <div
-          className={`fixed z-[1000] flex flex-col bg-white shadow-[0_25px_60px_rgba(0,0,0,0.25)] transition-all duration-300 ${
+          className={`fixed z-[1000] flex flex-col bg-white shadow-[0_25px_60px_rgba(0,0,0,0.25)] transition-all duration-300 overflow-hidden ${
             isExpanded
-              ? "inset-4 rounded-2xl"
-              : "bottom-28 right-8 w-[400px] h-[560px] rounded-2xl"
+              ? "inset-2 sm:inset-6 lg:inset-10 rounded-2xl"
+              : "inset-x-3 bottom-3 top-14 sm:top-auto sm:bottom-24 sm:right-6 sm:left-auto w-auto sm:w-[420px] h-[calc(100vh-70px)] sm:h-[580px] max-h-[640px] rounded-2xl"
           }`}
-          style={{ maxHeight: isExpanded ? "calc(100vh - 32px)" : "560px" }}
         >
           {/* Header */}
-          <div className="flex items-center gap-3 rounded-t-2xl bg-[#123D32] px-5 py-4">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10">
+          <div className="flex items-center gap-2.5 sm:gap-3 rounded-t-2xl bg-[#123D32] px-4 py-3 sm:px-5 sm:py-4 shrink-0">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
               <Image
                 src="/images/logo.png"
                 alt="IPB"
-                width={24}
-                height={24}
-                className="object-contain"
+                width={22}
+                height={22}
+                className="object-contain w-5 h-5 sm:w-6 sm:h-6"
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-[15px] font-bold text-[#E5C476] leading-tight">
+              <h3 className="text-sm sm:text-[15px] font-bold text-[#E5C476] leading-tight truncate">
                 IPB Assistant
               </h3>
-              <p className="text-[10px] text-white/50 font-medium">
-                Powered by Gemini AI
-              </p>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
                 aria-label={isExpanded ? "Minimize" : "Expand"}
               >
                 {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
               </button>
               <button
                 onClick={clearChat}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-red-500/20 hover:text-red-300 cursor-pointer"
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-red-500/20 hover:text-red-300 cursor-pointer"
                 aria-label="Clear chat"
               >
                 <Trash2 size={16} />
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white cursor-pointer"
                 aria-label="Close"
               >
                 <X size={16} />
@@ -330,23 +355,23 @@ ${perProp.join("\n")}`;
             </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-[#F8FAF9]">
+          {/* Messages Container */}
+          <div className="flex-1 overflow-y-auto px-3.5 py-4 sm:px-4 space-y-3.5 sm:space-y-4 bg-[#F8FAF9]">
             {/* Welcome message if no messages */}
             {messages.length === 0 && (
-              <div className="flex gap-3 items-start">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
+              <div className="flex gap-2.5 sm:gap-3 items-start">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
                   <Image
                     src="/images/logo.png"
                     alt="IPB"
-                    width={18}
-                    height={18}
-                    className="object-contain"
+                    width={16}
+                    height={16}
+                    className="object-contain w-4 h-4 sm:w-4.5 sm:h-4.5"
                   />
                 </div>
-                <div className="rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm border border-[#123D32]/5 max-w-[85%]">
-                  <p className="text-[13px] text-[#123D32] leading-relaxed">
-                    <span className="text-base">👋</span> Hello there! I am your{" "}
+                <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 sm:px-4 sm:py-3 shadow-sm border border-[#123D32]/5 max-w-[88%] sm:max-w-[85%]">
+                  <p className="text-xs sm:text-[13px] text-[#123D32] leading-relaxed">
+                    <span className="text-sm sm:text-base">👋</span> Hello there! I am your{" "}
                     <strong className="text-[#C6A15B]">IPB Assistant</strong>. Ask me anything about your properties, installments, owners, or financial data!
                   </p>
                 </div>
@@ -356,24 +381,24 @@ ${perProp.join("\n")}`;
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex gap-3 items-start ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+                className={`flex gap-2.5 sm:gap-3 items-start ${msg.role === "user" ? "flex-row-reverse" : ""}`}
               >
                 {/* Avatar */}
                 {msg.role !== "user" && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
                     <Image
                       src="/images/logo.png"
                       alt="IPB"
-                      width={18}
-                      height={18}
-                      className="object-contain"
+                      width={16}
+                      height={16}
+                      className="object-contain w-4 h-4 sm:w-4.5 sm:h-4.5"
                     />
                   </div>
                 )}
 
                 {/* Message Bubble */}
                 <div
-                  className={`rounded-2xl px-4 py-3 max-w-[85%] ${
+                  className={`rounded-2xl px-3.5 py-2.5 sm:px-4 sm:py-3 max-w-[88%] sm:max-w-[85%] ${
                     msg.role === "user"
                       ? "bg-[#123D32] text-white rounded-tr-md"
                       : msg.isError
@@ -383,12 +408,12 @@ ${perProp.join("\n")}`;
                   dir={isRTL(msg.text) ? "rtl" : "ltr"}
                 >
                   {msg.role === "user" ? (
-                    <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
+                    <p className="text-xs sm:text-[13px] leading-relaxed whitespace-pre-wrap">
                       {msg.text}
                     </p>
                   ) : (
                     <div
-                      className="text-[13px] leading-relaxed prose-sm"
+                      className="text-xs sm:text-[13px] leading-relaxed prose-sm"
                       dangerouslySetInnerHTML={{ __html: formatText(msg.text) }}
                     />
                   )}
@@ -398,17 +423,17 @@ ${perProp.join("\n")}`;
 
             {/* Typing indicator */}
             {isLoading && (
-              <div className="flex gap-3 items-start">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
+              <div className="flex gap-2.5 sm:gap-3 items-start">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-[#123D32]">
                   <Image
                     src="/images/logo.png"
                     alt="IPB"
-                    width={18}
-                    height={18}
-                    className="object-contain"
+                    width={16}
+                    height={16}
+                    className="object-contain w-4 h-4 sm:w-4.5 sm:h-4.5"
                   />
                 </div>
-                <div className="rounded-2xl rounded-tl-md bg-white px-4 py-3 shadow-sm border border-[#123D32]/5">
+                <div className="rounded-2xl rounded-tl-md bg-white px-3.5 py-2.5 sm:px-4 sm:py-3 shadow-sm border border-[#123D32]/5">
                   <div className="flex items-center gap-1.5">
                     <div className="h-2 w-2 rounded-full bg-[#C6A15B] animate-bounce" style={{ animationDelay: "0ms" }} />
                     <div className="h-2 w-2 rounded-full bg-[#C6A15B] animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -422,7 +447,7 @@ ${perProp.join("\n")}`;
           </div>
 
           {/* Input Bar */}
-          <div className="border-t border-[#123D32]/8 bg-white px-4 py-3 rounded-b-2xl">
+          <div className="border-t border-[#123D32]/8 bg-white px-3 py-2.5 sm:px-4 sm:py-3 rounded-b-2xl shrink-0">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}
@@ -432,12 +457,12 @@ ${perProp.join("\n")}`;
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about properties, installments..."
                 disabled={isLoading}
-                className="flex-1 h-[44px] rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 text-[13px] font-medium text-[#123D32] outline-none transition-all duration-200 placeholder:text-[#123D32]/35 focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10 disabled:opacity-50"
+                className="flex-1 h-[42px] sm:h-[44px] rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-3.5 sm:px-4 text-xs sm:text-[13px] font-medium text-[#123D32] outline-none transition-all duration-200 placeholder:text-[#123D32]/35 focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10 disabled:opacity-50"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-xl bg-[#123D32] text-[#E5C476] transition-all duration-200 hover:bg-[#0C3027] hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="flex h-[42px] w-[42px] sm:h-[44px] sm:w-[44px] shrink-0 items-center justify-center rounded-xl bg-[#123D32] text-[#E5C476] transition-all duration-200 hover:bg-[#0C3027] hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 aria-label="Send message"
               >
                 {isLoading ? (

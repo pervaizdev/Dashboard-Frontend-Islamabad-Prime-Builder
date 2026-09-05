@@ -75,18 +75,18 @@ export default function Gallery() {
         >
           <div className="mb-12">
             <h2 className="text-primary font-serif text-3xl font-bold text-center md:text-5xl lg:text-6xl">
-              <span className="text-black">View </span> Gallery
+              <span className="text-[#123D32]">View </span> Gallery
             </h2>
             <p className="text-md mt-4 max-w-2xl mx-auto text-charcoal/50 text-center">Take a closer look at our recent work and project highlights.
               See how ideas turn into reality with quality and precision.
               Our gallery captures every step of the journey.</p>
             <div className="mt-13 lg:flex justify-between">
               <h2 className="text-primary font-serif text-3xl font-bold mt-3 lg:text-5xl">
-                Latest <hr className="-bottom-2 h-[3px] w-2/3 rounded-full bg-primary" />
+                Latest <hr className="-bottom-2 h-[4px] w-2/3 rounded-full bg-[#123D32]" />
               </h2>
               <Link
                 href="/dashboard/gallery"
-                className="group mt-6 mb-3 inline-flex w-full lg:w-auto justify-center lg:justify-end gap-3 rounded-full bg-charcoal px-8 py-4 text-xs font-bold uppercase text-white transition-all hover:bg-primary hover:text-charcoal hover:shadow-xl hover:shadow-primary/20"
+                className="group mt-6 mb-3 inline-flex w-full lg:w-auto justify-center lg:justify-end gap-3 rounded-full bg-[#123D32] px-8 py-4 text-xs font-bold uppercase text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
               >
                 Explore Full Gallery
                 <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
@@ -116,7 +116,10 @@ export default function Gallery() {
               >
                 {images.map((item, index) => (
                   <SwiperSlide key={item._id}>
-                    <div className="relative flex w-full h-[500px] items-center justify-center overflow-hidden rounded-[2.5rem]">
+                    <div
+                      onClick={() => setSelectedImageIndex(index)}
+                      className="relative flex w-full h-[500px] items-center justify-center overflow-hidden rounded-[2.5rem] cursor-pointer"
+                    >
                       {isVideo(item.url) ? (
                         <video
                           src={item.url}
@@ -141,7 +144,7 @@ export default function Gallery() {
                       <div className="absolute inset-0 bg-linear-to-t from-charcoal/90 via-charcoal/20 to-transparent opacity-100" />
 
                       <div className="absolute bottom-6 left-6 right-6 md:bottom-12 md:left-12 md:right-12 flex items-end justify-between">
-                        <div className="text-white max-w-[75%]">
+                        <div className="text-white max-w-[90%]">
                           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md">
                             {formatDate(item.createdAt)}
                           </p>
@@ -157,13 +160,6 @@ export default function Gallery() {
                             </p>
                           )}
                         </div>
-
-                        <button
-                          onClick={() => setSelectedImageIndex(index)}
-                          className="rounded-full border border-white/20 bg-white/10 p-4 text-white backdrop-blur-md transition-all hover:bg-primary hover:text-charcoal"
-                        >
-                          <Maximize2 size={24} />
-                        </button>
                       </div>
                     </div>
                   </SwiperSlide>
@@ -187,52 +183,30 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/90 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl"
             onClick={() => setSelectedImageIndex(null)}
           >
-            <div className="relative flex items-center justify-center">
-              {/* Prev Button - outside modal box */}
-              {images.length > 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showPrevImage();
-                  }}
-                  className="absolute -left-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m15 18-6-6 6-6" />
-                  </svg>
-                </button>
-              )}
-
+            <div className="relative flex w-full justify-center items-center">
+              {/* Main Content Box */}
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.92, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative overflow-hidden rounded-[2rem] premium-border-glow shadow-2xl bg-black"
+                exit={{ scale: 0.92, opacity: 0 }}
+                className="relative overflow-hidden rounded-[2.5rem] bg-black border border-white/10 shadow-2xl flex flex-col max-h-[90vh] w-full max-w-[480px] sm:max-w-[520px]"
                 onClick={(e) => e.stopPropagation()}
               >
+                {/* Close Button */}
                 <button
                   type="button"
                   onClick={() => setSelectedImageIndex(null)}
-                  className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal"
+                  className="absolute right-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                  aria-label="Close"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5" />
                 </button>
 
-                <div className="relative max-h-[85vh] max-w-[90vw]">
+                {/* Media Container */}
+                <div className="relative flex-1 flex items-center justify-center overflow-hidden bg-black min-h-0">
                   {isVideo(selectedImage.url) ? (
                     <video
                       src={selectedImage.url}
@@ -241,69 +215,98 @@ export default function Gallery() {
                       muted
                       playsInline
                       controls
-                      className="max-h-[85vh] max-w-[90vw] object-contain"
+                      className="w-full max-h-[58vh] object-contain block mx-auto z-10"
                     />
                   ) : (
-                    <Image
-                      src={selectedImage.url}
-                      alt={selectedImage.title || "Selected gallery image"}
-                      width={1600}
-                      height={1200}
-                      sizes="90vw"
-                      unoptimized={true}
-                      className="max-h-[85vh] max-w-[90vw] object-contain"
-                    />
+                    <div className="relative w-full h-full min-h-[260px] max-h-[60vh] flex items-center justify-center">
+                      <Image
+                        src={selectedImage.url}
+                        alt={selectedImage.title || "Selected gallery image"}
+                        width={1200}
+                        height={1200}
+                        unoptimized={true}
+                        priority
+                        className="max-h-[60vh] w-full object-contain"
+                      />
+                    </div>
                   )}
 
-                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none rounded-b-[2rem]" />
-                  
-                  <div className="absolute bottom-6 left-6 right-16 md:bottom-10 md:left-10 md:right-20 pointer-events-none">
-                    <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary shadow-black drop-shadow-md">
-                      {formatDate(selectedImage.createdAt)}
-                    </p>
+                  {/* Prev Button Overlay */}
+                  {images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showPrevImage();
+                      }}
+                      className="absolute left-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Previous image"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m15 18-6-6 6-6" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Next Button Overlay */}
+                  {images.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        showNextImage();
+                      }}
+                      className="absolute right-3 top-1/2 z-30 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md border border-white/20 transition hover:bg-[#E5C476] hover:text-black shadow-md"
+                      aria-label="Next image"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+
+                {/* Caption / Footer inside modal */}
+                {(selectedImage.title || selectedImage.description || selectedImage.createdAt) && (
+                  <div className="w-full bg-[#080808] border-t border-white/10 p-5 sm:p-6 text-white shrink-0">
+                    {selectedImage.createdAt && (
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[#E5C476] mb-1.5">
+                        {formatDate(selectedImage.createdAt)}
+                      </p>
+                    )}
                     {selectedImage.title && (
-                      <h3 className="mb-3 font-serif text-2xl md:text-4xl font-bold text-white drop-shadow-lg leading-tight">
+                      <h3 className="font-serif text-lg sm:text-xl font-bold text-white leading-tight mb-2">
                         {selectedImage.title}
                       </h3>
                     )}
-                    {selectedImage.title && <hr className="w-12 border-[1.5px] border-primary mb-4 rounded-full" />}
                     {selectedImage.description && (
-                      <p className="max-w-3xl text-sm md:text-base text-white/90 drop-shadow-md">
+                      <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed line-clamp-3">
                         {selectedImage.description}
                       </p>
                     )}
                   </div>
-                </div>
+                )}
               </motion.div>
-
-              {/* Next Button - outside modal box */}
-              {images.length > 1 && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    showNextImage();
-                  }}
-                  className="absolute -right-14 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition hover:bg-primary hover:text-charcoal md:flex"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m9 18 6-6-6-6" />
-                  </svg>
-                </button>
-              )}
-
-              {/* Mobile buttons */}
-            
             </div>
           </motion.div>
         )}

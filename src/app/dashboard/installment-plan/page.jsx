@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import {
   Search,
   ChevronDown,
@@ -10,6 +10,7 @@ import {
   Building2,
   Clock3,
   Loader2,
+  Calendar,
 } from "lucide-react";
 
 import {
@@ -226,6 +227,30 @@ const InstallmentPlanPage = () => {
   const [selectedAllocation, setSelectedAllocation] = useState("Other");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
 
+  const searchRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const [buildingsList, setBuildingsList] = useState([]);
   const [floorsList, setFloorsList] = useState([]);
   const [typesList, setTypesList] = useState([]);
@@ -345,7 +370,7 @@ const InstallmentPlanPage = () => {
       });
     });
     return [
-      { name: "Down Payment", value: dp, color: "#c29e6d" },
+      { name: "Down Payment", value: dp, color: "#C6A15B" },
       { name: "Paid Installment", value: paid, color: "#10b981" },
       { name: "Unpaid Installment", value: unpaid, color: "#f59e0b" },
       { name: "Overdue Installment", value: overdue, color: "#ef4444" },
@@ -749,10 +774,10 @@ const InstallmentPlanPage = () => {
         {/* Body */}
         <div className="px-5 py-6 sm:px-8">
 
-          <div className="grid grid-cols-1 gap-x-5 gap-y-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2 lg:grid-cols-4 items-end">
 
             {/* Search */}
-            <div>
+            <div className="relative" ref={searchRef}>
               <label
                 htmlFor="installment-search"
                 className="mb-2 block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[#123D32]/65"
@@ -760,65 +785,53 @@ const InstallmentPlanPage = () => {
                 Search
               </label>
 
-              <div className="relative flex h-[47px] items-center rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] transition-all duration-200 hover:border-[#C6A15B]/50 focus-within:border-[#C6A15B] focus-within:bg-white focus-within:ring-4 focus-within:ring-[#C6A15B]/10">
-
-                <select
-                  value={searchType}
+              <div className="relative">
+                <input
+                  id="installment-search"
+                  type="text"
+                  value={searchTerm}
                   onChange={(e) => {
-                    setSearchType(e.target.value);
-                    setSearchTerm("");
-                    setSuggestions([]);
+                    setSearchTerm(e.target.value);
+                    setShowSuggestions(true);
                   }}
-                  className="h-full w-[105px] shrink-0 cursor-pointer rounded-l-xl border-0 border-r border-[#123D32]/10 bg-transparent px-3 text-xs font-bold text-[#123D32] outline-none"
-                >
-                  <option value="name">Name</option>
-                  <option value="propertyNumber">Prop. No.</option>
-                </select>
+                  onFocus={() => setShowSuggestions(true)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && handleApplyFilters()
+                  }
+                  placeholder="Search owner or property..."
+                  className="h-[47px] w-full rounded-xl border border-[#123D32]/10 bg-[#F8FAF9] px-4 pr-9 text-xs font-semibold text-[#123D32] outline-none transition-all duration-200 placeholder:font-medium placeholder:text-[#123D32]/35 hover:border-[#C6A15B]/50 hover:bg-white focus:border-[#C6A15B] focus:bg-white focus:ring-4 focus:ring-[#C6A15B]/10"
+                />
 
-                <div className="relative h-full flex-1">
-                  <Search
-                    size={17}
-                    className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#123D32]/35"
-                  />
-
-                  <input
-                    id="installment-search"
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() =>
-                      setTimeout(() => setShowSuggestions(false), 200)
-                    }
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handleApplyFilters()
-                    }
-                    placeholder={
-                      searchType === "name"
-                        ? "Search owner name..."
-                        : "Search property no..."
-                    }
-                    className="h-full w-full rounded-r-xl bg-transparent pl-9 pr-3 text-xs font-semibold text-[#123D32] outline-none placeholder:font-medium placeholder:text-[#123D32]/35"
-                  />
-                </div>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSuggestions([]);
+                    }}
+                    className="absolute inset-y-0 right-0 flex cursor-pointer items-center pr-3 text-xs font-bold text-[#C6A15B] transition-colors hover:text-[#123D32]"
+                  >
+                    ×
+                  </button>
+                )}
 
                 {/* Suggestions */}
                 {showSuggestions && suggestions.length > 0 && (
-                  <ul className="absolute left-0 top-full z-50 mt-2 max-h-52 w-full overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
+                  <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-52 space-y-1 overflow-y-auto rounded-xl border border-[#C6A15B]/20 bg-white p-1.5 shadow-[0_15px_35px_rgba(18,61,50,0.15)]">
                     {suggestions.map((sug, idx) => (
-                      <li
+                      <div
                         key={idx}
-                        onMouseDown={() => {
+                        onClick={() => {
                           setSearchTerm(sug);
                           setShowSuggestions(false);
                           setTimeout(() => handleApplyFilters(), 0);
                         }}
                         className="cursor-pointer rounded-lg px-3.5 py-2.5 text-xs font-semibold text-[#123D32] transition-colors hover:bg-[#C6A15B]/10"
                       >
-                        {sug}
-                      </li>
+                        <span className="truncate">{sug}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 )}
               </div>
             </div>
@@ -840,6 +853,34 @@ const InstallmentPlanPage = () => {
               onChange={(value) => {
                 setSelectedBuilding(value);
                 setSelectedFloor("All Floors");
+              }}
+            />
+
+            {/* Allocation Type */}
+            <CustomDropdown
+              label="Allocation Type"
+              value={selectedAllocation}
+              displayValue={
+                selectedAllocation === "Other"
+                  ? "Client"
+                  : selectedAllocation
+              }
+              options={[
+                {
+                  value: "All Allocations",
+                  label: "All Allocations",
+                },
+                {
+                  value: "Partner",
+                  label: "Partner",
+                },
+                {
+                  value: "Other",
+                  label: "Client",
+                },
+              ]}
+              onChange={(value) => {
+                setSelectedAllocation(value);
               }}
             />
 
@@ -901,34 +942,6 @@ const InstallmentPlanPage = () => {
               }}
             />
 
-            {/* Allocation Type */}
-            <CustomDropdown
-              label="Allocation Type"
-              value={selectedAllocation}
-              displayValue={
-                selectedAllocation === "Other"
-                  ? "Client"
-                  : selectedAllocation
-              }
-              options={[
-                {
-                  value: "All Allocations",
-                  label: "All Allocations",
-                },
-                {
-                  value: "Partner",
-                  label: "Partner",
-                },
-                {
-                  value: "Other",
-                  label: "Client",
-                },
-              ]}
-              onChange={(value) => {
-                setSelectedAllocation(value);
-              }}
-            />
-
             {/* Status */}
             <CustomDropdown
               label="Status"
@@ -983,36 +996,65 @@ const InstallmentPlanPage = () => {
         <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-4 relative">
           <h2 className="mb-3 text-base font-bold text-slate-800">Installment Plans by Status</h2>
 
-          {/* Floating Tooltip on Hover */}
+          {/* Floating Tooltip on Hover / Tap */}
           {hoveredSlice && (
-            <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[230px] pointer-events-none transition-all duration-200 border border-slate-200/80">
-              <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">{hoveredSlice.name}</p>
-              <div className="space-y-1.5 text-slate-600">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Amount:</span>
-                  <span className="font-bold text-slate-800">Rs. {formatCurrency(hoveredSlice.value)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Percentage:</span>
-                  <span className="font-bold text-blue-600">
-                    {totalPieAmount > 0 ? ((hoveredSlice.value / totalPieAmount) * 100).toFixed(1) : 0}%
-                  </span>
-                </div>
+            <div className="absolute z-50 top-14 right-2 sm:right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[255px] max-w-[calc(100%-1rem)] pointer-events-none transition-all duration-200 border border-slate-200/80">
+              <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
+                Installment Plans Status
+              </p>
+              <div className="space-y-2">
+                {donutData.map((item) => {
+                  const percentage =
+                    totalPieAmount > 0
+                      ? ((item.value / totalPieAmount) * 100).toFixed(1)
+                      : "0.0";
+                  const isCurrent = hoveredSlice?.name === item.name;
+
+                  return (
+                    <div
+                      key={item.name}
+                      className={`p-2 rounded-xl border transition-all ${
+                        isCurrent
+                          ? "bg-slate-50 border-slate-300/80 shadow-sm"
+                          : "bg-white border-transparent opacity-75"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-0.5">
+                        <span className="flex items-center gap-1.5 font-bold text-slate-700">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          {item.name}
+                        </span>
+                        <span className="text-[11px] font-bold text-blue-600">
+                          {percentage}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-slate-600 text-[11px] pl-4">
+                        <span>Amount:</span>
+                        <span className="font-bold text-slate-800">
+                          Rs. {formatCurrency(item.value)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Row: [donut] [legend] — enlarged donut & balanced spacing */}
-          <div className="flex items-center gap-5 sm:gap-6 py-1">
+          <div className="flex items-center gap-4 sm:gap-6 py-1">
 
             {/* Donut — enlarged size */}
-            <div className="relative shrink-0 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none" style={{ width: 170, height: 170 }}>
+            <div className="relative shrink-0 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none" style={{ width: 160, height: 160 }}>
               <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
                 <PieChart tabIndex={-1} style={{ outline: 'none' }}>
                   <Pie
                     data={donutData}
                     cx="50%" cy="50%"
-                    innerRadius={52} outerRadius={74}
+                    innerRadius={48} outerRadius={70}
                     paddingAngle={3}
                     dataKey="value"
                     stroke="none"
@@ -1041,7 +1083,7 @@ const InstallmentPlanPage = () => {
             </div>
 
             {/* Legend — shifted right with balanced vertical spacing */}
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-2 min-w-0">
               {donutData.map((item) => {
                 const isActive = hoveredSlice?.name === item.name;
                 const compactVal = item.value >= 1_000_000_000
@@ -1055,24 +1097,21 @@ const InstallmentPlanPage = () => {
                 return (
                   <div
                     key={item.name}
-                    className={`flex items-center gap-2.5 cursor-default rounded-xl px-2 py-1.5 transition-colors ${isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
+                    className={`flex items-center gap-2 cursor-default rounded-xl px-1 py-1.5 transition-colors ${isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
                       }`}
                   >
                     <span
-                      className="h-3 w-3 shrink-0 rounded-full"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ backgroundColor: item.color }}
                     />
-                    <div className="overflow-hidden">
+                    <div className="min-w-0 flex-1">
                       {/* Category name */}
-                      <div className="whitespace-nowrap text-[11px] font-semibold leading-tight text-slate-500">
+                      <div className="truncate text-[11px] font-semibold leading-tight text-slate-500">
                         {item.name}
                       </div>
-                      {/* Amount: Compact (M/B) + Full Digits */}
-                      <div className="whitespace-nowrap text-[12px] font-bold leading-tight text-slate-900 mt-0.5">
-                        Rs. {compactVal}{" "}
-                        <span className="text-[10px] font-medium text-slate-400">
-                          ({formatCurrency(item.value)})
-                        </span>
+                      {/* Amount: Compact (M/B) */}
+                      <div className="truncate text-[12px] font-bold leading-tight text-slate-900 mt-0.5">
+                        Rs. {compactVal}
                       </div>
                     </div>
                   </div>
@@ -1086,7 +1125,9 @@ const InstallmentPlanPage = () => {
         <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-8">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-base font-bold text-slate-800">Collections Over Time</h2>
-            <span className="text-xs font-semibold text-slate-400">Last 12 Months</span>
+            <span className="text-xs font-semibold text-slate-400">
+              {isMobile ? "Last 4 Months" : "Last 12 Months"}
+            </span>
           </div>
 
           {/* Compact height so card stays proportional */}
@@ -1095,17 +1136,17 @@ const InstallmentPlanPage = () => {
               <BarChart
                 tabIndex={-1}
                 style={{ outline: 'none' }}
-                data={barData}
-                barGap={1}
-                barCategoryGap="20%"
-                margin={{ top: 5, right: 5, left: -18, bottom: 0 }}
+                data={isMobile ? barData.slice(-4) : barData}
+                barGap={isMobile ? 4 : 1}
+                barCategoryGap={isMobile ? "25%" : "20%"}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
 
                 {/* Horizontal labels — angle=0, textAnchor=middle, interval=0 */}
                 <XAxis
                   dataKey="month"
-                  tick={{ fontSize: 9, fill: "#94a3b8" }}
+                  tick={{ fontSize: isMobile ? 10 : 9, fill: "#94a3b8" }}
                   axisLine={false}
                   tickLine={false}
                   interval={0}
@@ -1119,29 +1160,29 @@ const InstallmentPlanPage = () => {
                   axisLine={false}
                   tickLine={false}
                   unit="M"
-                  width={36}
+                  width={38}
                 />
 
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
 
-                <Bar dataKey="downpayment" name="Down Payment" fill="#c29e6d" radius={[3, 3, 0, 0]} barSize={6} />
-                <Bar dataKey="paid" name="Paid" fill="#10b981" radius={[3, 3, 0, 0]} barSize={6} />
-                <Bar dataKey="unpaid" name="Unpaid" fill="#f59e0b" radius={[3, 3, 0, 0]} barSize={6} />
-                <Bar dataKey="overdue" name="Overdue" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={6} />
+                <Bar dataKey="downpayment" name="Down Payment" fill="#C6A15B" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
+                <Bar dataKey="paid" name="Paid" fill="#10b981" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
+                <Bar dataKey="unpaid" name="Unpaid" fill="#f59e0b" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
+                <Bar dataKey="overdue" name="Overdue" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-5">
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-5">
             {[
-              { label: "Down Payment", color: "#c29e6d" },
+              { label: "Down Payment", color: "#C6A15B" },
               { label: "Paid", color: "#10b981" },
               { label: "Unpaid", color: "#f59e0b" },
               { label: "Overdue", color: "#ef4444" },
             ].map(({ label, color }) => (
               <div key={label} className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
-                <span className="text-xs font-semibold text-slate-600">{label}</span>
+                <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap">{label}</span>
               </div>
             ))}
           </div>
@@ -1149,32 +1190,32 @@ const InstallmentPlanPage = () => {
       </div>
 
       {/* ── Table ── */}
-      <div className="overflow-hidden rounded-2xl border border-[#ead8b9] bg-white shadow-sm">
+      <div className="rounded-2xl border border-[#C6A15B]/30 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="border-b border-[#eee5d8] bg-[#fbf8f3]">
+          <table className="min-w-full divide-y divide-[#1F6B4F]/20">
+            <thead className="bg-[#123D32]">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Owner Name</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Property Info</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Period</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Amount</th>
-                <th className="px-6 py-4 text-left text-xs font-bold uppercase tracking-[0.12em] text-[#8a8177]">Status</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Owner Name</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Property Info</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Period</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3.5 text-left text-xs font-semibold text-[#E5C476] uppercase tracking-wider">Status</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#eeeae4] bg-white">
+            <tbody className="bg-white divide-y divide-[#1F6B4F]/10">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-14 text-center">
-                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#c29e6d]" />
-                    <p className="mt-2 text-sm font-semibold text-slate-600">Loading installment plans...</p>
+                  <td colSpan={5} className="px-6 py-14 text-center text-[#123D32]/60">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-[#C6A15B]" />
+                    <p className="mt-2 text-sm font-semibold text-[#123D32]">Loading installment plans...</p>
                   </td>
                 </tr>
               ) : groupedTableData.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-14 text-center">
-                    <div className="text-sm font-semibold text-slate-600">No installment plans found</div>
-                    <p className="mt-1 text-xs text-slate-400">Try clearing or adjusting your search or filter options.</p>
+                  <td colSpan={5} className="px-6 py-14 text-center text-[#123D32]/60">
+                    <div className="text-sm font-semibold text-[#123D32]">No installment plans found</div>
+                    <p className="mt-1 text-xs text-[#123D32]/60">Try clearing or adjusting your search or filter options.</p>
                   </td>
                 </tr>
               ) : (
@@ -1184,36 +1225,36 @@ const InstallmentPlanPage = () => {
                     <React.Fragment key={ownerGroup.ownerNames + oIdx}>
                       {/* LEVEL 1: Owner Name Row */}
                       <tr
-                        className="cursor-pointer transition-colors hover:bg-slate-50 border-b border-slate-100"
+                        className="cursor-pointer transition-colors hover:bg-[#C6A15B]/5 border-b border-[#1F6B4F]/10"
                         onClick={() => toggleOwner(ownerGroup.ownerNames)}
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            {isOwnerExpanded ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7f1e8] text-[#c29e6d]">
+                            {isOwnerExpanded ? <ChevronDown size={16} className="text-[#C6A15B]" /> : <ChevronRight size={16} className="text-[#123D32]/40" />}
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#C6A15B]/10 text-[#123D32] border border-[#C6A15B]/30">
                               <User size={17} />
                             </div>
-                            <span className="text-sm font-bold text-slate-800">{ownerGroup.ownerNames}</span>
+                            <span className="text-sm font-bold text-[#123D32]">{ownerGroup.ownerNames}</span>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs font-semibold text-slate-500">{ownerGroup.propertyCount} Properties</span>
+                          <span className="text-xs font-medium text-[#123D32]/70">{ownerGroup.propertyCount} Properties</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs font-semibold text-slate-500">{ownerGroup.installmentCount} Installments</span>
+                          <span className="text-xs font-medium text-[#123D32]/70">{ownerGroup.installmentCount} Installments</span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-bold text-slate-900">Rs. {formatCurrency(ownerGroup.totalAmount)}</div>
+                          <div className="text-sm font-bold text-[#123D32]">Rs. {formatCurrency(ownerGroup.totalAmount)}</div>
                           {(ownerGroup.overdueAmount > 0 || ownerGroup.unpaidAmount > 0) && (
                             <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
                               {ownerGroup.overdueAmount > 0 && (
-                                <span className="font-medium text-slate-500">
+                                <span className="font-medium text-[#ef4444]">
                                   Overdue: Rs. {formatCurrency(ownerGroup.overdueAmount)}{" "}
                                   ({((ownerGroup.overdueAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
                                 </span>
                               )}
                               {ownerGroup.unpaidAmount > 0 && (
-                                <span className="font-medium text-slate-500">
+                                <span className="font-medium text-[#f59e0b]">
                                   Unpaid: Rs. {formatCurrency(ownerGroup.unpaidAmount)}{" "}
                                   ({((ownerGroup.unpaidAmount / ownerGroup.totalAmount) * 100).toFixed(1)}%)
                                 </span>
@@ -1222,7 +1263,7 @@ const InstallmentPlanPage = () => {
                           )}
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-xs font-semibold text-slate-400">—</span>
+                          <span className="text-xs font-semibold text-[#123D32]/40">—</span>
                         </td>
                       </tr>
 
@@ -1242,40 +1283,42 @@ const InstallmentPlanPage = () => {
                           <React.Fragment key={property.property_id + pIdx}>
                             {/* LEVEL 2: Property Info Row */}
                             <tr
-                              className="cursor-pointer transition-all hover:bg-slate-100 border-b border-slate-200 bg-slate-50/80"
+                              className="cursor-pointer transition-all hover:bg-[#C6A15B]/10 border-b border-[#1F6B4F]/10 bg-[#F8FAF9]"
                               onClick={() => toggleProperty(property.property_id)}
                             >
-                              <td colSpan={2} className="py-3.5 pl-[3.5rem] border-l-4 border-l-[#c29e6d]/40">
+                              <td colSpan={2} className="py-3.5 pl-[3.5rem] border-l-4 border-l-[#C6A15B]">
                                 <div className="flex items-center gap-3">
-                                  <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-colors shadow-sm ${isPropertyExpanded ? 'bg-[#c29e6d] text-white' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-100'}`}>
-                                    {isPropertyExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                                  </div>
+                                  {isPropertyExpanded ? (
+                                    <ChevronDown size={16} className="text-[#C6A15B] shrink-0" />
+                                  ) : (
+                                    <ChevronRight size={16} className="text-[#123D32]/40 shrink-0" />
+                                  )}
                                   <div>
-                                    <div className="text-sm font-bold text-slate-800">
-                                      <span className="text-[#c29e6d]">#{property.property_number}</span> — {property.building_name}
+                                    <div className="text-sm font-bold text-[#123D32]">
+                                      <span className="text-[#C6A15B]">{property.property_number}</span> — {property.building_name}
                                     </div>
-                                    <div className="mt-0.5 text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                                    <div className="mt-0.5 text-[11px] font-semibold tracking-wider text-[#123D32]/60 uppercase">
                                       {property.floor || "N/A"} • {property.type}
                                     </div>
                                   </div>
                                 </div>
                               </td>
                               <td className="px-6 py-3.5">
-                                <div className="text-xs font-bold text-slate-800">{periodRange}</div>
-                                <div className="text-[11px] font-semibold text-slate-400">{propGroup.installmentCount} Installment{propGroup.installmentCount > 1 ? "s" : ""}</div>
+                                <div className="text-xs font-bold text-[#123D32]">{periodRange}</div>
+                                <div className="text-[11px] font-medium text-[#123D32]/60">{propGroup.installmentCount} Installment{propGroup.installmentCount > 1 ? "s" : ""}</div>
                               </td>
                               <td className="px-6 py-3.5">
-                                <div className="text-sm font-bold text-slate-800">Rs. {formatCurrency(propGroup.totalAmount)}</div>
+                                <div className="text-sm font-bold text-[#123D32]">Rs. {formatCurrency(propGroup.totalAmount)}</div>
                                 {(propGroup.overdueAmount > 0 || propGroup.unpaidAmount > 0) && (
                                   <div className="mt-1 flex flex-col gap-0.5 text-[11px]">
                                     {propGroup.overdueAmount > 0 && (
-                                      <span className="font-medium text-slate-500">
+                                      <span className="font-medium text-[#ef4444]">
                                         Overdue: Rs. {formatCurrency(propGroup.overdueAmount)}{" "}
                                         ({((propGroup.overdueAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
                                       </span>
                                     )}
                                     {propGroup.unpaidAmount > 0 && (
-                                      <span className="font-medium text-slate-500">
+                                      <span className="font-medium text-[#f59e0b]">
                                         Unpaid: Rs. {formatCurrency(propGroup.unpaidAmount)}{" "}
                                         ({((propGroup.unpaidAmount / propGroup.totalAmount) * 100).toFixed(1)}%)
                                       </span>
@@ -1284,35 +1327,39 @@ const InstallmentPlanPage = () => {
                                 )}
                               </td>
                               <td className="px-6 py-3.5">
-                                <span className="text-xs font-semibold text-slate-400">—</span>
+                                <span className="text-xs font-semibold text-[#123D32]/40">—</span>
                               </td>
                             </tr>
 
                             {/* LEVEL 3: Installment Rows */}
                             {isPropertyExpanded && propGroup.installments.map((instRow, iIdx) => (
-                              <tr key={instRow.rowKey} className="transition-all hover:bg-slate-50 border-b border-slate-100 bg-white relative group">
-                                <td colSpan={2} className="py-3 pl-[5.5rem] border-l-4 border-l-transparent relative">
-                                  {/* Tree Connector Lines */}
-                                  <div className="absolute left-[4.25rem] top-0 bottom-0 w-[2px] bg-slate-200 group-last:bottom-1/2"></div>
-                                  <div className="absolute left-[4.25rem] top-1/2 h-[2px] w-3 bg-slate-200"></div>
-
-                                  <span className="text-sm font-bold text-slate-600">{instRow.periodLabel}</span>
+                              <tr key={instRow.rowKey} className="transition-all hover:bg-[#C6A15B]/5 border-b border-[#1F6B4F]/10 bg-white">
+                                <td colSpan={2} className="py-3 pl-[4.5rem]">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#C6A15B]/10 text-[#C6A15B] border border-[#C6A15B]/25 shadow-2xs">
+                                      <Calendar size={13} />
+                                    </div>
+                                    <span className="text-xs font-bold text-[#123D32] tracking-wide">{instRow.periodLabel}</span>
+                                  </div>
                                 </td>
                                 <td className="px-6 py-3">
-                                  <span className="text-xs font-semibold text-slate-600">
+                                  <span className="text-xs font-medium text-[#123D32]/70">
                                     {instRow.installment?.dueDate
                                       ? new Date(instRow.installment.dueDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
                                       : instRow.periodLabel || "—"}
                                   </span>
                                 </td>
                                 <td className="px-6 py-3">
-                                  <span className="text-sm font-bold text-slate-700">Rs. {formatCurrency(instRow.displayAmount)}</span>
+                                  <span className="text-sm font-bold text-[#123D32]">Rs. {formatCurrency(instRow.displayAmount)}</span>
                                 </td>
                                 <td className="px-6 py-3">
-                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${instRow.displayStatus === "Overdue" ? "bg-rose-50 text-rose-600"
-                                    : instRow.displayStatus === "Unpaid" ? "bg-orange-50 text-orange-500"
-                                      : "bg-emerald-50 text-emerald-600"
-                                    }`}>
+                                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase border ${
+                                    instRow.displayStatus === "Overdue"
+                                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                                      : instRow.displayStatus === "Unpaid"
+                                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                                        : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                  }`}>
                                     <Clock3 size={11} />
                                     {instRow.displayStatus}
                                   </span>

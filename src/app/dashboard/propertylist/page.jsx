@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { propertyAPI } from "@/api/property";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -124,6 +125,7 @@ export default function PropertyListPage() {
     } catch (error) {
       toast.error(error.message || "Failed to fetch properties");
     } finally {
+      setIsDeleting(false);
       setLoading(false);
     }
   };
@@ -148,36 +150,52 @@ export default function PropertyListPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex flex-col gap-8">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-800">Property Inventory</h1>
-            <p className="mt-2 text-slate-500 font-medium">Manage and monitor all listed properties in the building.</p>
+        <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4 pb-6 border-b border-[#123D32]/10">
+          <div className="flex flex-col items-center md:items-start">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#123D32]">
+              Property <span className="text-[#C6A15B]">Inventory</span>
+            </h1>
+            <p className="mt-2 text-sm text-[#71829D] font-medium max-w-xl text-center md:text-left">
+              Manage and monitor all listed properties in the building.
+            </p>
           </div>
 
+          <Link
+            href="/dashboard"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0 shrink-0 self-center md:self-auto mt-2 md:mt-0"
+            aria-label="Return to dashboard"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Return to dashboard
+          </Link>
+        </div>
+
+        <div className="sm:flex justify-between"> 
           <div className="flex items-center gap-3 w-full md:max-w-md">
             <div className="relative group flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#71829D] h-5 w-5 transition-colors group-focus-within:text-[#123D32]" />
               <input
                 type="text"
                 placeholder="Search properties (number, type, floor...)"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3.5 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
+                className="w-full bg-white border border-[#123D32]/15 rounded-2xl pl-12 pr-4 py-3.5 text-sm text-[#123D32] placeholder:text-[#71829D]/60 focus:outline-none focus:ring-4 focus:ring-[#123D32]/5 focus:border-[#123D32] transition-all shadow-sm"
               />
             </div>
-            <button className="h-12 w-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-yellow-600 hover:border-yellow-600 transition-all shadow-sm">
+            <button className="h-12 w-12 shrink-0 rounded-2xl bg-white border border-[#123D32]/15 flex items-center justify-center text-[#71829D] hover:text-[#123D32] hover:border-[#123D32] transition-all shadow-sm">
               <Filter className="h-5 w-5" />
             </button>
           </div>
-        </div>
-
-        {/* Stats Summary (Optional) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Properties</span>
-            <span className="text-2xl font-bold text-slate-800">{totalCount}</span>
+          <div className="w-full sm:max-w-xs mt-7 sm:mt-0">
+            <div className="bg-white px-6 py-3 rounded-2xl sm:rounded-3xl border border-[#C6A15B]/25 shadow-[0_6px_20px_rgba(18,61,50,0.06)] flex items-center justify-between gap-4">
+              <span className="text-[11px] font-bold text-[#C6A15B] uppercase tracking-widest">
+                Total Properties
+              </span>
+              <span className="text-2xl font-bold text-[#123D32]">
+                {totalCount}
+              </span>
+            </div>
           </div>
-          {/* Add more stats if needed */}
         </div>
 
         {/* Table Section */}
@@ -271,7 +289,7 @@ export default function PropertyListPage() {
                           >
                             <ArrowRight size={16} />
                           </button>
-                          {(user.role === "super-admin" ) && (
+                          {(user.role === "super-admin") && (
                             <>
                               <button
                                 onClick={() => router.push(`/dashboard/properityform?id=${property.property_id}`)}
