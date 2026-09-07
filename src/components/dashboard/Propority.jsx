@@ -55,7 +55,7 @@ const PropertyTable = () => {
         viewport={{ once: true }}
         className="mb-6 sm:mb-10 text-center"
       >
-        <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#123D32] md:text-5xl lg:text-6xl">
+        <h2 className="font-serif font-bold tracking-tight text-3xl text-[#123D32] md:text-5xl lg:text-6xl">
           Your <span className="text-primary">Investments</span>
         </h2>
         <div className="mt-3 sm:mt-4">

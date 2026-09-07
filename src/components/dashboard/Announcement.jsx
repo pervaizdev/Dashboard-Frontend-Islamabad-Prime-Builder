@@ -95,7 +95,7 @@ const AnnouncementsSection = () => {
               <>
                 <Link
                   href="/dashboard/message"
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                  className="flex items-center gap-1.5 px-2 py-1.5 ms-5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
                 >
                   <MessageSquare className="h-2.5 w-2.5" />
                 

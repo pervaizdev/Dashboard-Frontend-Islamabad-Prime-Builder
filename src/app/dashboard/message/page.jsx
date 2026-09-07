@@ -9,6 +9,7 @@ import {
   Mail,
   CalendarDays,
   MessageSquare,
+  MessageCircle,
   Loader2,
   Trash2,
   Pencil,
@@ -242,7 +243,7 @@ export default function MessagesPage() {
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl premium-border-glow overflow-hidden"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
                 <button
                   type="button"
@@ -255,7 +256,7 @@ export default function MessagesPage() {
                 <div className="p-6">
                   <div className="mb-10 flex items-center gap-5">
                     <div className="h-12 w-12 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm">
-                      <MessageSquare className="h-6 w-6 text-yellow-600" />
+                      <MessageCircle className="h-6 w-6 text-yellow-600" />
                     </div>
 
                     <div>
@@ -315,7 +316,7 @@ export default function MessagesPage() {
                       onClick={() => setSelectedMessage(null)}
                       className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
                     >
-                      Close Inquiry
+                      Close
                     </button>
                   </div>
                 </div>

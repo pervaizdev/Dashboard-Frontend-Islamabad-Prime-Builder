@@ -31,7 +31,8 @@ import {
   BadgeCheck,
   Eye,
   Edit2,
-  Check
+  Check,
+  CalendarCheck2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { propertyAPI } from "@/api/property";
@@ -433,6 +434,16 @@ const PropertyDetailContent = () => {
 
   return (
     <div className="min-h-screen px-4 py-8 md:px-10 lg:px-16 space-y-10">
+      {/* SVG Gradient definitions — Green + Gold dual-tone */}
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="propDetailGoldGreen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#c29e6d" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
 
       <PaymentModal
         isOpen={isModalOpen}
@@ -463,11 +474,11 @@ const PropertyDetailContent = () => {
         </div>
 
         <Link
-          href="/dashboard"
-          className="inline-flex items-center justify-center gap-3 rounded-2xl bg-charcoal text-white px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-charcoal transition-all shadow-xl shadow-charcoal/20"
+          href="/dashboard/propertylist"
+          className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
         >
-          <ArrowLeft className="h-4 w-4" />
-          Return to Dashboard
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+          Return to Property List
         </Link>
       </motion.div>
 
@@ -480,10 +491,8 @@ const PropertyDetailContent = () => {
           animate="visible"
           className="glass rounded-[2rem] p-5 premium-border-glow shadow-xl"
         >
-          <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
-              <Building2 className="h-5 w-5" />
-            </div>
+          <div className="mb-6 flex items-center gap-3 border-b border-primary/10 pb-4">
+            <Building2 className="h-7 w-7 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
             <div>
               <h2 className="font-serif text-xl font-bold text-charcoal">
                 Property Details
@@ -501,14 +510,14 @@ const PropertyDetailContent = () => {
               { icon: MapPin, label: "Building Name", value: propertyData?.building_name },
               { icon: Tag, label: "Category", value: propertyData?.category },
             ].map((item, idx) => (
-              <div key={idx} className="group rounded-2xl border border-primary/5 bg-white/40 p-5 transition-all hover:bg-primary/5 hover:border-primary/20">
-                <div className="mb-3 flex items-center gap-2 text-primary/40 group-hover:text-primary transition-colors">
-                  <item.icon className="h-4 w-4" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em]">
+              <div key={idx} className="group rounded-2xl border border-primary/5 bg-white/40 p-5 ">
+                <div className="mb-3 flex items-center gap-2 text-primary/40">
+                  <item.icon className="h-4 w-4" style={{ stroke: "url(#propDetailGoldGreen)" }} />
+                  <p className="text-[10px]  text-[#E5C476] font-bold uppercase tracking-[0.15em]">
                     {item.label}
                   </p>
                 </div>
-                <h4 className="font-serif text-md font-semibold text-charcoal group-hover:translate-x-1 transition-transform">
+                <h4 className="font-serif text-md font-semibold text-charcoal">
                   {item.value}
                 </h4>
               </div>
@@ -523,10 +532,8 @@ const PropertyDetailContent = () => {
           animate="visible"
           className="glass rounded-[2rem] p-5 premium-border-glow shadow-xl bg-charcoal/5"
         >
-          <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-charcoal text-primary shadow-lg ring-1 ring-primary/20">
-              <Landmark className="h-5 w-5" />
-            </div>
+          <div className="mb-6 flex items-center gap-3 border-b border-primary/10 pb-4">
+            <Landmark className="h-7 w-7 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
             <div>
               <h2 className="font-serif text-xl font-bold text-charcoal group-hover:text-primary">
                 Financial Portfolio
@@ -538,14 +545,14 @@ const PropertyDetailContent = () => {
           <div className="space-y-4">
             {[
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
-          { 
-  label: "Down Payment", 
-  value: 
-    propertyData.paid_downpayment > 0 && 
-    propertyData.paid_downpayment !== propertyData.down_payment 
-      ? `Rs. ${propertyData.paid_downpayment.toLocaleString()} / Rs. ${propertyData.down_payment?.toLocaleString()}` 
-      : `Rs. ${propertyData.down_payment?.toLocaleString()}` 
-},
+              {
+                label: "Down Payment",
+                value:
+                  propertyData.paid_downpayment > 0 &&
+                    propertyData.paid_downpayment !== propertyData.down_payment
+                    ? `Rs. ${propertyData.paid_downpayment.toLocaleString()} / Rs. ${propertyData.down_payment?.toLocaleString()}`
+                    : `Rs. ${propertyData.down_payment?.toLocaleString()}`
+              },
               {
                 label: "Paid Payment",
                 value: `Rs. ${propertyData.paid_downpayment === propertyData.down_payment
@@ -556,10 +563,10 @@ const PropertyDetailContent = () => {
               {
                 label: "Remaining Amount",
                 value: `Rs. ${(
-                    propertyData.paid_downpayment === propertyData.down_payment
-                      ? propertyData.remaining_amount
-                      : propertyData.total_price - propertyData.paid_downpayment
-                  )?.toLocaleString()
+                  propertyData.paid_downpayment === propertyData.down_payment
+                    ? propertyData.remaining_amount
+                    : propertyData.total_price - propertyData.paid_downpayment
+                )?.toLocaleString()
                   }`
               },
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
@@ -570,7 +577,7 @@ const PropertyDetailContent = () => {
               <div
                 key={idx}
                 className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl px-5 py-3.5 ${item.highlight
-                  ? "bg-charcoal text-white shadow-xl ring-1 ring-primary/30"
+                  ? "bg-[#123D32] text-[#E5C476] shadow-xl ring-1 ring-primary/30"
                   : "bg-white/60 border border-primary/5 hover:bg-primary/5"
                   }`}
               >
@@ -637,38 +644,38 @@ const PropertyDetailContent = () => {
         {isAdmin && (
           <>
             <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl">
-              <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-                <Users className="text-primary" size={24} />
+              <div className="mb-6 flex items-center gap-3 border-b border-primary/10 pb-6">
+                <Users className="h-7 w-7 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
                 <h3 className="font-serif text-xl font-bold text-charcoal">Owner Profile</h3>
               </div>
               <div className="space-y-6">
                 {propertyData.owners?.map((owner, idx) => (
                   <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-primary/5">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                      <div className="lg:h-10 w-10 h-9.5  rounded-full bg-gradient-to-br from-[#c29e6d] via-[#d4af37] to-[#047857] flex items-center justify-center text-white font-bold shadow-md">
                         {owner.name?.charAt(0)}
                       </div>
                       <p className="font-serif text-lg font-bold text-charcoal">{owner.name}</p>
                     </div>
                     <div className="grid grid-cols-1 gap-3">
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <User size={14} className="text-primary/60" />
+                        <User size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span>{owner.client_father_name}</span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <BadgeCheck size={14} className="text-primary/60" />
+                        <BadgeCheck size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span>{owner.client_cnic}</span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <ShieldCheck size={14} className="text-primary/60" />
+                        <ShieldCheck size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span>{owner.nationality}</span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} className="text-primary/60" />
+                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span><span className="font-semibold">Temp Address:</span> {owner.client_residential_address || 'N/A'}</span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} className="text-primary/60" />
+                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span><span className="font-semibold">Permanent Address:</span> {owner.client_permanent_address || 'N/A'}</span>
                       </div>
                     </div>
@@ -684,8 +691,8 @@ const PropertyDetailContent = () => {
                 animate="visible"
                 className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl"
               >
-                <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-                  <Briefcase className="text-primary" size={24} />
+                <div className="mb-6 flex items-center gap-3 border-b border-primary/10 pb-6">
+                  <Briefcase className="h-7 w-7 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
                   <h3 className="font-serif text-xl font-bold text-charcoal">
                     Broker Information
                   </h3>
@@ -703,12 +710,12 @@ const PropertyDetailContent = () => {
 
                       <div className="grid grid-cols-1 gap-3">
                         <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                          <Phone size={14} className="text-primary/60" />
+                          <Phone size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                           <span>{broker.broker_details?.phone || "N/A"}</span>
                         </div>
 
                         <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                          <User size={14} className="text-primary/60" />
+                          <User size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                           <span>Relationship: {broker.relationship}</span>
                         </div>
 
@@ -755,8 +762,8 @@ const PropertyDetailContent = () => {
         {/* Transfer History (New Owner Record) */}
         {propertyData.transferHistory && propertyData.transferHistory.length > 0 && (
           <motion.div variants={itemVariants} initial="hidden" animate="visible" className="glass rounded-[2.5rem] p-8 premium-border-glow shadow-xl col-span-1 md:col-span-2">
-            <div className="mb-6 flex items-center gap-4 border-b border-primary/10 pb-6">
-              <BadgeDollarSign className="text-primary" size={24} />
+            <div className="mb-6 flex items-center gap-3 border-b border-primary/10 pb-6">
+              <BadgeDollarSign className="h-7 w-7 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
               <h3 className="font-serif text-xl font-bold text-charcoal">Transfer Record</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -767,22 +774,22 @@ const PropertyDetailContent = () => {
                   </div>
                   <div className="grid grid-cols-1 gap-3">
                     <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                      <BadgeCheck size={14} className="text-primary/60" />
+                      <BadgeCheck size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                       <span className="font-bold">CNIC:</span> {record.newOwnerCNIC}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                      <Phone size={14} className="text-primary/60" />
+                      <Phone size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                       <span className="font-bold">Phone:</span> {record.newOwnerPhone}
                     </div>
                     {record.temporaryAddress && (
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} className="text-primary/60" />
+                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span className="font-bold">Temp Addr:</span> {record.temporaryAddress}
                       </div>
                     )}
                     {record.permanentAddress && (
                       <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} className="text-primary/60" />
+                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
                         <span className="font-bold">Perm Addr:</span> {record.permanentAddress}
                       </div>
                     )}
@@ -806,10 +813,8 @@ const PropertyDetailContent = () => {
         className="rounded-[2.5rem] glass overflow-hidden premium-border-glow shadow-2xl"
       >
         <div className="shimmer-gold px-10 py-8 flex flex-col md:flex-row md:items-center md:justify-between border-b border-primary/20 gap-4">
-          <div className="flex items-center gap-5">
-            <div className="bg-charcoal p-3 rounded-2xl shadow-lg">
-              <ReceiptText className="text-primary" size={24} />
-            </div>
+          <div className="flex items-center gap-4">
+            <CalendarCheck2 className="h-8 w-8 shrink-0" style={{ stroke: "url(#propDetailGoldGreen)" }} />
             <div>
               <h3 className="font-serif text-2xl font-bold text-charcoal">
                 Installment Plan
@@ -821,7 +826,7 @@ const PropertyDetailContent = () => {
             {user?.role === "super-admin" && (
               <button
                 onClick={() => setIsTransferModalOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-charcoal px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-primary hover:text-charcoal transition-all shadow-lg"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#123D32] px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#E5C476] hover:bg-[#0C3027] transition-all shadow-lg"
               >
                 <BadgeDollarSign size={14} />
                 Transfer Unit
@@ -840,7 +845,7 @@ const PropertyDetailContent = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse">
             <thead>
-              <tr className="bg-charcoal text-white">
+              <tr className="bg-[#123D32] text-[#E5C476]">
                 <th className="px-6 py-4 text-xs  font-bold uppercase tracking-[0.25em] text-primary/70 text-center">
                   Property
                 </th>

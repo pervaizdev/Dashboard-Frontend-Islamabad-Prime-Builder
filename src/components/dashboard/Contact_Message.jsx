@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   RefreshCw,
   FileText,
@@ -12,10 +13,12 @@ import {
   Mail,
   CalendarDays,
   MessageSquare,
+  MailOpen,
   Loader2,
   Search,
   Maximize2,
-  Trash2
+  Trash2,
+ ArrowLeft
 } from "lucide-react";
 import { contactMessageAPI } from "@/api/contactMessages";
 import toast from "react-hot-toast";
@@ -77,9 +80,8 @@ const truncateWords = (text, wordLimit = 6) => {
 function DetailCard({ label, value, icon: Icon, fullWidth = false }) {
   return (
     <div
-      className={`rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 ${
-        fullWidth ? "sm:col-span-2" : ""
-      }`}
+      className={`rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition-all hover:bg-slate-50 ${fullWidth ? "sm:col-span-2" : ""
+        }`}
     >
       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
         <Icon className="h-3 w-3" />
@@ -172,7 +174,7 @@ export default function MessagesPage() {
     }
   };
 
-  const filteredMessages = (messages || []).filter(m => 
+  const filteredMessages = (messages || []).filter(m =>
     m.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     m.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     m.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -181,12 +183,31 @@ export default function MessagesPage() {
 
   return (
     <div className="container mx-auto mt-14 px-6 lg:px-9 lg:mt-15">
+      {/* SVG Gradient definitions — Green + Gold dual-tone */}
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="msgGoldGreen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#c29e6d" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
       <div className="flex flex-col gap-8">
         {/* Header Section */}
-          <div className="item-center">
-            <h1 className="text-3xl font-bold lg:text-6xl ">User <span className="text-primary">Messages</span></h1>
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="text-center lg:text-start">
+            <h1 className="text-3xl font-bold lg:text-6xl text-[#123D32]">User <span className="text-primary">Messages</span></h1>
             <p className="text-sm md:text-base text-charcoal/50 font-body max-w-xl mx-auto md:mx-0 mt-6">Review and manage messages sent through the contact form.</p>
-          </div>          
+          </div>
+          <Link
+            href="/dashboard"
+            className="group inline-flex items-center justify-center gap-2.5 rounded-xl bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
+          >
+            <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Return To Dashboard
+          </Link>
+        </div>
 
         {/* Table Section */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
@@ -224,8 +245,23 @@ export default function MessagesPage() {
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600 font-bold uppercase">
-                            {item.name?.charAt(0)}
+                          <div
+                            className="h-10 lg:w-10 w-12 rounded-xl flex items-center justify-center shadow-sm font-bold uppercase text-sm"
+                            style={{
+                              background: "linear-gradient(135deg, rgba(194,158,109,0.15) 0%, rgba(212,175,55,0.12) 50%, rgba(4,120,87,0.15) 100%)",
+                              border: "1px solid rgba(194,158,109,0.35)",
+                            }}
+                          >
+                            <span
+                              style={{
+                                background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                              }}
+                            >
+                              {item.name?.charAt(0)}
+                            </span>
                           </div>
                           <div className="flex flex-col">
                             <span className="text-sm font-bold text-slate-800">{item.name}</span>
@@ -304,14 +340,14 @@ export default function MessagesPage() {
         <AnimatePresence>
           {selectedMessage && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                 onClick={() => setSelectedMessage(null)}
               />
-              
+
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -319,8 +355,8 @@ export default function MessagesPage() {
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl premium-border-glow overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
-                
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
+
                 <button
                   onClick={() => setSelectedMessage(null)}
                   className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
@@ -330,8 +366,11 @@ export default function MessagesPage() {
 
                 <div className="p-6">
                   <div className="mb-10 flex items-center gap-5">
-                    <div className="h-12 w-12 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm">
-                      <MessageSquare className="h-6 w-6 text-yellow-600" />
+                    <div className="flex shrink-0 items-center justify-center p-1">
+                      <MailOpen
+                        className="h-9 w-9 transition-transform duration-300 drop-shadow-sm"
+                        style={{ stroke: "url(#msgGoldGreen)" }}
+                      />
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800">Message Details</h2>
@@ -366,7 +405,7 @@ export default function MessagesPage() {
                       onClick={() => setSelectedMessage(null)}
                       className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
                     >
-                      Close Inquiry
+                      Close
                     </button>
                   </div>
                 </div>
@@ -379,14 +418,14 @@ export default function MessagesPage() {
         <AnimatePresence>
           {editMessage && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
                 onClick={() => setEditMessage(null)}
               />
-              
+
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -395,7 +434,7 @@ export default function MessagesPage() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500" />
-                
+
                 <button
                   onClick={() => setEditMessage(null)}
                   className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
