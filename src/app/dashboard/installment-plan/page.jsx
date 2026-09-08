@@ -993,64 +993,19 @@ const InstallmentPlanPage = () => {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
 
         {/* ── Donut chart ── */}
-        <div className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-4 relative">
+        <div
+          className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm lg:col-span-4 relative"
+          onMouseLeave={() => setHoveredSlice(null)}
+        >
           <h2 className="mb-3 text-base font-bold text-slate-800">Installment Plans by Status</h2>
 
-          {/* Floating Tooltip on Hover / Tap */}
-          {hoveredSlice && (
-            <div className="absolute z-50 top-14 right-2 sm:right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[255px] max-w-[calc(100%-1rem)] pointer-events-none transition-all duration-200 border border-slate-200/80">
-              <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
-                Installment Plans Status
-              </p>
-              <div className="space-y-2">
-                {donutData.map((item) => {
-                  const percentage =
-                    totalPieAmount > 0
-                      ? ((item.value / totalPieAmount) * 100).toFixed(1)
-                      : "0.0";
-                  const isCurrent = hoveredSlice?.name === item.name;
-
-                  return (
-                    <div
-                      key={item.name}
-                      className={`p-2 rounded-xl border transition-all ${
-                        isCurrent
-                          ? "bg-slate-50 border-slate-300/80 shadow-sm"
-                          : "bg-white border-transparent opacity-75"
-                      }`}
-                    >
-                      <div className="flex justify-between items-center mb-0.5">
-                        <span className="flex items-center gap-1.5 font-bold text-slate-700">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          {item.name}
-                        </span>
-                        <span className="text-[11px] font-bold text-blue-600">
-                          {percentage}%
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center text-slate-600 text-[11px] pl-4">
-                        <span>Amount:</span>
-                        <span className="font-bold text-slate-800">
-                          Rs. {formatCurrency(item.value)}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
           {/* Row: [donut] [legend] — enlarged donut & balanced spacing */}
-          <div className="flex items-center gap-4 sm:gap-6 py-1">
+          <div className="flex items-center gap-4 sm:gap-6 py-1 lg:ms-4 ms-1">
 
             {/* Donut — enlarged size */}
-            <div className="relative shrink-0 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none" style={{ width: 160, height: 160 }}>
-              <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
-                <PieChart tabIndex={-1} style={{ outline: 'none' }}>
+            <div className="relative shrink-0 outline-none focus:outline-none focus:ring-0 [&_*]:outline-none [&_*]:ring-0 [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-sector]:outline-none" style={{ width: 160, height: 160 }}>
+              <ResponsiveContainer width="100%" height="100%" tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
+                <PieChart tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
                   <Pie
                     data={donutData}
                     cx="50%" cy="50%"
@@ -1058,15 +1013,17 @@ const InstallmentPlanPage = () => {
                     paddingAngle={3}
                     dataKey="value"
                     stroke="none"
-                    onMouseEnter={(_, idx) => setHoveredSlice(donutData[idx])}
-                    onMouseLeave={() => setHoveredSlice(null)}
+                    style={{ outline: 'none' }}
                   >
                     {donutData.map((e) => (
                       <Cell
                         key={e.name}
                         fill={e.color}
-                        className="cursor-pointer transition-opacity duration-200"
+                        className="cursor-pointer transition-opacity duration-200 focus:outline-none"
+                        style={{ outline: 'none' }}
                         opacity={hoveredSlice && hoveredSlice.name !== e.name ? 0.4 : 1}
+                        onClick={() => setHoveredSlice(e)}
+                        onMouseEnter={() => setHoveredSlice(e)}
                       />
                     ))}
                   </Pie>
@@ -1075,10 +1032,10 @@ const InstallmentPlanPage = () => {
 
               {/* Center total — always visible */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
                 <span className="text-[13px] font-extrabold leading-snug text-slate-800">
                   Rs. {(totalPieAmount / 1_000_000).toFixed(2)}M
                 </span>
-                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
               </div>
             </div>
 
@@ -1097,7 +1054,9 @@ const InstallmentPlanPage = () => {
                 return (
                   <div
                     key={item.name}
-                    className={`flex items-center gap-2 cursor-default rounded-xl px-1 py-1.5 transition-colors ${isActive ? "bg-slate-50 ring-1 ring-slate-100 shadow-sm" : "hover:bg-slate-50/60"
+                    onClick={() => setHoveredSlice(item)}
+                    onMouseEnter={() => setHoveredSlice(item)}
+                    className={`flex items-center gap-2 cursor-pointer rounded-xl px-2 py-1.5 transition-all ${isActive ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
                       }`}
                   >
                     <span
@@ -1131,11 +1090,11 @@ const InstallmentPlanPage = () => {
           </div>
 
           {/* Compact height so card stays proportional */}
-          <div className="h-52 w-full focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
-            <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
+          <div className="h-52 w-full outline-none focus:outline-none focus:ring-0 [&_*]:outline-none [&_*]:ring-0 [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-bar-rectangle]:outline-none [&_.recharts-bar-rectangle]:stroke-none [&_.recharts-active-bar]:outline-none [&_.recharts-active-bar]:stroke-none">
+            <ResponsiveContainer width="100%" height="100%" tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
               <BarChart
                 tabIndex={-1}
-                style={{ outline: 'none' }}
+                style={{ outline: 'none', border: 'none' }}
                 data={isMobile ? barData.slice(-4) : barData}
                 barGap={isMobile ? 4 : 1}
                 barCategoryGap={isMobile ? "25%" : "20%"}
@@ -1165,10 +1124,10 @@ const InstallmentPlanPage = () => {
 
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
 
-                <Bar dataKey="downpayment" name="Down Payment" fill="#C6A15B" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
-                <Bar dataKey="paid" name="Paid" fill="#10b981" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
-                <Bar dataKey="unpaid" name="Unpaid" fill="#f59e0b" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
-                <Bar dataKey="overdue" name="Overdue" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} />
+                <Bar dataKey="downpayment" name="Down Payment" fill="#C6A15B" stroke="none" strokeWidth={0} radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} style={{ outline: 'none' }} />
+                <Bar dataKey="paid" name="Paid" fill="#10b981" stroke="none" strokeWidth={0} radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} style={{ outline: 'none' }} />
+                <Bar dataKey="unpaid" name="Unpaid" fill="#f59e0b" stroke="none" strokeWidth={0} radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} style={{ outline: 'none' }} />
+                <Bar dataKey="overdue" name="Overdue" fill="#ef4444" stroke="none" strokeWidth={0} radius={[3, 3, 0, 0]} barSize={isMobile ? 10 : 6} style={{ outline: 'none' }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
