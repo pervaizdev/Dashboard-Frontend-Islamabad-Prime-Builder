@@ -18,6 +18,21 @@ const formatFullNumber = (number) => {
   return number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
+const formatCompactNumber = (number) => {
+  if (number === undefined || number === null || isNaN(number)) return "0.00";
+  const absVal = Math.abs(number);
+  if (absVal >= 1_000_000_000) {
+    return (number / 1_000_000_000).toFixed(1) + "B";
+  }
+  if (absVal >= 1_000_000) {
+    return (number / 1_000_000).toFixed(1) + "M";
+  }
+  if (absVal >= 1_000) {
+    return (number / 1_000).toFixed(1) + "K";
+  }
+  return number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
+
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
@@ -43,8 +58,8 @@ const CustomCenterLabel = (props) => {
         {title}
       </tspan>
       <tspan x={cx} y={cy + 2} fontSize="10" fontWeight="bold" fill="#64748b">Rs</tspan>
-      <tspan x={cx} y={cy + 16} fontSize="11" fontWeight="bold" fill="#1e293b">
-        {formatFullNumber(total)}
+      <tspan x={cx} y={cy + 17} fontSize="13" fontWeight="bold" fill="#1e293b">
+        {formatCompactNumber(total)}
       </tspan>
     </text>
   );
@@ -59,6 +74,7 @@ const CustomLegendList = ({ data, total, colors, hoveredItem, setHoveredItem }) 
         return (
           <div
             key={`legend-${index}`}
+            onClick={() => setHoveredItem(entry)}
             onMouseEnter={() => setHoveredItem(entry)}
             onMouseLeave={() => setHoveredItem(null)}
             className={`flex items-start gap-2.5 cursor-pointer rounded-xl px-2.5 py-1.5 transition-all ${isActive ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
@@ -85,58 +101,18 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col relative">
+    <div
+      className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col relative"
+      onMouseLeave={() => setHoveredItem(null)}
+    >
       <h3 className="text-[15px] font-bold text-slate-700 mb-6">{title}</h3>
 
-      {/* Floating Tooltip on Hover */}
-      {hoveredItem && (
-        <div className="absolute z-50 top-14 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[245px] pointer-events-none transition-all duration-200 border border-slate-200/80">
-          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
-            {title}
-          </p>
-          <div className="space-y-2">
-            {data.map((item, index) => {
-              const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : 0;
-              const isCurrent = hoveredItem?.name === item.name;
-              return (
-                <div
-                  key={index}
-                  className={`p-2 rounded-xl border transition-all ${isCurrent
-                      ? "bg-slate-50 border-slate-300/80 shadow-sm"
-                      : "bg-white border-transparent opacity-75"
-                    }`}
-                >
-                  <div className="flex justify-between items-center mb-0.5">
-                    <span className="flex items-center gap-1.5 font-bold text-slate-700">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: colors[index % colors.length] }}
-                      />
-                      {item.name}
-                    </span>
-                    <span className="text-[11px] font-bold text-blue-600">
-                      {percentage}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-600 text-[11px] pl-4">
-                    <span>Amount:</span>
-                    <span className="font-bold text-slate-800">
-                      Rs {formatFullNumber(item.value)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {data.length > 0 ? (
-        <div className="flex flex-row items-center w-full">
+        <div className="flex flex-row items-center w-full ms-7">
           {/* Chart Side */}
-          <div className="w-[140px] h-[140px] flex-shrink-0 relative -ml-4 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
-            <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
-              <PieChart tabIndex={-1} style={{ outline: 'none' }}>
+          <div className="w-[140px] h-[140px] flex-shrink-0 relative -ml-4 outline-none focus:outline-none focus:ring-0 [&_*]:outline-none [&_*]:ring-0 [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-sector]:outline-none">
+            <ResponsiveContainer width="100%" height="100%" tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
+              <PieChart tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
                 <Pie
                   data={data}
                   cx="50%"
@@ -146,15 +122,17 @@ const ChartCard = ({ title, data, total, colors, centerTitle }) => {
                   paddingAngle={3}
                   dataKey="value"
                   stroke="none"
+                  style={{ outline: 'none' }}
                 >
                   {data.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={colors[index % colors.length]}
-                      className="cursor-pointer transition-opacity duration-200"
+                      className="cursor-pointer transition-opacity duration-200 focus:outline-none"
+                      style={{ outline: 'none' }}
                       opacity={hoveredItem && hoveredItem.name !== entry.name ? 0.35 : 1}
+                      onClick={() => setHoveredItem(entry)}
                       onMouseEnter={() => setHoveredItem(entry)}
-                      onMouseLeave={() => setHoveredItem(null)}
                     />
                   ))}
                   <Label
@@ -188,17 +166,22 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm flex flex-col h-full relative">
+    <div
+      className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm flex flex-col h-full relative"
+      onMouseLeave={() => setHoveredItem(null)}
+    >
       <h3 className="text-[15px] font-bold text-slate-700 mb-3">
         {title}
       </h3>
 
       {/* Floating Tooltip Box at Card Level */}
       {hoveredItem && (
-        <div className="absolute z-50 top-12 right-5 bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] w-[250px] pointer-events-none transition-all duration-200 border border-slate-200/80">
-          <p className="font-bold border-b border-slate-100 pb-1.5 mb-2 text-slate-800 text-center">
-            {hoveredItem.name}
-          </p>
+        <div
+          className="absolute z-50 top-12 left-3 right-3 sm:left-auto sm:right-5 sm:w-[250px] bg-white text-slate-800 rounded-2xl p-3.5 shadow-xl text-[12px] pointer-events-none transition-all duration-200 border border-slate-200/80"
+        >
+          <div className="flex items-center justify-between border-b border-slate-100 pb-1.5 mb-2">
+            <span className="font-bold text-slate-800">{hoveredItem.name}</span>
+          </div>
 
           <div className="space-y-1.5 text-slate-600">
             <div className="flex justify-between items-center">
@@ -233,7 +216,7 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
       )}
 
       {data.length > 0 ? (
-        <div className="flex flex-col gap-2.5 w-full overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
+        <div className="flex flex-col gap-2 w-full overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
           {data.map((item, index) => {
             const percentage =
               total > 0 ? (Number(item.value || 0) / total) * 100 : 0;
@@ -243,10 +226,16 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
                 ? Math.min(Math.max(percentage, 1), 100)
                 : 0;
 
+            const isSelected = hoveredItem?.name === item.name;
+
             return (
               <div
                 key={index}
-                className="grid grid-cols-[90px_minmax(110px,1fr)_50px] items-center gap-3 w-full min-h-[28px]"
+                onClick={() => setHoveredItem(item)}
+                onMouseEnter={() => setHoveredItem(item)}
+                className={`grid grid-cols-[90px_minmax(110px,1fr)_50px] items-center gap-3 w-full min-h-[32px] cursor-pointer rounded-xl px-2 py-1 transition-all ${
+                  isSelected ? "bg-slate-50 ring-1 ring-slate-200/80 shadow-sm" : "hover:bg-slate-50/60"
+                }`}
               >
                 {/* Item Name */}
                 <div
@@ -257,11 +246,7 @@ const HorizontalBarChartCard = ({ title, data, total, colors }) => {
                 </div>
 
                 {/* Progress Track and Fill */}
-                <div
-                  className="relative w-full h-[8px] bg-slate-100 rounded-full overflow-hidden cursor-pointer group"
-                  onMouseEnter={() => setHoveredItem(item)}
-                  onMouseLeave={() => setHoveredItem(null)}
-                >
+                <div className="relative w-full h-[8px] bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className="absolute left-0 top-0 h-full rounded-full transition-all duration-300 group-hover:opacity-85"
                     style={{
@@ -386,7 +371,7 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           data={partnerData}
           total={totalPartnerOtherValue}
           colors={DONUT_COLORS_1}
-          centerTitle="TOTAL SALES"
+          centerTitle="TOTAL"
         />
 
         <ChartCard
@@ -394,7 +379,7 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           data={installmentData}
           total={totalInstallmentValue}
           colors={DONUT_COLORS_2}
-          centerTitle="INSTALLMENTS"
+          centerTitle="TOTAL"
         />
 
         <ChartCard
@@ -402,7 +387,7 @@ const PropertyCommissionCharts = ({ stats, loading }) => {
           data={overallCollectionData}
           total={totalReceivedAmount}
           colors={DONUT_COLORS_3}
-          centerTitle="TOTAL RECEIVED"
+          centerTitle="TOTAL"
         />
       </div>
 

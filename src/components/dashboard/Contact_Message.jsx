@@ -303,7 +303,7 @@ export default function MessagesPage() {
                           </button>
                           <button
                             onClick={(e) => handleEditClick(e, item)}
-                            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-slate-100 shadow-sm"
+                            className="h-9 w-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#123D32] hover:bg-[#123D32]/10 transition-all border border-slate-100 shadow-sm"
                             title="Update Description"
                           >
                             <Pencil size={16} />
@@ -403,7 +403,7 @@ export default function MessagesPage() {
                   <div className="mt-10">
                     <button
                       onClick={() => setSelectedMessage(null)}
-                      className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all"
+                      className="w-full bg-[#123D32] text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-[#123D32]/20 hover:bg-[#0C3027] transition-all"
                     >
                       Close
                     </button>
@@ -433,7 +433,7 @@ export default function MessagesPage() {
                 className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl premium-border-glow overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500" />
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
                 <button
                   onClick={() => setEditMessage(null)}
@@ -444,8 +444,10 @@ export default function MessagesPage() {
 
                 <div className="p-6">
                   <div className="mb-10 flex items-center gap-5">
-                    <div className="h-12 w-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-sm text-blue-600">
-                      <Pencil className="h-6 w-6" />
+                    <div
+                      className="h-12 w-12 rounded-2xl flex items-center justify-center"
+                    >
+                      <Pencil className="h-6 w-6 transition-transform duration-300 drop-shadow-sm" style={{ stroke: "url(#msgGoldGreen)" }} />
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800">Add Comment</h2>
@@ -482,7 +484,7 @@ export default function MessagesPage() {
                         onChange={(e) => setDescription(e.target.value)}
                         rows={5}
                         placeholder="Add Comment"
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-600/5 focus:border-blue-600 transition-all outline-none"
+                        className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#123D32]/10 focus:border-[#123D32] transition-all outline-none"
                       />
                     </div>
 
@@ -490,7 +492,7 @@ export default function MessagesPage() {
                       <button
                         onClick={handleUpdateDescription}
                         disabled={isUpdating}
-                        className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                        className="w-full bg-[#123D32] text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-[#123D32]/20 hover:bg-[#0C3027] transition-all flex items-center justify-center gap-2 disabled:opacity-70"
                       >
                         {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
                         {isUpdating ? "Adding Comment..." : "Add Comment"}
