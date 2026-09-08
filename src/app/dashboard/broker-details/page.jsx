@@ -22,7 +22,8 @@ import {
   CreditCard,
   History,
   Eye,
-  Download
+  Download,
+  Wallet
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { brokersAPI } from "@/api/brokers";
@@ -73,6 +74,16 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
           exit={{ scale: 0.95, opacity: 0, y: 20 }}
           className="relative z-10 w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white p-8 shadow-2xl premium-border-glow"
         >
+          {/* SVG Gradient for modal icons */}
+          <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+            <defs>
+              <linearGradient id="modalGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#C6A15B" />
+                <stop offset="50%" stopColor="#d4af37" />
+                <stop offset="100%" stopColor="#047857" />
+              </linearGradient>
+            </defs>
+          </svg>
           <button
             onClick={onClose}
             className="absolute right-6 top-6 rounded-full p-2 text-slate-300 hover:bg-slate-50 hover:text-slate-600 transition-colors"
@@ -81,8 +92,8 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
           </button>
 
           <div className="mb-8 text-center">
-            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 mx-auto shadow-lg shadow-emerald-600/10">
-              <BadgeDollarSign size={32} />
+            <div className="mb-4 flex items-center justify-center mx-auto">
+              <BadgeDollarSign size={42} style={{ stroke: "url(#modalGoldGreen)", fill: "none" }} />
             </div>
             <h3 className="font-serif text-2xl font-bold text-slate-800">Record Commission</h3>
             <p className="mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
@@ -96,7 +107,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
                 Payment Amount
               </label>
               <div className="relative">
-                <CircleDollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={18} />
+                <CircleDollarSign className="absolute left-4 top-1/2 -translate-y-1/2" size={18} style={{ color: "#C6A15B" }} />
                 <input
                   type="number"
                   required
@@ -113,7 +124,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
                 Payment Date
               </label>
               <div className="relative">
-                <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-primary" size={18} />
+                <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2" size={18} style={{ color: "#C6A15B" }} />
                 <input
                   type="date"
                   required
@@ -130,7 +141,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
               </label>
               <div className="relative h-14 w-full group">
                 <div className="absolute inset-0 rounded-2xl border border-slate-100 bg-slate-50 flex items-center px-4 transition-all group-hover:border-primary group-focus-within:ring-4 group-focus-within:ring-primary/5">
-                  <Download className="text-primary mr-4" size={18} />
+                  <Download className="mr-4" size={18} style={{ color: "#C6A15B" }} />
                   <span className="text-xs font-bold text-slate-400 truncate pr-4">
                     {receiptImage ? receiptImage.name : "Select Receipt Image"}
                   </span>
@@ -147,7 +158,7 @@ const BrokerPaymentModal = ({ isOpen, onClose, onConfirm, property, loading }) =
             <button
               disabled={loading}
               type="submit"
-              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-900 py-4 text-xs font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-emerald-600 shadow-xl shadow-slate-900/10 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#123D32] py-4 text-xs font-bold uppercase tracking-[0.2em] text-[#E5C476] transition-all hover:bg-[#0C3027] shadow-xl shadow-slate-900/10 disabled:opacity-50"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -243,6 +254,17 @@ const BrokerDetailsContent = () => {
 
   return (
     <div className="h-full px-4 py-10 md:px-10 lg:px-16 bg-slate-50/50 space-y-10">
+      {/* SVG Gradient — Gold + Green dual-tone */}
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="brokerDetailsGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#C6A15B" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       {/* Payment Modal */}
       <BrokerPaymentModal
         isOpen={isModalOpen}
@@ -259,19 +281,21 @@ const BrokerDetailsContent = () => {
         className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-xl shadow-slate-200/50"
       >
         <div className="flex items-center gap-6">
-          <div className="h-16 w-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600">
-            <User size={32} />
+          <div
+            className="h-16 w-16 rounded-2xl flex items-center justify-center shadow-md shrink-0"
+            style={{ background: "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)" }}
+          >
+            <User size={32} className="text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Broker Portfolio</h1>
-            <p className="text-sm text-slate-400 mt-1 uppercase tracking-widest font-bold">ID: #{brokerId}</p>
+            <h1 className="text-3xl font-bold text-[#E5C476] tracking-tight"><span className="text-[#047857]">Broker</span> Portfolio</h1>
           </div>
         </div>
         <Link
           href="/dashboard/islamabad-prime-builder-broker-manaegment"
-          className="inline-flex items-center justify-center gap-3 rounded-2xl bg-slate-900 text-white px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10"
+          className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-[#123D32] px-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-[#E5C476] shadow-[0_6px_16px_rgba(18,61,50,0.20)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#0C3027] hover:shadow-[0_9px_22px_rgba(18,61,50,0.25)] active:translate-y-0"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           Back to List
         </Link>
       </motion.div>
@@ -283,13 +307,13 @@ const BrokerDetailsContent = () => {
             label: "Total Commissions",
             value: `Rs. ${stats.total_commission?.toLocaleString()}`,
             helper: "Aggregate commission assigned",
-            icon: CircleDollarSign
+            icon: TrendingUp
           },
           {
             label: "Amount Received",
             value: `Rs. ${stats.total_paid?.toLocaleString()}`,
             helper: "Total disbursements received",
-            icon: CreditCard
+            icon: Wallet
           },
           {
             label: "Pending Balance",
@@ -319,8 +343,8 @@ const BrokerDetailsContent = () => {
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 {item.label}
               </h3>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-                <item.icon className="h-6 w-6 text-primary" />
+              <div className="flex items-center justify-center ms-2 lg:mt-2 mt-3">
+                <item.icon className="h-7 w-7" style={{ stroke: "url(#brokerDetailsGoldGreen)", fill: "none" }} />
               </div>
             </div>
 
@@ -348,7 +372,7 @@ const BrokerDetailsContent = () => {
           className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden"
         >
           <div className="px-8 py-6 border-b border-slate-50 flex items-center gap-4 bg-slate-50/30">
-            <Building2 className="text-primary" size={20} />
+            <Building2 className="h-5 w-5" style={{ stroke: "url(#brokerDetailsGoldGreen)", fill: "none" }} />
             <h3 className="font-serif text-xl font-bold text-slate-800">Associated Properties</h3>
           </div>
           <div className="overflow-x-auto">
@@ -391,7 +415,7 @@ const BrokerDetailsContent = () => {
                         prop.balance > 0 ? (
                           <button
                             onClick={() => handlePayClick(prop)}
-                            className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-slate-900/10 hover:shadow-emerald-600/20"
+                            className="inline-flex items-center gap-2 bg-[#123D32] text-[#E5C476] px-5 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest"
                           >
                             <BadgeDollarSign size={14} />
                             Record Pay
@@ -429,7 +453,7 @@ const BrokerDetailsContent = () => {
         >
           <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
             <div className="flex items-center gap-4">
-              <History className="text-primary" size={20} />
+              <History className="h-5 w-5" style={{ stroke: "url(#brokerDetailsGoldGreen)", fill: "none" }} />
               <h3 className="font-serif text-xl font-bold text-slate-800">Payment Disbursement History</h3>
             </div>
           </div>

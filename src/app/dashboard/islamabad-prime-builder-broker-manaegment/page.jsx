@@ -12,11 +12,12 @@ import {
   User,
   Plus,
   X,
-  BadgeDollarSign,
-  CreditCard,
+  TrendingUp,
+  Banknote,
+  Wallet,
   ChevronRight,
-  CircleDollarSign,
-  ArrowLeft
+  ArrowLeft,
+  BadgeDollarSign
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -167,6 +168,17 @@ export default function BrokerManagementPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* SVG Gradient — Gold + Green dual-tone */}
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="brokerGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#C6A15B" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <div className="flex flex-col gap-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4 pb-6 border-b border-[#123D32]/10">
@@ -203,13 +215,13 @@ export default function BrokerManagementPage() {
         
         <div className="flex justify-end w-full">
           <div className="relative group max-w-md w-full ">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-yellow-600" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-[#123D32]" />
             <input
               type="text"
               placeholder="Search by name, CNIC, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all shadow-sm"
+              className="w-full bg-white border border-[#123D32]/15 rounded-2xl pl-12 pr-4 py-3 text-sm text-[#123D32] placeholder:text-[#71829D]/60 focus:outline-none focus:ring-4 focus:ring-[#123D32]/5 focus:border-[#123D32] transition-all shadow-sm"
             />
           </div>
         </div>
@@ -228,8 +240,8 @@ export default function BrokerManagementPage() {
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Total Commission
               </h3>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-                <CircleDollarSign className="h-6 w-6 text-primary" />
+              <div className="flex items-center justify-center mt-2">
+                <TrendingUp className="h-7 w-7" style={{ stroke: "url(#brokerGoldGreen)", fill: "none" }} />
               </div>
             </div>
 
@@ -259,8 +271,8 @@ export default function BrokerManagementPage() {
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Total Paid
               </h3>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-                <CreditCard className="h-6 w-6 text-primary" />
+              <div className="flex items-center justify-center  mt-2">
+                <Wallet className="h-7 w-7" style={{ stroke: "url(#brokerGoldGreen)", fill: "none" }} />
               </div>
             </div>
 
@@ -290,8 +302,8 @@ export default function BrokerManagementPage() {
               <h3 className="font-serif text-lg font-semibold mt-3 text-neutral-700">
                 Remaining Balance
               </h3>
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
-                <BadgeDollarSign className="h-6 w-6 text-primary" />
+              <div className="flex items-center justify-center  mt-2">
+                <BadgeDollarSign className="h-7 w-7" style={{ stroke: "url(#brokerGoldGreen)", fill: "none" }} />
               </div>
             </div>
 
@@ -342,7 +354,10 @@ export default function BrokerManagementPage() {
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-full bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600 font-bold uppercase">
+                          <div
+                            className="h-10 w-10 rounded-full flex items-center justify-center font-bold uppercase text-white text-sm shadow-md shrink-0"
+                            style={{ background: "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)" }}
+                          >
                             {broker.name?.charAt(0)}
                           </div>
                           <div className="flex flex-col">
@@ -419,19 +434,19 @@ export default function BrokerManagementPage() {
               className="relative w-full max-w-3xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
               <button
                 onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
-                className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all font-bold"
+                className="absolute right-4 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all font-bold"
               >
                 <X className="h-5 w-5" />
               </button>
 
               <form onSubmit={handleSubmit} className="p-8 sm:p-12">
                 <div className="mb-10 flex items-center gap-5">
-                  <div className="h-16 w-16 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm">
-                    <User className="h-8 w-8 text-yellow-600" />
+                  <div className="h-16 w-16 rounded-2xl flex items-center justify-center shadow-md shrink-0" style={{ background: "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)" }}>
+                    <User className="h-8 w-8 text-white" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-800">{isEditModalOpen ? "Edit Broker" : "Add New Broker"}</h2>
@@ -501,7 +516,7 @@ export default function BrokerManagementPage() {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#123D32] text-[#E5C476] py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
                   >
                     {processing && <Loader2 className="h-4 w-4 animate-spin" />}
                     {processing ? "Saving..." : (isEditModalOpen ? "Update Broker" : "Create Broker")}

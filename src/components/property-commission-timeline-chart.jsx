@@ -140,11 +140,11 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
           )}
         </div>
       </div>
-      <div className="w-full h-[320px] mt-2 focus:outline-none [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none">
-        <ResponsiveContainer width="100%" height="100%" tabIndex={-1}>
+      <div className="w-full h-[320px] mt-2 outline-none focus:outline-none focus:ring-0 [&_*]:outline-none [&_*]:ring-0 [&_.recharts-surface]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-bar-rectangle]:outline-none [&_.recharts-bar-rectangle]:stroke-none [&_.recharts-active-bar]:outline-none [&_.recharts-active-bar]:stroke-none">
+        <ResponsiveContainer width="100%" height="100%" tabIndex={-1} style={{ outline: 'none', border: 'none' }}>
           <BarChart
             tabIndex={-1}
-            style={{ outline: 'none' }}
+            style={{ outline: 'none', border: 'none' }}
             data={isMobile ? mobileData : currentData}
             margin={{
               top: 25,
@@ -174,9 +174,12 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
               dataKey="downpayment"
               name="Downpayment Received"
               fill="#C6A15B"
+              stroke="none"
+              strokeWidth={0}
               radius={[6, 6, 0, 0]}
               barSize={isMobile ? 28 : 36}
               maxBarSize={isMobile ? 32 : 36}
+              style={{ outline: 'none' }}
             >
               <LabelList dataKey="downpayment" content={<CustomBarLabel fill="#C6A15B" />} />
             </Bar>
@@ -184,9 +187,12 @@ const PropertyCommissionTimelineChart = ({ monthlyData = [], yearlyData = [] }) 
               dataKey="installment"
               name="Installments Received"
               fill="#1F6B4F"
+              stroke="none"
+              strokeWidth={0}
               radius={[6, 6, 0, 0]}
               barSize={isMobile ? 28 : 36}
               maxBarSize={isMobile ? 32 : 36}
+              style={{ outline: 'none' }}
             >
               <LabelList dataKey="installment" content={<CustomBarLabel fill="#1F6B4F" />} />
             </Bar>

@@ -148,6 +148,17 @@ export default function PropertyListPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* SVG Gradient — Gold + Green dual-tone */}
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="propGoldGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#C6A15B" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <div className="flex flex-col gap-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row items-center justify-between text-center md:text-left gap-4 pb-6 border-b border-[#123D32]/10">
@@ -234,8 +245,11 @@ export default function PropertyListPage() {
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm text-yellow-600">
-                            {property.type?.toLowerCase() === "shop" ? <Building2 className="h-5 w-5" /> : <Home className="h-5 w-5" />}
+                          <div className="flex items-center justify-center">
+                            {property.type?.toLowerCase() === "shop"
+                              ? <Building2 className="h-6 w-6" style={{ stroke: "url(#propGoldGreen)", fill: "none" }} />
+                              : <Home className="h-6 w-6" style={{ stroke: "url(#propGoldGreen)", fill: "none" }} />
+                            }
                           </div>
                           <div className="flex flex-col min-w-[120px]">
                             <span className="text-sm font-bold text-slate-800">{property.property_number}</span>

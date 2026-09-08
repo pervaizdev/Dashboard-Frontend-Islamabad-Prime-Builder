@@ -80,6 +80,16 @@ const AnnouncementsSection = () => {
 
   return (
     <>
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="announcementGoldGreen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#c29e6d" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -95,7 +105,7 @@ const AnnouncementsSection = () => {
               <>
                 <Link
                   href="/dashboard/message"
-                  className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                  className="flex items-center gap-1.5 px-2 py-1.5 ms-5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
                 >
                   <MessageSquare className="h-2.5 w-2.5" />
                 
@@ -134,9 +144,9 @@ const AnnouncementsSection = () => {
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
                     {item.type === "announcement" ? (
-                      <Megaphone className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <Megaphone className="h-5 w-5 text-primary shrink-0" />
                     ) : (
-                      <Bell className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <Bell className="h-5 w-5 text-primary shrink-0" />
                     )}
                     <h4 className="font-serif text-sm font-bold text-charcoal leading-snug group-hover:text-primary transition-colors">
                       {item.displayTitle}
@@ -186,7 +196,7 @@ const AnnouncementsSection = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top Accent Bar */}
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-500 via-yellow-600 to-yellow-500" />
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
               {/* Close Button */}
               <button
@@ -200,15 +210,15 @@ const AnnouncementsSection = () => {
               <div className="p-8 sm:p-10">
                 {/* Header Section */}
                 <div className="mb-8 flex items-center gap-4">
-                  <div className="h-14 w-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center border border-yellow-500/20 shadow-sm">
+                  <div className="flex items-center justify-center">
                     {selectedNotification.type === "announcement" ? (
-                      <Megaphone className="h-7 w-7 text-yellow-600" />
+                      <Megaphone className="h-7 w-7 text-yellow-600" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }}  />
                     ) : (
-                      <Bell className="h-7 w-7 text-yellow-600" />
+                      <Bell className="h-7 w-7 text-yellow-600" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }} />
                     )}
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-yellow-600/80 px-2 py-0.5 bg-yellow-50 rounded-md border border-yellow-500/10">
+                    <span className="text-xl font-bold text-slate-900 px-2 py-0.5">
                       {selectedNotification.type === "announcement" ? "Announcement" : "System Alert"}
                     </span>
 

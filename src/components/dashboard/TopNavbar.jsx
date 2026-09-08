@@ -36,7 +36,7 @@ const TopNavbar = () => {
     logout();
     setOpenDropdown(false);
   };
-
+  
   return (
     <div className="w-full   px-4  md:px-6 mt-5">
       <div className="flex h-[80px] items-center justify-between rounded-[2rem] px-6 premium-border-glow">
@@ -56,36 +56,35 @@ const TopNavbar = () => {
 
         {/* Right Section: Actions & Profile */}
         <div className="flex items-center gap-6">
-          <div/>
           {/* User Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setOpenDropdown(!openDropdown)}
-              className="group flex items-center gap-3 cursor-pointer py-2 pl-2 pr-3 rounded-2xl hover:bg-primary/5 transition-all"
+              className="group flex items-center gap-3 cursor-pointer py-2 pl-2 pr-3 rounded-2xl hover:bg-primary/5 transition-all outline-none focus:outline-none"
             >
               <div className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#08211e] text-primary font-serif font-bold text-lg ring-2 ring-primary/20 group-hover:ring-primary transition-all shadow-lg">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-white font-serif font-bold text-lg ring-2 ring-primary/20 group-hover:ring-primary transition-all shadow-lg"
+                  style={{ background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)" }}>
                   {getInitials(userName)}
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 border-2 border-white" />
               </div>
-              
+
               <div className="hidden sm:block text-left">
                 <p className="text-md font-bold text-charcoal leading-none mb-1 group-hover:text-primary transition-colors">
                   {userName}
                 </p>
               </div>
-              
+
               <ChevronDown size={14} className={`text-charcoal/30 transition-transform duration-300 ${openDropdown ? 'rotate-180' : ''}`} />
             </button>
 
             <AnimatePresence>
               {openDropdown && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden bg-white p-2 z-50"
+                  className="absolute right-[-8] mt-3 w-56 glass rounded-2xl premium-border-glow shadow-2xl overflow-hidden bg-white p-2 z-50"
                 >
 
                   <Link href="/dashboard/profile" onClick={() => setOpenDropdown(false)}>

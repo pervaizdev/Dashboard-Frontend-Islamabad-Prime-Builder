@@ -13,7 +13,8 @@ export default function DashboardLayout({ children }) {
       <SideNavbar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {!hideNavbar && <TopNavbar />}
-        <main className="flex-1 overflow-y-auto ">{children}</main>
+        {/* pb-20 on mobile so content isn't hidden behind the fixed bottom tab bar */}
+        <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">{children}</main>
       </div>
     </div>
   );
