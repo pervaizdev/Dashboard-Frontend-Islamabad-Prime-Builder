@@ -39,6 +39,7 @@ const allNavItems = [
 const mobileNavItems = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { title: "Dashboard", href: "/dashboard/reports-property-commission", icon: BarChart3 },
+  { title: "Broker Management", href: "/dashboard/islamabad-prime-builder-broker-manaegment", icon: UserCog },
 ];
 
 const SideNavbar = () => {
@@ -58,9 +59,8 @@ const SideNavbar = () => {
       ───────────────────────────────────────────── */}
       {isSuperAdmin && (
         <div
-          className={`relative hidden h-screen shrink-0 border-r border-[#c29e6d]/10 bg-[#08211e] text-white transition-all duration-300 lg:flex lg:flex-col ${
-            isCollapsed ? "w-20" : "w-64"
-          }`}
+          className={`relative hidden h-screen shrink-0 border-r border-[#c29e6d]/10 bg-[#08211e] text-white transition-all duration-300 lg:flex lg:flex-col ${isCollapsed ? "w-20" : "w-64"
+            }`}
         >
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -74,9 +74,8 @@ const SideNavbar = () => {
           </button>
 
           <div
-            className={`flex h-24 items-center border-b border-[#c29e6d]/10 ${
-              isCollapsed ? "justify-center px-2" : "px-6"
-            }`}
+            className={`flex h-24 items-center border-b border-[#c29e6d]/10 ${isCollapsed ? "justify-center px-2" : "px-6"
+              }`}
           >
             <div className="flex items-center gap-3">
               <div className="relative shrink-0">
@@ -94,9 +93,8 @@ const SideNavbar = () => {
           </div>
 
           <nav
-            className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-2 ${
-              isCollapsed ? "px-3" : "px-4"
-            }`}
+            className={`flex-1 overflow-y-auto custom-scrollbar space-y-2 py-2 ${isCollapsed ? "px-3" : "px-4"
+              }`}
           >
             {allNavItems.map((item) => {
               const Icon = item.icon;
@@ -105,11 +103,10 @@ const SideNavbar = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative flex items-center rounded-2xl p-3 text-sm font-medium transition-all duration-300 ${
-                    active
+                  className={`relative flex items-center rounded-2xl p-3 text-sm font-medium transition-all duration-300 ${active
                       ? "border border-[#c29e6d]/30 bg-[#c29e6d] text-[#08211e] shadow-lg"
                       : "text-white/75 hover:bg-white/5 hover:text-[#c29e6d]"
-                  } ${isCollapsed ? "justify-center" : "gap-4"}`}
+                    } ${isCollapsed ? "justify-center" : "gap-4"}`}
                 >
                   <div className="relative flex items-center justify-center group/icon">
                     <Icon
@@ -133,13 +130,8 @@ const SideNavbar = () => {
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────
-          MOBILE BOTTOM TAB BAR — both roles, below lg
-          Theme: white/glass card like TopNavbar
-          Active icon: gold→green gradient (mix color)
-      ───────────────────────────────────────────── */}
       <nav className="fixed bottom-4 left-4 right-4 z-50 lg:hidden">
-        <div className="flex items-center justify-around rounded-[2rem] bg-white px-6 py-3 premium-border-glow shadow-xl">
+        <div className="flex items-center justify-around rounded-[2rem] bg-white px-6 py-2 premium-border-glow shadow-xl">
           {mobileNavItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -152,9 +144,7 @@ const SideNavbar = () => {
               >
                 {/* Icon container — gradient bg when active, plain when inactive */}
                 <div
-                  className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 ${
-                    active ? "shadow-md" : "bg-[#f5f0e8]"
-                  }`}
+                  className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-300 "
                   style={
                     active
                       ? { background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)" }
@@ -163,13 +153,12 @@ const SideNavbar = () => {
                 >
                   <Icon
                     size={20}
-                    className={active ? "text-white" : "text-[#c29e6d]"}
+                    className={active ? "text-white" : "text-[#d4af37]"}
                   />
                 </div>
                 <span
-                  className={`text-[10px] font-semibold tracking-wide transition-colors ${
-                    active ? "text-[#c29e6d]" : "text-charcoal/40"
-                  }`}
+                  className={`text-[10px] font-semibold tracking-wide transition-colors ${active ? "text-[#c29e6d]" : "text-charcoal/40"
+                    }`}
                 >
                   {item.title}
                 </span>

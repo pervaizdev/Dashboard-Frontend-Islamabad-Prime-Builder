@@ -374,11 +374,11 @@ export default function AnnouncementPage() {
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-6 flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#c29e6d]/15 via-[#d4af37]/15 to-[#047857]/15 flex items-center justify-center border border-[#c29e6d]/30 shadow-sm shrink-0">
+                  <div className="flex items-center justify-center">
                     {editMode ? (
-                      <Edit className="h-6 w-6" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }} />
+                      <Edit className="h-9 w-9" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }} />
                     ) : (
-                      <Megaphone className="h-6 w-6" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }} />
+                      <Megaphone className="h-9 w-9" strokeWidth={2.2} style={{ stroke: "url(#announcementGoldGreen)" }} />
                     )}
                   </div>
                   <div>
@@ -501,8 +501,8 @@ export default function AnnouncementPage() {
 
               <div className="mb-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="inline-flex p-3.5 rounded-2xl bg-[#123D32]/5 border border-[#123D32]/10 shadow-sm shrink-0">
-                    <Megaphone className="h-7 w-7" style={{ stroke: "url(#announcementGoldGreen)" }} />
+                  <div className="inline-flex p-3.5">
+                    <Megaphone className="h-9 w-9" style={{ stroke: "url(#announcementGoldGreen)" }} />
                   </div>
                   {isExpired(selectedAnnouncement.end_datetime) ? (
                     <span className="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-500 border border-rose-100">Expired</span>
