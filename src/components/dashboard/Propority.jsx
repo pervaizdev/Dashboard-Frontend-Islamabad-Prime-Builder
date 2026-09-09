@@ -49,6 +49,21 @@ const PropertyTable = () => {
 
   return (
     <div className="mt-10 sm:mt-16 lg:mt-28 w-full px-3 sm:px-5 lg:pb-9">
+      <svg width="0" height="0" className="absolute">
+        <defs>
+          <linearGradient
+            id="buildingGoldGreen"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
+            <stop offset="0%" stopColor="#c29e6d" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -82,12 +97,15 @@ const PropertyTable = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.08 }}
                 viewport={{ once: true }}
-                className="flex flex-col gap-0 rounded-2xl border border-primary/10 bg-slate-50/60 overflow-hidden shadow-sm"
+                className="flex flex-col gap-0  overflow-hidden"
               >
                 {/* Card Header */}
-                <div className="flex items-center gap-3 bg-[#123D32]/5 px-4 py-3 border-b border-primary/10">
-                  <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl border border-primary/10 bg-primary/5">
-                    <Building2 size={20} className="text-primary" />
+                <div className="flex items-center gap-3 px-1 py-3 ">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-xl">
+                    <Building2 size={30} strokeWidth={2.2}
+                      style={{
+                        stroke: "url(#buildingGoldGreen)",
+                      }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-serif text-base font-bold text-charcoal leading-tight truncate">
@@ -103,7 +121,7 @@ const PropertyTable = () => {
                 </div>
 
                 {/* Card Body */}
-                <div className="grid grid-cols-2 gap-0 divide-x divide-primary/10">
+                <div className="grid grid-cols-2 gap-0">
                   <div className="px-4 py-3">
                     <p className="text-[9px] font-bold uppercase tracking-widest text-primary/50 mb-1">
                       Floor
@@ -126,11 +144,10 @@ const PropertyTable = () => {
                 <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-white">
                   {/* Status Badge */}
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                      item.property_owned_status === "Owned"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${item.property_owned_status === "Owned"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-blue-100 text-blue-700"
+                      }`}
                   >
                     {item.property_owned_status === "Owned" ? (
                       <CheckCircle2 size={10} />
@@ -202,7 +219,10 @@ const PropertyTable = () => {
                     <td className="px-8 py-6 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center ">
-                          <Building2 size={28} className="text-primary" />
+                          <Building2 size={28} strokeWidth={2.2}
+                      style={{
+                        stroke: "url(#buildingGoldGreen)",
+                      }}  />
                         </div>
                         <div>
                           <p className="font-serif text-base font-bold text-charcoal leading-tight">
@@ -231,11 +251,10 @@ const PropertyTable = () => {
 
                     <td className="px-8 py-6 text-sm font-medium whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.property_owned_status === "Owned"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${item.property_owned_status === "Owned"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-100 text-blue-700"
+                          }`}
                       >
                         {item.property_owned_status === "Owned"
                           ? "Owned"

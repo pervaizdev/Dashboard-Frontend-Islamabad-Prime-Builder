@@ -95,17 +95,17 @@ const AnnouncementsSection = () => {
         animate={{ opacity: 1, x: 0 }}
         className="overflow-hidden rounded-2xl bg-white premium-border-glow h-full flex flex-col"
       >
-        <div className="shimmer-gold px-6 py-4 flex items-center justify-between border-b border-primary/20 bg-charcoal/5">
-          <div className="flex items-center gap-2.5">
-            <Bell className="h-6 w-6 text-primary stroke-[1.8] shrink-0" />
-            <h3 className="font-serif text-base font-bold text-black uppercase tracking-wider">NOTIFICATIONS</h3>
+        <div className="shimmer-gold lg:px-6 px-4 py-4 flex items-center justify-between border-b border-primary/20 bg-charcoal/5">
+          <div className="flex items-center gap-2">
+            <Bell className="h-6 w-6 text-primary" />
+            <h3 className="font-serif font-bold text-black uppercase">NOTIFICATIONS</h3>
           </div>
           <div className="flex items-center gap-3">
             {(isSuperAdmin || isAdmin) && (
               <>
                 <Link
                   href="/dashboard/message"
-                  className="flex items-center gap-1.5 px-2 py-1.5 ms-5 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
+                  className="flex items-center gap-1.5 px-2 py-1.5 lg:ms-0 ms-2 rounded-lg bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all text-[8px] font-bold uppercase tracking-widest"
                 >
                   <MessageSquare className="h-2.5 w-2.5" />
                 

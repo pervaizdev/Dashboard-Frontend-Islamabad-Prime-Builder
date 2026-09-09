@@ -18,7 +18,7 @@ import {
   Search,
   Maximize2,
   Trash2,
- ArrowLeft
+  ArrowLeft
 } from "lucide-react";
 import { contactMessageAPI } from "@/api/contactMessages";
 import toast from "react-hot-toast";
@@ -339,7 +339,8 @@ export default function MessagesPage() {
         {/* Details Modal */}
         <AnimatePresence>
           {selectedMessage && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+              {/* Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -348,50 +349,118 @@ export default function MessagesPage() {
                 onClick={() => setSelectedMessage(null)}
               />
 
+              {/* Modal */}
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl premium-border-glow overflow-hidden"
+                className="
+          relative 
+          w-full 
+          max-w-2xl 
+          max-h-[90vh]
+          overflow-y-auto
+          bg-white 
+          rounded-3xl 
+          sm:rounded-[2.5rem]
+          shadow-2xl 
+          premium-border-glow
+        "
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
+                {/* Top gradient line */}
+                <div className="absolute top-0 left-0 w-full h-1.5 sm:h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
+                {/* Close button */}
                 <button
                   onClick={() => setSelectedMessage(null)}
-                  className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
+                  className="
+            absolute 
+            right-4 top-4
+            sm:right-8 sm:top-8
+            rounded-full 
+            p-2
+            text-slate-400 
+            hover:bg-slate-100 
+            transition-all
+          "
                 >
                   <X className="h-5 w-5" />
                 </button>
 
-                <div className="p-6">
-                  <div className="mb-10 flex items-center gap-5">
-                    <div className="flex shrink-0 items-center justify-center p-1">
+
+                <div className="p-4 sm:p-6 lg:p-8">
+
+                  {/* Header */}
+                  <div className="
+            mb-6 
+            sm:mb-10 
+            flex 
+            items-center 
+            gap-3 
+            sm:gap-5
+            pr-10
+          ">
+                    <div className="flex shrink-0 items-center justify-center">
                       <MailOpen
-                        className="h-9 w-9 transition-transform duration-300 drop-shadow-sm"
+                        className="h-7 w-7 sm:h-9 sm:w-9 drop-shadow-sm"
                         style={{ stroke: "url(#msgGoldGreen)" }}
                       />
                     </div>
+
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-800">Message Details</h2>
+                      <h2 className="
+                text-lg 
+                sm:text-xl 
+                lg:text-2xl 
+                font-bold 
+                text-slate-800
+              ">
+                        Message Details
+                      </h2>
                     </div>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <DetailCard label="Full Name" value={selectedMessage.name} icon={User} />
-                    <DetailCard label="Phone Number" value={selectedMessage.phone} icon={Phone} />
-                    <DetailCard label="Email Address" value={selectedMessage.email} icon={Mail} />
+
+                  {/* Details */}
+                  <div className="
+            grid 
+            gap-3 
+            sm:gap-4
+            grid-cols-1
+            sm:grid-cols-2
+          ">
+                    <DetailCard
+                      label="Full Name"
+                      value={selectedMessage.name}
+                      icon={User}
+                    />
+
+                    <DetailCard
+                      label="Phone Number"
+                      value={selectedMessage.phone}
+                      icon={Phone}
+                    />
+
+                    <DetailCard
+                      label="Email Address"
+                      value={selectedMessage.email}
+                      icon={Mail}
+                    />
+
                     <DetailCard
                       label="Reception Date"
                       value={new Date(selectedMessage.createdAt).toLocaleString()}
                       icon={CalendarDays}
                     />
+
                     <DetailCard
                       label="Sender Inquiry"
                       value={selectedMessage.message}
                       icon={MessageSquare}
                       fullWidth
                     />
+
                     <DetailCard
                       label="Description"
                       value={selectedMessage.description}
@@ -400,14 +469,31 @@ export default function MessagesPage() {
                     />
                   </div>
 
-                  <div className="mt-10">
+
+                  {/* Footer */}
+                  <div className="mt-6 sm:mt-10">
                     <button
                       onClick={() => setSelectedMessage(null)}
-                      className="w-full bg-[#123D32] text-white py-4 rounded-2xl font-bold text-sm tracking-wide shadow-xl shadow-[#123D32]/20 hover:bg-[#0C3027] transition-all"
+                      className="
+                w-full 
+                bg-[#123D32] 
+                text-white 
+                py-3.5
+                sm:py-4
+                rounded-2xl 
+                font-bold 
+                text-sm 
+                tracking-wide 
+                shadow-xl 
+                shadow-[#123D32]/20 
+                hover:bg-[#0C3027] 
+                transition-all
+              "
                     >
                       Close
                     </button>
                   </div>
+
                 </div>
               </motion.div>
             </div>
@@ -417,7 +503,9 @@ export default function MessagesPage() {
         {/* Edit Description Modal */}
         <AnimatePresence>
           {editMessage && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+
+              {/* Overlay */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -426,79 +514,262 @@ export default function MessagesPage() {
                 onClick={() => setEditMessage(null)}
               />
 
+              {/* Modal */}
               <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl premium-border-glow overflow-hidden"
+                className="
+          relative
+          w-full
+          max-w-xl
+          max-h-[90vh]
+          overflow-y-auto
+          bg-white
+          rounded-3xl
+          sm:rounded-[2.5rem]
+          shadow-2xl
+          premium-border-glow
+        "
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
+                {/* Gradient top border */}
+                <div className="
+          absolute 
+          top-0 
+          left-0 
+          w-full 
+          h-1.5 
+          sm:h-2
+          bg-gradient-to-r 
+          from-[#c29e6d] 
+          via-[#d4af37] 
+          to-[#047857]
+        " />
+
+
+                {/* Close */}
                 <button
                   onClick={() => setEditMessage(null)}
-                  className="absolute right-8 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all"
+                  className="
+            absolute 
+            right-4 
+            top-4
+            sm:right-8 
+            sm:top-8
+            rounded-full
+            p-2
+            text-slate-400
+            hover:bg-slate-100
+            transition-all
+          "
                 >
                   <X className="h-5 w-5" />
                 </button>
 
-                <div className="p-6">
-                  <div className="mb-10 flex items-center gap-5">
+
+                <div className="p-4 sm:p-6 lg:p-8">
+
+                  {/* Header */}
+                  <div className="
+            mb-6
+            sm:mb-10
+            flex
+            items-center
+            gap-3
+            sm:gap-5
+            pr-10
+          ">
                     <div
-                      className="h-12 w-12 rounded-2xl flex items-center justify-center"
+                      className="
+                h-10
+                w-10
+                sm:h-12
+                sm:w-12
+                rounded-2xl
+                flex
+                items-center
+                justify-center
+              "
                     >
-                      <Pencil className="h-6 w-6 transition-transform duration-300 drop-shadow-sm" style={{ stroke: "url(#msgGoldGreen)" }} />
+                      <Pencil
+                        className="h-5 w-5 sm:h-6 sm:w-6 drop-shadow-sm"
+                        style={{
+                          stroke: "url(#msgGoldGreen)",
+                        }}
+                      />
                     </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-slate-800">Add Comment</h2>
-                    </div>
+
+                    <h2 className="
+              text-lg
+              sm:text-xl
+              lg:text-2xl
+              font-bold
+              text-slate-800
+            ">
+                      Add Comment
+                    </h2>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                  <div className="space-y-5 sm:space-y-6">
+
+                    {/* Sender info */}
+                    <div className="
+              grid
+              grid-cols-1
+              md:grid-cols-2
+              gap-4
+              sm:gap-6
+            ">
+
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Sender Name</label>
-                        <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-500">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                          Sender Name
+                        </label>
+
+                        <div className="
+                  w-full
+                  bg-slate-50
+                  border
+                  border-slate-100
+                  rounded-2xl
+                  px-4
+                  py-3
+                  text-sm
+                  font-semibold
+                  text-slate-500
+                  break-words
+                ">
                           {editMessage.name}
                         </div>
                       </div>
+
+
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Phone Number</label>
-                        <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-500">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                          Phone Number
+                        </label>
+
+                        <div className="
+                  w-full
+                  bg-slate-50
+                  border
+                  border-slate-100
+                  rounded-2xl
+                  px-4
+                  py-3
+                  text-sm
+                  font-semibold
+                  text-slate-500
+                  break-words
+                ">
                           {editMessage.phone}
                         </div>
                       </div>
+
                     </div>
 
+
+                    {/* Inquiry */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Inquiry Content</label>
-                      <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-500 max-h-24 overflow-y-auto">
+
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                        Inquiry Content
+                      </label>
+
+                      <div className="
+                w-full
+                bg-slate-50
+                border
+                border-slate-100
+                rounded-2xl
+                px-4
+                py-3
+                text-sm
+                font-semibold
+                text-slate-500
+                max-h-32
+                overflow-y-auto
+                break-words
+              ">
                         {editMessage.message}
                       </div>
+
                     </div>
 
+
+                    {/* Comment */}
                     <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Comments</label>
+
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                        Comments
+                      </label>
+
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         rows={5}
                         placeholder="Add Comment"
-                        className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[#123D32]/10 focus:border-[#123D32] transition-all outline-none"
+                        className="
+                  w-full
+                  bg-white
+                  border
+                  border-slate-200
+                  rounded-2xl
+                  px-4
+                  py-3
+                  text-sm
+                  font-medium
+                  resize-none
+                  focus:outline-none
+                  focus:ring-4
+                  focus:ring-[#123D32]/10
+                  focus:border-[#123D32]
+                  transition-all
+                "
                       />
+
                     </div>
 
-                    <div className="justify-center pt-4">
+
+                    {/* Button */}
+                    <div className="pt-2 sm:pt-4">
+
                       <button
                         onClick={handleUpdateDescription}
                         disabled={isUpdating}
-                        className="w-full bg-[#123D32] text-white py-4 rounded-2xl font-bold text-sm shadow-xl shadow-[#123D32]/20 hover:bg-[#0C3027] transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                        className="
+                  w-full
+                  bg-[#123D32]
+                  text-white
+                  py-3.5
+                  sm:py-4
+                  rounded-2xl
+                  font-bold
+                  text-sm
+                  shadow-xl
+                  shadow-[#123D32]/20
+                  hover:bg-[#0C3027]
+                  transition-all
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  disabled:opacity-70
+                "
                       >
-                        {isUpdating && <Loader2 className="h-4 w-4 animate-spin" />}
+                        {isUpdating && (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
+
                         {isUpdating ? "Adding Comment..." : "Add Comment"}
                       </button>
+
                     </div>
                   </div>
+
                 </div>
               </motion.div>
             </div>

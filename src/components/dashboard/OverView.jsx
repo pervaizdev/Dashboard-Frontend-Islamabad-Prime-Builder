@@ -8,6 +8,7 @@ import Gallery from "@/components/dashboard/Gallery.jsx";
 import Admin_due_payment from "./Admin_due_payment";
 import { useAuth } from "@/context/AuthContext";
 import Table_Message from "./Contact_Message"
+import IPBChatBot from "@/components/IPBChatBot";
 
 
 const OverView = () => {
@@ -29,6 +30,7 @@ const OverView = () => {
         <>
         {/* <Admin_due_payment /> */}
         <Propority />
+        <IPBChatBot />
         </>
       ) : (
         <Propority />

@@ -36,7 +36,7 @@ const TopNavbar = () => {
     logout();
     setOpenDropdown(false);
   };
-  
+
   return (
     <div className="w-full   px-4  md:px-6 mt-5">
       <div className="flex h-[80px] items-center justify-between rounded-[2rem] px-6 premium-border-glow">
@@ -54,6 +54,7 @@ const TopNavbar = () => {
           </div>
         </Link>
 
+
         {/* Right Section: Actions & Profile */}
         <div className="flex items-center gap-6">
           {/* User Profile Dropdown */}
@@ -63,9 +64,24 @@ const TopNavbar = () => {
               className="group flex items-center gap-3 cursor-pointer py-2 pl-2 pr-3 rounded-2xl hover:bg-primary/5 transition-all outline-none focus:outline-none"
             >
               <div className="relative">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-white font-serif font-bold text-lg ring-2 ring-primary/20 group-hover:ring-primary transition-all shadow-lg"
-                  style={{ background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)" }}>
-                  {getInitials(userName)}
+                <div
+                  className="h-11 lg:w-12 w-12 rounded-xl flex items-center justify-center shadow-sm font-bold uppercase text-md"
+                  style={{
+                    background: "linear-gradient(135deg, rgba(194,158,109,0.15) 0%, rgba(212,175,55,0.12) 50%, rgba(4,120,87,0.15) 100%)",
+                    border: "1px solid rgba(194,158,109,0.35)",
+                  }}
+                >
+                  <span
+                    className="text-xl"
+                    style={{
+                      background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {getInitials(userName)}
+                  </span>
                 </div>
               </div>
 

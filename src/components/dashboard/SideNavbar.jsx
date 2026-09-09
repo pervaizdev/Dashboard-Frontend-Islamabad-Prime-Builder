@@ -39,7 +39,7 @@ const allNavItems = [
 const mobileNavItems = [
   { title: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { title: "Dashboard", href: "/dashboard/reports-property-commission", icon: BarChart3 },
-  { title: "Broker Management", href: "/dashboard/islamabad-prime-builder-broker-manaegment", icon: UserCog },
+  { title: "Broker", href: "/dashboard/islamabad-prime-builder-broker-manaegment", icon: UserCog },
 ];
 
 const SideNavbar = () => {
@@ -54,9 +54,17 @@ const SideNavbar = () => {
 
   return (
     <>
-      {/* ─────────────────────────────────────────────
-          DESKTOP SIDEBAR — super-admin only, lg+
-      ───────────────────────────────────────────── */}
+
+      <svg width="0" height="0" className="absolute pointer-events-none opacity-0 h-0 w-0">
+        <defs>
+          <linearGradient id="announcementGoldGreen" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#c29e6d" />
+            <stop offset="50%" stopColor="#d4af37" />
+            <stop offset="100%" stopColor="#047857" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       {isSuperAdmin && (
         <div
           className={`relative hidden h-screen shrink-0 border-r border-[#c29e6d]/10 bg-[#08211e] text-white transition-all duration-300 lg:flex lg:flex-col ${isCollapsed ? "w-20" : "w-64"
@@ -104,8 +112,8 @@ const SideNavbar = () => {
                   key={item.href}
                   href={item.href}
                   className={`relative flex items-center rounded-2xl p-3 text-sm font-medium transition-all duration-300 ${active
-                      ? "border border-[#c29e6d]/30 bg-[#c29e6d] text-[#08211e] shadow-lg"
-                      : "text-white/75 hover:bg-white/5 hover:text-[#c29e6d]"
+                    ? "border border-[#c29e6d]/30 bg-[#c29e6d] text-[#08211e] shadow-lg"
+                    : "text-white/75 hover:bg-white/5 hover:text-[#c29e6d]"
                     } ${isCollapsed ? "justify-center" : "gap-4"}`}
                 >
                   <div className="relative flex items-center justify-center group/icon">
@@ -140,22 +148,28 @@ const SideNavbar = () => {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center gap-1.5 px-4 transition-all active:scale-90"
+                className="flex flex-col items-center gap-1.5 px-4 transition-all active:scale-90 outline-none focus:outline-none"
               >
-                {/* Icon container — gradient bg when active, plain when inactive */}
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-2xl transition-all duration-300 "
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300"
                   style={
                     active
-                      ? { background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)" }
-                      : {}
+                      ? {
+                        background:
+                          "linear-gradient(135deg, rgba(194,158,109,0.15) 0%, rgba(212,175,55,0.12) 50%, rgba(4,120,87,0.15) 100%)",
+                        border: "1px solid rgba(194,158,109,0.35)",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      }
+                      : undefined
                   }
                 >
                   <Icon
                     size={20}
-                    className={active ? "text-white" : "text-[#d4af37]"}
+                    strokeWidth={2.2}
+                    style={{ stroke: "url(#announcementGoldGreen)" }}
                   />
                 </div>
+
                 <span
                   className={`text-[10px] font-semibold tracking-wide transition-colors ${active ? "text-[#c29e6d]" : "text-charcoal/40"
                     }`}
