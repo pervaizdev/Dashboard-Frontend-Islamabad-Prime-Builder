@@ -395,6 +395,13 @@ const PropertyDetailContent = () => {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   };
 
+  const getInitials = (name) => {
+    if (!name) return "";
+    const words = name.trim().split(" ").filter(Boolean);
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  };
+
   if (loading && !propertyData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -650,33 +657,87 @@ const PropertyDetailContent = () => {
               </div>
               <div className="space-y-6">
                 {propertyData.owners?.map((owner, idx) => (
-                  <div key={idx} className="bg-white/40 rounded-3xl p-6 border border-primary/5">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="lg:h-10 w-10 h-9.5  rounded-full bg-gradient-to-br from-[#c29e6d] via-[#d4af37] to-[#047857] flex items-center justify-center text-white font-bold shadow-md">
-                        {owner.name?.charAt(0)}
+                  <div key={idx} className="bg-white/40 rounded-3xl p-2">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div
+                        className="h-11 lg:w-12 w-12 rounded-xl flex items-center justify-center shadow-sm font-bold uppercase text-md"
+                        style={{
+                          background: "linear-gradient(135deg, rgba(194,158,109,0.15) 0%, rgba(212,175,55,0.12) 50%, rgba(4,120,87,0.15) 100%)",
+                          border: "1px solid rgba(194,158,109,0.35)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            backgroundClip: "text",
+                          }}
+                        >
+                          {getInitials(owner.name)}
+                        </span>
                       </div>
+
                       <p className="font-serif text-lg font-bold text-charcoal">{owner.name}</p>
                     </div>
                     <div className="grid grid-cols-1 gap-3">
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <User size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
-                        <span>{owner.client_father_name}</span>
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-charcoal/60 min-w-0">
+                        <User
+                          size={14}
+                          className="shrink-0 mt-0.5 sm:mt-0"
+                          style={{ stroke: "url(#propDetailGoldGreen)" }}
+                        />
+                        <span className="min-w-0 break-words">
+                          {owner.client_father_name}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <BadgeCheck size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
-                        <span>{owner.client_cnic}</span>
+
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-charcoal/60 min-w-0">
+                        <BadgeCheck
+                          size={14}
+                          className="shrink-0 mt-0.5 sm:mt-0"
+                          style={{ stroke: "url(#propDetailGoldGreen)" }}
+                        />
+                        <span className="min-w-0 break-words">
+                          {owner.client_cnic}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <ShieldCheck size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
-                        <span>{owner.nationality}</span>
+
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-charcoal/60 min-w-0">
+                        <ShieldCheck
+                          size={14}
+                          className="shrink-0 mt-0.5 sm:mt-0"
+                          style={{ stroke: "url(#propDetailGoldGreen)" }}
+                        />
+                        <span className="min-w-0 break-words">
+                          {owner.nationality}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
-                        <span><span className="font-semibold">Temp Address:</span> {owner.client_residential_address || 'N/A'}</span>
+
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-charcoal/60 min-w-0">
+                        <MapPin
+                          size={14}
+                          className="shrink-0 mt-0.5 sm:mt-0"
+                          style={{ stroke: "url(#propDetailGoldGreen)" }}
+                        />
+
+                        <span className="min-w-0 break-words leading-relaxed">
+                          <span className="font-semibold">Temp Address:</span>{" "}
+                          {owner.client_residential_address || "N/A"}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-charcoal/60">
-                        <MapPin size={14} style={{ stroke: "url(#propDetailGoldGreen)" }} />
-                        <span><span className="font-semibold">Permanent Address:</span> {owner.client_permanent_address || 'N/A'}</span>
+
+                      <div className="flex items-start sm:items-center gap-2 sm:gap-3 text-[11px] sm:text-xs text-charcoal/60 min-w-0">
+                        <MapPin
+                          size={14}
+                          className="shrink-0 mt-0.5 sm:mt-0"
+                          style={{ stroke: "url(#propDetailGoldGreen)" }}
+                        />
+
+                        <span className="min-w-0 break-words leading-relaxed">
+                          <span className="font-semibold">Permanent Address:</span>{" "}
+                          {owner.client_permanent_address || "N/A"}
+                        </span>
                       </div>
                     </div>
                   </div>
