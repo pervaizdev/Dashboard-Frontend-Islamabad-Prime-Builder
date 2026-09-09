@@ -291,7 +291,7 @@ ${perProp.join("\n")}`;
       {/* Floating Logo Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-30 right-4 sm:bottom-24 sm:right-6 md:bottom-8 md:right-8 flex h-14 w-14 sm:h-[70px] sm:w-[70px] items-center justify-center rounded-full bg-[#123D32] shadow-[0_10px_30px_rgba(18,61,50,0.35)] z-[999] cursor-pointer transition-transform duration-300 ${
+        className={`fixed bottom-26 right-4 sm:right-6 md:bottom-8 md:right-8 flex h-14 w-14 sm:h-[70px] sm:w-[70px] items-center justify-center rounded-full bg-[#123D32] shadow-[0_10px_30px_rgba(18,61,50,0.35)] z-[999] cursor-pointer transition-transform duration-300 ${
           !isOpen ? "animate-periodic-bounce" : ""
         }`}
         aria-label="Open IPB Assistant"
