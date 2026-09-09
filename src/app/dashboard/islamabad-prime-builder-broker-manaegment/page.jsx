@@ -22,6 +22,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import IPBChatBot from "@/components/IPBChatBot";
 
 export default function BrokerManagementPage() {
   const router = useRouter();
@@ -166,6 +167,13 @@ export default function BrokerManagementPage() {
     b.phone?.includes(searchTerm)
   );
 
+  const getInitials = (name) => {
+    if (!name) return "";
+    const words = name.trim().split(" ").filter(Boolean);
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return `${words[0][0]}${words[1][0]}`.toUpperCase();
+  };
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* SVG Gradient — Gold + Green dual-tone */}
@@ -212,7 +220,7 @@ export default function BrokerManagementPage() {
             )}
           </div>
         </div>
-        
+
         <div className="flex justify-end w-full">
           <div className="relative group max-w-md w-full ">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 h-5 w-5 transition-colors group-focus-within:text-[#123D32]" />
@@ -355,10 +363,22 @@ export default function BrokerManagementPage() {
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-4">
                           <div
-                            className="h-10 w-10 rounded-full flex items-center justify-center font-bold uppercase text-white text-sm shadow-md shrink-0"
-                            style={{ background: "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)" }}
+                            className="h-10 lg:w-11 w-10.5 rounded-xl flex items-center justify-center shadow-sm font-bold uppercase text-md"
+                            style={{
+                              background: "linear-gradient(135deg, rgba(194,158,109,0.15) 0%, rgba(212,175,55,0.12) 50%, rgba(4,120,87,0.15) 100%)",
+                              border: "1px solid rgba(194,158,109,0.35)",
+                            }}
                           >
-                            {broker.name?.charAt(0)}
+                            <span
+                              style={{
+                                background: "linear-gradient(135deg, #c29e6d 0%, #d4af37 50%, #047857 100%)",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                backgroundClip: "text",
+                              }}
+                            >
+                              {getInitials(broker.name)}
+                            </span>
                           </div>
                           <div className="flex flex-col">
                             <span className="text-sm font-bold text-slate-800">{broker.name}</span>
@@ -418,111 +438,194 @@ export default function BrokerManagementPage() {
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {(isAddModalOpen || isEditModalOpen) && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+
+            {/* Overlay */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
-              onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
+              onClick={() => {
+                setIsAddModalOpen(false);
+                setIsEditModalOpen(false);
+              }}
             />
 
+
+            {/* Modal */}
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              className="relative w-full max-w-3xl bg-white rounded-4xl shadow-2xl premium-border-glow overflow-hidden"
+              className="relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-white rounded-3xl sm:rounded-[2.5rem] shadow-2xl premium-border-glow "
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857]" />
 
+              {/* Top gradient */}
+              <div
+                className="absolute top-0 left-0 w-full h-1.5 sm:h-2 bg-gradient-to-r from-[#c29e6d] via-[#d4af37] to-[#047857] "
+              />
+
+
+              {/* Close */}
               <button
-                onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
-                className="absolute right-4 top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all font-bold"
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setIsEditModalOpen(false);
+                }}
+                className="absolute right-4 top-4 sm:right-8 sm:top-8 rounded-full p-2 text-slate-400 hover:bg-slate-100 transition-all "
               >
                 <X className="h-5 w-5" />
               </button>
 
-              <form onSubmit={handleSubmit} className="p-8 sm:p-12">
-                <div className="mb-10 flex items-center gap-5">
-                  <div className="h-16 w-16 rounded-2xl flex items-center justify-center shadow-md shrink-0" style={{ background: "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)" }}>
-                    <User className="h-8 w-8 text-white" />
+
+              <form
+                onSubmit={handleSubmit}
+                className="p-4 sm:p-8 lg:p-12"
+              >
+
+                {/* Header */}
+                <div
+                  className="mb-6 sm:mb-10 flex items-center gap-3 sm:gap-5 pr-10 "
+                >
+                  <div
+                    className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl flex items-center justify-center shadow-md shrink-0 "
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #C6A15B 0%, #d4af37 50%, #047857 100%)",
+                    }}
+                  >
+                    <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                   </div>
+
+
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-800">{isEditModalOpen ? "Edit Broker" : "Add New Broker"}</h2>
-                    <p className="text-sm text-slate-500 mt-1">Provide broker details for registration.</p>
+                    <h2
+                      className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800 "
+                    >
+                      {isEditModalOpen ? "Edit Broker" : "Add New Broker"}
+                    </h2>
+
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      Provide broker details for registration.
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-6 mb-10">
-                  {/* Name, CNIC, Phone in one line */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                {/* Form */}
+                <div className="space-y-5 sm:space-y-6 mb-8 sm:mb-10">
+
+
+                  {/* Name / CNIC / Phone */}
+                  <div
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 "
+                  >
+
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Broker Name</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                        Broker Name
+                      </label>
+
                       <input
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all "
                       />
                     </div>
+
+
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">CNIC Number</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                        CNIC Number
+                      </label>
+
                       <input
                         name="cnic"
                         value={formData.cnic}
                         onChange={handleInputChange}
                         required
                         placeholder="71301-6445487-2"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all "
                       />
                     </div>
+
+
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Phone Number</label>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                        Phone Number
+                      </label>
+
                       <input
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
                         required
                         placeholder="03001234567"
-                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all "
                       />
                     </div>
+
                   </div>
 
-                  {/* Residential Address */}
+
+                  {/* Address */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Residential Address</label>
+
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                      Residential Address
+                    </label>
+
                     <textarea
                       name="residential_address"
                       value={formData.residential_address}
                       onChange={handleInputChange}
                       rows={3}
                       placeholder="Enter full residential address..."
-                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all resize-none"
+                      className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold resize-none focus:outline-none focus:ring-4 focus:ring-yellow-600/5 focus:border-yellow-600 transition-all "
                     />
                   </div>
                 </div>
+                {/* Buttons */}
+                <div
+                  className="flex flex-col sm:flex-row gap-3 sm:gap-4 "
+                >
 
-                <div className="flex gap-4">
                   <button
                     type="button"
-                    onClick={() => { setIsAddModalOpen(false); setIsEditModalOpen(false); }}
-                    className="flex-1 bg-slate-50 text-slate-600 py-4 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all"
+                    onClick={() => {
+                      setIsAddModalOpen(false);
+                      setIsEditModalOpen(false);
+                    }}
+                    className="flex-1 bg-slate-50 text-slate-600 py-3.5 sm:py-4 rounded-2xl font-bold text-sm hover:bg-slate-100 transition-all "
                   >
                     Cancel
                   </button>
+
+
                   <button
                     type="submit"
                     disabled={processing}
-                    className="flex-1 bg-[#123D32] text-[#E5C476] py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2"
+                    className="flex-1 bg-[#123D32] text-[#E5C476] py-3.5 sm:py-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-70 "
                   >
-                    {processing && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {processing ? "Saving..." : (isEditModalOpen ? "Update Broker" : "Create Broker")}
+                    {processing && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+
+                    {processing
+                      ? "Saving..."
+                      : isEditModalOpen
+                        ? "Update Broker"
+                        : "Create Broker"}
                   </button>
+
                 </div>
+
               </form>
+
             </motion.div>
           </div>
         )}
@@ -575,6 +678,7 @@ export default function BrokerManagementPage() {
           </div>
         )}
       </AnimatePresence>
+      <IPBChatBot />
     </div>
   );
 }
