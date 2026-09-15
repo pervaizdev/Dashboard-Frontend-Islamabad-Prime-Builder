@@ -60,5 +60,29 @@ export const dashboardAPI = {
     } catch (error) {
       throw error.response?.data || { message: "Error fetching all properties" };
     }
+  },
+
+  getBrokerCommissionReports: async (queryParams = "") => {
+    try {
+      const url = queryParams 
+        ? `${ENDPOINTS.DASHBOARD.BROKER_COMMISSION_REPORTS}?${queryParams}`
+        : ENDPOINTS.DASHBOARD.BROKER_COMMISSION_REPORTS;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching broker commission reports" };
+    }
+  },
+
+  getBrokerCommissionStats: async (queryParams = "") => {
+    try {
+      const url = queryParams 
+        ? `${ENDPOINTS.DASHBOARD.BROKER_COMMISSION_STATS}?${queryParams}`
+        : ENDPOINTS.DASHBOARD.BROKER_COMMISSION_STATS;
+      const response = await axiosInstance.get(url);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error fetching broker commission stats" };
+    }
   }
 };
