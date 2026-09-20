@@ -14,6 +14,8 @@ export const ENDPOINTS = {
     ADMIN: "/dashboard/admin",
     PROPERTY_COMMISSION_STATS: "/dashboard/property-commission-stats",
     PROPERTY_COMMISSION_REPORTS: "/dashboard/property-commission",
+    BROKER_COMMISSION_REPORTS: "/dashboard/broker-commission-reports",
+    BROKER_COMMISSION_STATS: "/dashboard/broker-commission-stats",
   },
   NOTIFICATIONS: {
     GET_INSTALLMENT_NOTIFICATIONS: "/property-details/installment-notifications",

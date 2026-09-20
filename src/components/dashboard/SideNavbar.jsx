@@ -79,7 +79,7 @@ const allNavItems = [
   },
 ];
 
-const mobileNavItems = [
+const restrictedNavItems = [
   {
     title: "Overview",
     href: "/dashboard",
@@ -89,11 +89,6 @@ const mobileNavItems = [
     title: "Dashboard",
     href: "/dashboard/reports-property-commission",
     icon: BarChart3,
-  },
-  {
-    title: "Broker Management",
-    href: "/dashboard/islamabad-prime-builder-broker-manaegment",
-    icon: UserCog,
   },
 ];
 
@@ -113,13 +108,16 @@ const SideNavbar = () => {
     return null;
   }
 
+  // Admin and Partner get strictly 3 modules, Super Admin gets all modules
+  const desktopNavItems = isSuperAdmin ? allNavItems : restrictedNavItems;
+
   return (
     <>
       {/* ─────────────────────────────────────────────
-          DESKTOP SIDEBAR
-          SUPER ADMIN ONLY
+          DESKTOP SIDEBAR (Left Sidebar on Desktop/Laptop)
+          FOR SUPER ADMIN, ADMIN, AND PARTNER
       ───────────────────────────────────────────── */}
-      {isSuperAdmin && (
+      {(isSuperAdmin || isAdmin || isPartner) && (
         <div
           className={`relative hidden h-screen shrink-0 border-r border-[#c29e6d]/10 bg-[#08211e] text-white transition-all duration-300 lg:flex lg:flex-col ${isCollapsed ? "w-20" : "w-64"
             }`}
@@ -171,7 +169,7 @@ const SideNavbar = () => {
             className={`custom-scrollbar flex-1 space-y-2 overflow-y-auto py-2 ${isCollapsed ? "px-3" : "px-4"
               }`}
           >
-            {allNavItems.map((item) => {
+            {desktopNavItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
 
@@ -214,15 +212,15 @@ const SideNavbar = () => {
       )}
 
       {/* ─────────────────────────────────────────────
-          BOTTOM NAVIGATION
-          SUPER ADMIN + ADMIN ONLY
+          BOTTOM NAVIGATION (MOBILE ONLY)
+          ADMIN + PARTNER ONLY
       ───────────────────────────────────────────── */}
-      {(isAdmin) && (
-        <nav className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2">
+      {(isAdmin || isPartner) && (
+        <nav className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 lg:hidden">
           <div
             className="flex rounded-[2rem] border border-white/20 bg-transparent px-6 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-xl backdrop-saturate-150"
           >
-            {mobileNavItems.map((item) => {
+            {restrictedNavItems.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
 
