@@ -28,8 +28,8 @@ import autoTable from "jspdf-autotable";
 
 export default function ReportsBrokerCommissionPage() {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState({ 
-    report: [], 
+  const [data, setData] = useState({
+    report: [],
     summary: { total_commission_paid: 0, records_count: 0 },
     totalPages: 1,
     currentPage: 1,
@@ -240,12 +240,12 @@ export default function ReportsBrokerCommissionPage() {
       startY: 220,
       theme: "grid",
       styles: { fontSize: 8, cellPadding: 10, font: "helvetica", textColor: [60, 60, 60] },
-      headStyles: { 
-        fillColor: [17, 17, 17], 
+      headStyles: {
+        fillColor: [17, 17, 17],
         textColor: [212, 175, 55],
         fontStyle: "bold",
         lineWidth: 0.5,
-        lineColor: [212, 175, 55] 
+        lineColor: [212, 175, 55]
       },
       alternateRowStyles: { fillColor: [252, 251, 248] },
       columnStyles: {
@@ -322,7 +322,7 @@ export default function ReportsBrokerCommissionPage() {
                           className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-semibold focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all outline-none"
                         />
                         {searchTerm && (
-                          <button 
+                          <button
                             onClick={() => {
                               setSearchTerm("");
                               setFilters(prev => ({ ...prev, broker_id: "" }));
@@ -376,8 +376,8 @@ export default function ReportsBrokerCommissionPage() {
                   </div>
 
                   <div className="flex justify-end gap-4">
-                      <button onClick={clearFilters} className="px-8 py-3 rounded-2xl font-bold text-sm text-slate-400 hover:bg-slate-50 transition-all">Clear</button>
-                      <button onClick={() => fetchReports(1)} className="bg-slate-900 text-white px-10 py-3 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Apply Search</button>
+                    <button onClick={clearFilters} className="px-8 py-3 rounded-2xl font-bold text-sm text-slate-400 hover:bg-slate-50 transition-all">Clear</button>
+                    <button onClick={() => fetchReports(1)} className="bg-slate-900 text-white px-10 py-3 rounded-2xl font-bold text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">Apply Search</button>
                   </div>
                 </div>
               </motion.div>
@@ -506,11 +506,10 @@ export default function ReportsBrokerCommissionPage() {
                         <button
                           key={i}
                           onClick={() => fetchReports(pageNum)}
-                          className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${
-                            currentPage === pageNum 
-                              ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                          className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${currentPage === pageNum
+                              ? "bg-primary text-white shadow-lg shadow-primary/20"
                               : "border border-slate-200 text-slate-500 hover:bg-slate-50"
-                          }`}
+                            }`}
                         >
                           {pageNum}
                         </button>
