@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import Pagination from "@/components/pagination";
 
 const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, loading, propertyName }) => {
   if (!isOpen) return null;
@@ -77,6 +78,7 @@ export default function PropertyListPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const { user } = useAuth();
@@ -109,12 +111,12 @@ export default function PropertyListPage() {
     }
   };
 
-  const fetchProperties = async (pageNum = page, search = searchTerm) => {
+  const fetchProperties = async (pageNum = page, search = searchTerm, limitNum = limit) => {
     try {
       setLoading(true);
       const data = await propertyAPI.getAllProperties({
         page: pageNum,
-        limit: 10,
+        limit: limitNum,
         search: search
       });
       if (data.success) {
@@ -133,7 +135,7 @@ export default function PropertyListPage() {
   useEffect(() => {
     // Debounce search
     const timer = setTimeout(() => {
-      fetchProperties(1, searchTerm);
+      fetchProperties(1, searchTerm, limit);
       setPage(1);
     }, 500);
     return () => clearTimeout(timer);
@@ -142,8 +144,14 @@ export default function PropertyListPage() {
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setPage(newPage);
-      fetchProperties(newPage, searchTerm);
+      fetchProperties(newPage, searchTerm, limit);
     }
+  };
+
+  const handleLimitChange = (newLimit) => {
+    setLimit(newLimit);
+    setPage(1);
+    fetchProperties(1, searchTerm, newLimit);
   };
 
   return (
@@ -341,40 +349,15 @@ export default function PropertyListPage() {
           </div>
 
           {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="px-8 py-6 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                Showing <span className="text-slate-800">{properties.length}</span> of <span className="text-slate-800">{totalCount}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1 || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 disabled:opacity-50 hover:bg-slate-50 transition-all shadow-sm"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handlePageChange(i + 1)}
-                    className={`h-10 w-10 rounded-xl font-bold text-xs transition-all
-                        ${page === i + 1
-                        ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10"
-                        : "bg-white text-slate-400 border border-slate-200 hover:bg-slate-50"}`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-                <button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === totalPages || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 disabled:opacity-50 hover:bg-slate-50 transition-all shadow-sm"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+          {totalCount > 0 && (
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+              totalRecords={totalCount}
+              limit={limit}
+              onPageChange={handlePageChange}
+              onLimitChange={handleLimitChange}
+            />
           )}
         </div>
       </div>

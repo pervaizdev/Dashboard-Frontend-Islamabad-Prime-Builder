@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,8 @@ import {
   Images,
   MessageSquareText,
   Key,
+  QrCode,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -28,54 +30,79 @@ const allNavItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Announcement Management",
-    href: "/dashboard/announcementform",
-    icon: Megaphone,
-  },
-  {
     title: "Dashboard",
     href: "/dashboard/reports-property-commission",
     icon: BarChart3,
   },
   {
-    title: "Client Management",
-    href: "/dashboard/Islamabad-prime-builder-client-user",
-    icon: Users,
-  },
-  {
-    title: "Broker Management",
-    href: "/dashboard/islamabad-prime-builder-broker-manaegment",
-    icon: UserCog,
-  },
-  {
-    title: "Images Management",
-    href: "/dashboard/property-images",
-    icon: Images,
-  },
-  {
-    title: "Messages",
-    href: "/dashboard/message",
-    icon: MessageSquareText,
-  },
-  {
-    title: "Agent Key",
-    href: "/dashboard/agent-key",
-    icon: Key,
-  },
-  {
-    title: "Property List",
-    href: "/dashboard/propertylist",
+    title: "Property Management",
     icon: Building,
+    children: [
+      {
+        title: "Property List",
+        href: "/dashboard/propertylist",
+        icon: Building,
+      },
+      {
+        title: "Broker Commission",
+        href: "/dashboard/reports-broker-commission",
+        icon: HandCoins,
+      },
+      {
+        title: "Add Property",
+        href: "/dashboard/properityform",
+        icon: Home,
+      },
+      {
+        title: "Property Images",
+        href: "/dashboard/property-images",
+        icon: Images,
+      },
+    ],
   },
   {
-    title: "Add Property",
-    href: "/dashboard/properityform",
-    icon: Home,
+    title: "User Management",
+    icon: Users,
+    children: [
+      {
+        title: "Client Management",
+        href: "/dashboard/Islamabad-prime-builder-client-user",
+        icon: Users,
+      },
+      {
+        title: "Broker Management",
+        href: "/dashboard/islamabad-prime-builder-broker-manaegment",
+        icon: UserCog,
+      },
+     
+    ],
   },
+
   {
-    title: "Reports Broker Commission",
-    href: "/dashboard/reports-broker-commission",
-    icon: HandCoins,
+    title: "Communication",
+    icon: MessageSquareText,
+    children: [
+      {
+        title: "Announcements",
+        href: "/dashboard/announcementform",
+        icon: Megaphone,
+      },
+      {
+        title: "Messages",
+        href: "/dashboard/message",
+        icon: MessageSquareText,
+      },
+      {
+        title: "Agent Key",
+        href: "/dashboard/agent-key",
+        icon: Key,
+      },
+      {
+        title: "QR Code",
+        href: "/dashboard/qr-code",
+        icon: QrCode,
+      },
+    ],
   },
 ];
 
@@ -97,6 +124,21 @@ const SideNavbar = () => {
   const { user } = useAuth();
 
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [openGroups, setOpenGroups] = useState({});
+
+  useEffect(() => {
+    const activeGroup = allNavItems.find((item) =>
+      item.children?.some((child) => pathname === child.href)
+    );
+    if (activeGroup) {
+      setOpenGroups({ [activeGroup.title]: true });
+    }
+  }, [pathname]);
+
+  const toggleGroup = (title) => {
+    if (isCollapsed) setIsCollapsed(false);
+    setOpenGroups((prev) => (prev[title] ? {} : { [title]: true }));
+  };
 
   // Roles coming from /me API through AuthContext
   const isSuperAdmin = user?.role === "super-admin";
@@ -171,6 +213,70 @@ const SideNavbar = () => {
           >
             {desktopNavItems.map((item) => {
               const Icon = item.icon;
+
+              if (item.children) {
+                const groupActive = item.children.some((child) => pathname === child.href);
+                const isOpen = !!openGroups[item.title];
+
+                return (
+                  <div key={item.title}>
+                    <button
+                      type="button"
+                      onClick={() => toggleGroup(item.title)}
+                      className={`relative flex w-full items-center rounded-2xl p-3 text-sm font-medium transition-all duration-300 ${groupActive
+                        ? "border border-[#c29e6d]/30 bg-white/10 text-[#c29e6d]"
+                        : "text-white/75 hover:bg-white/5 hover:text-[#c29e6d]"
+                        } ${isCollapsed ? "justify-center" : "gap-4"}`}
+                    >
+                      <div className="group/icon relative flex items-center justify-center">
+                        <Icon size={20} className="shrink-0 text-[#c29e6d]" />
+                        {isCollapsed && (
+                          <div className="pointer-events-none fixed left-15 z-[9999] mt-10 ml-4 -translate-y-1/2 translate-x-2 invisible opacity-0 transition-all duration-300 group-hover/icon:visible group-hover/icon:translate-x-0 group-hover/icon:opacity-100">
+                            <div className="relative whitespace-nowrap rounded-xl border border-[#c29e6d] bg-white px-4 py-2 shadow-2xl">
+                              <span className="text-sm font-semibold text-[#08211e]">
+                                {item.title}
+                              </span>
+                              <div className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rotate-45 border-b border-l border-[#c29e6d] bg-white" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {!isCollapsed && (
+                        <>
+                          <span className="flex-1 text-left">{item.title}</span>
+                          <ChevronDown
+                            size={16}
+                            className={`shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </>
+                      )}
+                    </button>
+
+                    {!isCollapsed && isOpen && (
+                      <div className="mt-1 space-y-1 border-l border-[#c29e6d]/20 ml-6 pl-2">
+                        {item.children.map((child) => {
+                          const ChildIcon = child.icon;
+                          const active = pathname === child.href;
+                          return (
+                            <Link
+                              key={child.href}
+                              href={child.href}
+                              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300 ${active
+                                ? "bg-[#c29e6d] text-[#08211e] shadow-lg"
+                                : "text-white/70 hover:bg-white/5 hover:text-[#c29e6d]"
+                                }`}
+                            >
+                              <ChildIcon size={16} className={`shrink-0 ${active ? "text-[#08211e]" : "text-[#c29e6d]"}`} />
+                              <span>{child.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               const active = pathname === item.href;
 
               return (
@@ -189,7 +295,6 @@ const SideNavbar = () => {
                         } shrink-0`}
                     />
 
-                    {/* Tooltip when collapsed */}
                     {isCollapsed && (
                       <div className="pointer-events-none fixed left-15 z-[9999] mt-10 ml-4 -translate-y-1/2 translate-x-2 invisible opacity-0 transition-all duration-300 group-hover/icon:visible group-hover/icon:translate-x-0 group-hover/icon:opacity-100">
                         <div className="relative whitespace-nowrap rounded-xl border border-[#c29e6d] bg-white px-4 py-2 shadow-2xl">

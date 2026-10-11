@@ -282,6 +282,9 @@ const PropertyDetailContent = () => {
   const [isEditingPaidDP, setIsEditingPaidDP] = useState(false);
   const [newPaidDP, setNewPaidDP] = useState("");
   const [updatingPaidDP, setUpdatingPaidDP] = useState(false);
+  const [editingAmountIndex, setEditingAmountIndex] = useState(null);
+  const [newAmount, setNewAmount] = useState("");
+  const [updatingAmount, setUpdatingAmount] = useState(false);
 
   const handleUpdatePaidDP = async () => {
     try {
@@ -325,6 +328,27 @@ const PropertyDetailContent = () => {
   useEffect(() => {
     fetchDetails();
   }, [id]);
+
+  const handleUpdateAmount = async (index) => {
+    const val = Number(newAmount);
+    if (!Number.isFinite(val) || val <= 0) {
+      toast.error("Enter an amount greater than 0");
+      return;
+    }
+    try {
+      setUpdatingAmount(true);
+      const res = await propertyAPI.updateInstallmentAmount(id, index, val);
+      if (res.success) {
+        toast.success("Installment amount updated");
+        setEditingAmountIndex(null);
+        fetchDetails();
+      }
+    } catch (error) {
+      toast.error(error.message || "Failed to update installment amount");
+    } finally {
+      setUpdatingAmount(false);
+    }
+  };
 
   const handleMarkAsPaidPress = (index) => {
     setSelectedInstIndex(index);
@@ -550,37 +574,34 @@ const PropertyDetailContent = () => {
           </div>
 
           <div className="space-y-4">
-            {[
+            {(() => {
+              const paidInstallmentTotal = (propertyData.installments || []).reduce(
+                (sum, inst) => sum + (inst.status === "paid" ? Number(inst.amount) || 0 : 0),
+                0
+              );
+              const totalPaid = (Number(propertyData.paid_downpayment) || 0) + paidInstallmentTotal;
+              const remaining = (Number(propertyData.total_price) || 0) - totalPaid;
+
+              return [
               { label: "Property Price", value: `Rs. ${propertyData.total_price?.toLocaleString()}` },
               {
                 label: "Down Payment",
-                value:
-                  propertyData.paid_downpayment > 0 &&
-                    propertyData.paid_downpayment !== propertyData.down_payment
-                    ? `Rs. ${propertyData.paid_downpayment.toLocaleString()} / Rs. ${propertyData.down_payment?.toLocaleString()}`
-                    : `Rs. ${propertyData.down_payment?.toLocaleString()}`
+                value: `Rs. ${propertyData.down_payment?.toLocaleString()}`
               },
               {
                 label: "Paid Payment",
-                value: `Rs. ${propertyData.paid_downpayment === propertyData.down_payment
-                  ? propertyData.paid_payment?.toLocaleString()
-                  : propertyData.paid_downpayment?.toLocaleString()
-                  }`
+                value: `Rs. ${totalPaid.toLocaleString()}`
               },
               {
                 label: "Remaining Amount",
-                value: `Rs. ${(
-                  propertyData.paid_downpayment === propertyData.down_payment
-                    ? propertyData.remaining_amount
-                    : propertyData.total_price - propertyData.paid_downpayment
-                )?.toLocaleString()
-                  }`
+                value: `Rs. ${remaining.toLocaleString()}`
               },
               { label: "Total Installment Paid", value: `${propertyData.total_installment_paid?.toLocaleString()} / ${propertyData.total_installment?.toLocaleString()}` },
               { label: "Total Installment Remaining", value: `${propertyData.total_installment_remaining?.toLocaleString()}` },
 
               { label: "Payment Plan", value: propertyData.payment_plan.toUpperCase(), highlight: true },
-            ].map((item, idx) => (
+            ];
+            })().map((item, idx) => (
               <div
                 key={idx}
                 className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-xl px-5 py-3.5 ${item.highlight
@@ -596,7 +617,9 @@ const PropertyDetailContent = () => {
                   <div className="flex items-center gap-3">
                     {isEditingPaidDP ? (
                       <div className="flex items-center gap-2">
-                        <span className="font-serif text-lg font-bold">Rs. {propertyData.down_payment?.toLocaleString()} / Rs. </span>
+                        <span className="font-serif text-lg font-bold">
+                          Rs. {propertyData.down_payment?.toLocaleString()} / Rs.{" "}
+                        </span>
                         <input
                           type="number"
                           value={newPaidDP}
@@ -924,6 +947,11 @@ const PropertyDetailContent = () => {
                 </th>
                 {isSuperAdmin && (
                   <th className="px-6 py-4 text-center text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
+                    Edit
+                  </th>
+                )}
+                {isSuperAdmin && (
+                  <th className="px-6 py-4 text-center text-xs  font-bold uppercase tracking-[0.25em] text-primary/70">
                     Admin
                   </th>
                 )}
@@ -1010,6 +1038,50 @@ const PropertyDetailContent = () => {
                       <span className="text-charcoal/30 font-bold text-[10px] uppercase tracking-widest">Pending</span>
                     )}
                   </td>
+
+                  {isSuperAdmin && (
+                    <td className="px-6 py-4 text-center">
+                      {editingAmountIndex === index ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <input
+                            type="number"
+                            min="1"
+                            value={newAmount}
+                            onChange={(e) => setNewAmount(e.target.value)}
+                            className="w-24 rounded-lg border border-primary/20 bg-white px-2 py-1 text-sm outline-none focus:border-primary"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleUpdateAmount(index)}
+                            disabled={updatingAmount}
+                            className="rounded-lg bg-emerald-500 p-1.5 text-white hover:bg-emerald-600 disabled:opacity-50"
+                          >
+                            {updatingAmount ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingAmountIndex(null)}
+                            className="rounded-lg bg-red-500 p-1.5 text-white hover:bg-red-600"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingAmountIndex(index);
+                            setNewAmount(item.amount ?? "");
+                          }}
+                          className="inline-flex items-center gap-2 rounded-lg border border-primary/20 px-3 py-2 text-[9px] font-bold uppercase tracking-widest text-charcoal/70 hover:bg-primary/10 hover:text-primary"
+                        >
+                          <Edit2 size={12} />
+                          Edit
+                        </button>
+                      )}
+                    </td>
+                  )}
 
                   {isSuperAdmin && (
                     <td className="px-6 py-4 text-right">

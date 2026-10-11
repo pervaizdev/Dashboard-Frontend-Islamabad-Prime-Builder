@@ -171,6 +171,20 @@ export default function PropertySection({ formData, setFormData, isEdit }) {
           />
         </div>
 
+        {/* Paid Down Payment Date */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Paid Down Payment Date
+          </label>
+          <input
+            name="paid_downpayment_date"
+            value={formData.paid_downpayment_date || ""}
+            onChange={handleChange}
+            type="date"
+            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-slate-500"
+          />
+        </div>
+
         {/* Payment Plan */}
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
