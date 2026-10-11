@@ -42,6 +42,14 @@ const formatCurrency = (amount) =>
     maximumFractionDigits: 2,
   });
 
+const formatCompactAmount = (amount) => {
+  const value = Number(amount) || 0;
+  if (value >= 1_000_000_000) return `${(value / 1_000_000_000).toFixed(2)}B`;
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
+  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`;
+  return value.toFixed(2);
+};
+
 /**
  * Robust YYYY-MM key extractor — reads directly from the ISO string to avoid
  * any UTC↔local timezone shift that can push e.g. Jul 01 00:00:00 UTC into
@@ -174,7 +182,7 @@ const CustomBarTooltip = ({ active, payload, label }) => {
     <div className="min-w-[230px] rounded-xl border border-slate-200 bg-white p-3.5 shadow-lg text-xs space-y-1.5">
       <p className="font-bold text-slate-800 border-b border-slate-100 pb-1 mb-1">{label}</p>
       {payload.map((entry, i) => {
-        const raw = entry.payload?.[`${entry.dataKey}_raw`] ?? entry.value * 1_000_000;
+        const raw = entry.payload?.[`${entry.dataKey}_raw`] ?? entry.value;
         return (
           <div key={i} className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1.5 font-medium text-slate-600">
@@ -226,6 +234,7 @@ const InstallmentPlanPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedAllocation, setSelectedAllocation] = useState("Other");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
+  const [appliedStatus, setAppliedStatus] = useState("All Status");
 
   const searchRef = useRef(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -257,7 +266,6 @@ const InstallmentPlanPage = () => {
   const [categoriesList, setCategoriesList] = useState([]);
 
   const [activeFilterParams, setActiveFilterParams] = useState("allocationType=Other");
-  const [initialBuildingSet, setInitialBuildingSet] = useState(false);
 
   // Debounced Suggestions Fetch
   useEffect(() => {
@@ -309,18 +317,6 @@ const InstallmentPlanPage = () => {
     load();
   }, [currentPage, limit, activeFilterParams]);
 
-  useEffect(() => {
-    // Auto-select first building on initial load
-    if (buildingsList.length > 0 && !initialBuildingSet) {
-      setInitialBuildingSet(true);
-      setSelectedBuilding(buildingsList[0]);
-      const p = new URLSearchParams(activeFilterParams);
-      p.set("building_name", buildingsList[0]);
-      if (!p.has("allocationType")) p.set("allocationType", "Other");
-      setActiveFilterParams(p.toString());
-    }
-  }, [buildingsList, initialBuildingSet, activeFilterParams]);
-
   const handleApplyFilters = () => {
     setCurrentPage(1);
     const p = new URLSearchParams();
@@ -331,6 +327,7 @@ const InstallmentPlanPage = () => {
     if (selectedAllocation !== "All Allocations" && selectedAllocation) p.append("allocationType", selectedAllocation);
 
     if (searchTerm.trim()) p.append("search", searchTerm.trim());
+    setAppliedStatus(selectedStatus);
     setActiveFilterParams(p.toString());
   };
 
@@ -339,17 +336,9 @@ const InstallmentPlanPage = () => {
     setSelectedType("All Types"); setSelectedCategory("All Categories"); setSelectedAllocation("Other"); setSelectedStatus("All Status");
 
 
-    // Set building to the first one available
-    if (buildingsList.length > 0) {
-      setSelectedBuilding(buildingsList[0]);
-      const p = new URLSearchParams();
-      p.append("building_name", buildingsList[0]);
-      p.append("allocationType", "Other");
-      setActiveFilterParams(p.toString());
-    } else {
-      setSelectedBuilding("All Buildings");
-      setActiveFilterParams("allocationType=Other");
-    }
+    setSelectedBuilding("All Buildings");
+    setAppliedStatus("All Status");
+    setActiveFilterParams("allocationType=Other");
 
     setExpandedOwners({}); setExpandedProperties({}); setCurrentPage(1);
   };
@@ -360,7 +349,7 @@ const InstallmentPlanPage = () => {
     const curKey = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
     let dp = 0, paid = 0, unpaid = 0, overdue = 0;
     properties.forEach((prop) => {
-      dp += Number(prop.paid_downpayment || prop.down_payment || 0);
+      dp += Number(prop.paid_downpayment) || 0;
       (prop.installments || []).forEach((inst) => {
         const amt = Number(inst.amount) || 0;
         const key = getYearMonthKey(inst.dueDate, inst.monthYear);
@@ -369,13 +358,20 @@ const InstallmentPlanPage = () => {
         else unpaid += amt;
       });
     });
+    if (appliedStatus === "Paid") {
+      dp = 0; unpaid = 0; overdue = 0;
+    } else if (appliedStatus === "Unpaid") {
+      dp = 0; paid = 0; overdue = 0;
+    } else if (appliedStatus === "Overdue") {
+      dp = 0; paid = 0; unpaid = 0;
+    }
     return [
       { name: "Down Payment", value: dp, color: "#C6A15B" },
       { name: "Paid Installment", value: paid, color: "#10b981" },
       { name: "Unpaid Installment", value: unpaid, color: "#f59e0b" },
       { name: "Overdue Installment", value: overdue, color: "#ef4444" },
     ];
-  }, [properties]);
+  }, [properties, appliedStatus]);
 
   const totalPieAmount = useMemo(
     () => donutData.reduce((a, c) => a + c.value, 0),
@@ -400,17 +396,20 @@ const InstallmentPlanPage = () => {
     }
 
     properties.forEach((prop) => {
-      // Down payment goes into the month of the FIRST installment due date
-      const firstInst = prop.installments?.[0];
-      const dpKey = getYearMonthKey(firstInst?.dueDate, firstInst?.monthYear);
-      const dpVal = Number(prop.paid_downpayment || prop.down_payment || 0);
+      const dpVal = Number(prop.paid_downpayment) || 0;
+      const dpKey = getYearMonthKey(prop.paid_downpayment_date);
       if (dpVal > 0 && dpKey && map[dpKey]) map[dpKey].downpayment += dpVal;
 
       (prop.installments || []).forEach((inst) => {
         const amt = Number(inst.amount) || 0;
-        const k = getYearMonthKey(inst.dueDate, inst.monthYear);
+        const isPaid = inst.status?.toLowerCase() === "paid";
+        let k = getYearMonthKey(
+          isPaid ? (inst.paidDate || inst.dueDate) : inst.dueDate,
+          inst.monthYear
+        );
+        if (isPaid && k && !map[k]) k = curKey;
         if (!k || !map[k]) return;
-        if (inst.status?.toLowerCase() === "paid") map[k].paid += amt;
+        if (isPaid) map[k].paid += amt;
         else if (checkIsOverdue(inst, k, curKey)) map[k].overdue += amt;
         else map[k].unpaid += amt;
       });
@@ -419,19 +418,23 @@ const InstallmentPlanPage = () => {
     // Convert raw amounts to M, keep _raw for tooltip
     return keys.map((k) => {
       const it = map[k];
+      const downpayment = appliedStatus === "All Status" ? it.downpayment : 0;
+      const paid = appliedStatus === "All Status" || appliedStatus === "Paid" ? it.paid : 0;
+      const unpaid = appliedStatus === "All Status" || appliedStatus === "Unpaid" ? it.unpaid : 0;
+      const overdue = appliedStatus === "All Status" || appliedStatus === "Overdue" ? it.overdue : 0;
       return {
         month: it.month,
-        downpayment: +(it.downpayment / 1_000_000).toFixed(2),
-        downpayment_raw: it.downpayment,
-        paid: +(it.paid / 1_000_000).toFixed(2),
-        paid_raw: it.paid,
-        unpaid: +(it.unpaid / 1_000_000).toFixed(2),
-        unpaid_raw: it.unpaid,
-        overdue: +(it.overdue / 1_000_000).toFixed(2),
-        overdue_raw: it.overdue,
+        downpayment,
+        downpayment_raw: downpayment,
+        paid,
+        paid_raw: paid,
+        unpaid,
+        unpaid_raw: unpaid,
+        overdue,
+        overdue_raw: overdue,
       };
     });
-  }, [properties]);
+  }, [properties, appliedStatus]);
 
   /* ---- Per-row installment details ---- */
   const getPropertyMainDetails = (property) => {
@@ -554,15 +557,15 @@ const InstallmentPlanPage = () => {
 
         let isOverdueInst = checkIsOverdue(inst, k, curKey);
 
-        // Show if it's Overdue, OR if it's in the current month
-        if (isOverdueInst || k === curKey) {
+        // Show overdue, current-month unpaid, and all paid installments
+        if (isPaid || isOverdueInst || k === curKey) {
           let displayStatus = "";
           if (isPaid) displayStatus = "Paid";
           else if (isOverdueInst) displayStatus = "Overdue";
           else displayStatus = "Unpaid";
 
           // Apply selectedStatus filter
-          if (selectedStatus !== "All Status" && displayStatus.toLowerCase() !== selectedStatus.toLowerCase()) {
+          if (appliedStatus !== "All Status" && displayStatus.toLowerCase() !== appliedStatus.toLowerCase()) {
             return;
           }
 
@@ -618,7 +621,11 @@ const InstallmentPlanPage = () => {
             installment: inst,
             displayStatus,
             displayAmount: amt,
-            periodLabel: inst.monthYear ? formatPeriodLabel(inst.monthYear, prop.payment_plan) : "-",
+            periodLabel: isPaid && inst.paidDate
+              ? new Date(inst.paidDate).toLocaleDateString("en-GB", { month: "short", year: "2-digit" })
+              : inst.monthYear
+                ? formatPeriodLabel(inst.monthYear, prop.payment_plan)
+                : "-",
             rowKey: `${prop.property_id}-${inst._id || Math.random()}`
           });
         }
@@ -626,7 +633,7 @@ const InstallmentPlanPage = () => {
     });
 
     return Object.values(groups);
-  }, [properties, selectedStatus]);
+  }, [properties, appliedStatus]);
 
   const CustomDropdown = ({
     label,
@@ -952,6 +959,10 @@ const InstallmentPlanPage = () => {
                   label: "All Status",
                 },
                 {
+                  value: "Paid",
+                  label: "Paid",
+                },
+                {
                   value: "Unpaid",
                   label: "Unpaid",
                 },
@@ -1034,7 +1045,7 @@ const InstallmentPlanPage = () => {
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Total</span>
                 <span className="text-[13px] font-extrabold leading-snug text-slate-800">
-                  Rs. {(totalPieAmount / 1_000_000).toFixed(2)}M
+                  Rs. {formatCompactAmount(totalPieAmount)}
                 </span>
               </div>
             </div>
@@ -1043,13 +1054,7 @@ const InstallmentPlanPage = () => {
             <div className="flex-1 space-y-2 min-w-0">
               {donutData.map((item) => {
                 const isActive = hoveredSlice?.name === item.name;
-                const compactVal = item.value >= 1_000_000_000
-                  ? `${(item.value / 1_000_000_000).toFixed(2)}B`
-                  : item.value >= 1_000_000
-                    ? `${(item.value / 1_000_000).toFixed(2)}M`
-                    : item.value >= 1_000
-                      ? `${(item.value / 1_000).toFixed(2)}K`
-                      : item.value.toFixed(2);
+                const compactVal = formatCompactAmount(item.value);
 
                 return (
                   <div
@@ -1118,8 +1123,8 @@ const InstallmentPlanPage = () => {
                   tick={{ fontSize: 10, fill: "#94a3b8" }}
                   axisLine={false}
                   tickLine={false}
-                  unit="M"
-                  width={38}
+                  tickFormatter={(val) => formatCompactAmount(val)}
+                  width={46}
                 />
 
                 <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />

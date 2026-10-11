@@ -25,6 +25,7 @@ import toast from "react-hot-toast";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Pagination from "@/components/pagination";
 
 export default function ReportsBrokerCommissionPage() {
   const [loading, setLoading] = useState(false);
@@ -463,105 +464,19 @@ export default function ReportsBrokerCommissionPage() {
             </table>
           </div>
           {/* Pagination Controls */}
-          <div className="px-10 py-10 border-t border-slate-50 bg-white space-y-8">
-            <div className="text-center text-sm font-medium text-slate-500">
-              Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, data.totalCount)} of {data.totalCount} entries
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-6 overflow-hidden">
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-slate-500">Show:</span>
-                <select
-                  value={limit}
-                  onChange={(e) => fetchReports(1, Number(e.target.value))}
-                  className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
-                >
-                  {[10, 25, 50, 100].map(v => (
-                    <option key={v} value={v}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => fetchReports(1)}
-                  disabled={currentPage === 1 || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
-                >
-                  <ChevronsLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => fetchReports(currentPage - 1)}
-                  disabled={currentPage === 1 || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-
-                <div className="flex items-center gap-1.5 px-2">
-                  {[...Array(data.totalPages)].map((_, i) => {
-                    const pageNum = i + 1;
-                    if (pageNum === 1 || pageNum === data.totalPages || (pageNum >= currentPage - 2 && pageNum <= currentPage + 2)) {
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => fetchReports(pageNum)}
-                          className={`h-10 w-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${currentPage === pageNum
-                              ? "bg-primary text-white shadow-lg shadow-primary/20"
-                              : "border border-slate-200 text-slate-500 hover:bg-slate-50"
-                            }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    }
-                    if (pageNum === currentPage - 3 || pageNum === currentPage + 3) {
-                      return <span key={i} className="px-1 text-slate-300">...</span>;
-                    }
-                    return null;
-                  })}
-                </div>
-
-                <button
-                  onClick={() => fetchReports(currentPage + 1)}
-                  disabled={currentPage === data.totalPages || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => fetchReports(data.totalPages)}
-                  disabled={currentPage === data.totalPages || loading}
-                  className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all disabled:opacity-30"
-                >
-                  <ChevronsRight className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-6">
-                <span className="text-sm font-medium text-slate-600">
-                  Page <span className="font-bold text-slate-900">{currentPage}</span> of <span className="font-bold text-slate-900">{data.totalPages}</span>
-                </span>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-slate-500 whitespace-nowrap">Go to page:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max={data.totalPages}
-                    value={currentPage}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      if (val >= 1 && val <= data.totalPages) {
-                        fetchReports(val);
-                      }
-                    }}
-                    className="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-sm font-bold text-center text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          {data.totalCount > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={data.totalPages}
+              totalRecords={data.totalCount}
+              limit={limit}
+              onPageChange={(p) => fetchReports(p, limit)}
+              onLimitChange={(l) => {
+                setLimit(l);
+                fetchReports(1, l);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
