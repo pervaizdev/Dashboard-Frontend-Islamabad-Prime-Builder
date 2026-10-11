@@ -11,6 +11,10 @@ const Pagination = ({
 }) => {
   const [jumpPage, setJumpPage] = useState(currentPage);
 
+  React.useEffect(() => {
+    setJumpPage(currentPage);
+  }, [currentPage]);
+
   // Calculate the range of items being shown
   const startItem = totalRecords === 0 ? 0 : (currentPage - 1) * limit + 1;
   const endItem = Math.min(currentPage * limit, totalRecords);
@@ -55,9 +59,9 @@ const Pagination = ({
           <select 
             value={limit} 
             onChange={(e) => onLimitChange(Number(e.target.value))}
-            className="border border-slate-300 rounded px-2 py-1 outline-none focus:border-blue-500"
+            className="border border-slate-300 rounded px-2 py-1 outline-none focus:border-blue-500 cursor-pointer"
           >
-            {[10, 25, 50, 100].map(val => (
+            {[10, 20, 35, 50, 100].map(val => (
               <option key={val} value={val}>{val}</option>
             ))}
           </select>

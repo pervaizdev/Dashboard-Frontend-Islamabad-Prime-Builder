@@ -26,6 +26,7 @@ export const ENDPOINTS = {
     GET_DUE_INSTALLMENTS: "/property-details/due-installments",
     GET_PROPERTY_DETAILS: "/property-details/:id",
     UPDATE_INSTALLMENT_STATUS: "/property-details/:id/installments/:index",
+    UPDATE_INSTALLMENT_AMOUNT: "/property-details/:id/installments/:index/amount",
     GET_FILTERED: "/property-details/filtered",
   },
   BROKERS: {

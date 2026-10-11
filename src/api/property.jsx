@@ -29,6 +29,18 @@ export const propertyAPI = {
     }
   },
 
+  updateInstallmentAmount: async (id, index, amount) => {
+    try {
+      const url = ENDPOINTS.PROPERTIES.UPDATE_INSTALLMENT_AMOUNT
+        .replace(":id", id)
+        .replace(":index", index);
+      const response = await axiosInstance.patch(url, { amount });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Error updating installment amount" };
+    }
+  },
+
   updateInstallmentStatus: async (id, index, data, folder = null) => {
     try {
       let url = ENDPOINTS.PROPERTIES.UPDATE_INSTALLMENT_STATUS

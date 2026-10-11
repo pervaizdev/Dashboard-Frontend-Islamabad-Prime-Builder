@@ -25,6 +25,7 @@ function PropertyFormContent() {
     total_price: "",
     down_payment: "",
     paid_downpayment: "",
+    paid_downpayment_date: "",
     payment_plan: "",
     startDate: "",
     allocationType: "Complete Down Payment",
@@ -83,6 +84,7 @@ function PropertyFormContent() {
             setFormData({
               ...p,
               startDate: p.startDate ? new Date(p.startDate).toISOString().split('T')[0] : "",
+              paid_downpayment_date: p.paid_downpayment_date ? new Date(p.paid_downpayment_date).toISOString().split('T')[0] : "",
               brokers: (p.brokers && p.brokers.length > 0)
                 ? p.brokers.map(b => ({ ...b, broker_commission: b.broker_commission ?? "" }))
                 : [{ broker_id: "", userId: "", relationship: "", broker_commission: "" }]
